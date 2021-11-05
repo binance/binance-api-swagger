@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 - 2021-11-05
+
+### Added
+- New endpoint `GET api/v3/rateLimit/order` to display the user's current order count usage for all intervals
+- New parameter `walletType` in `POST /sapi/v1/capital/withdraw/apply` to choose which wallet to withdraw
+
 ## 1.1.0 - 2021-10-25
 
 ### Added

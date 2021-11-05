@@ -1499,6 +1499,72 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/error'
+  /api/v3/rateLimit/order:
+    get:
+      summary: Query Current Order Count Usage (TRADE)
+      description: |-
+        Displays the user's current order count usage for all intervals.
+
+        Weight(IP): 20
+      tags:
+        - Trade
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Order rate limits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    rateLimitType: 
+                      type: string
+                    interval: 
+                      type: string
+                    intervalNum: 
+                      type: integer
+                      format: int32
+                    limit: 
+                      type: integer
+                      format: int32
+                    count: 
+                      type: integer
+                      format: int32
+                  required:
+                    - rateLimitType
+                    - interval
+                    - intervalNum
+                    - limit
+                example:
+                  - rateLimitType: "ORDERS"
+                    interval: "SECOND"
+                    intervalNum: 10
+                    limit: 10000
+                    count: 0
+                  - rateLimitType: "ORDERS"
+                    interval: "DAY"
+                    intervalNum: 1
+                    limit: 20000
+                    count: 0
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+            description: Unauthorized Request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
   /sapi/v1/margin/transfer:
     post:
       summary: Cross Margin Account Transfer (MARGIN)
@@ -4252,6 +4318,12 @@ paths:
           in: query
           schema:
             type: string
+        - name: walletType
+          in: query
+          description: The wallet type for withdraw，0-Spot wallet, 1- Funding wallet. Default is Spot wallet
+          schema:
+            type: integer
+            format: int32
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -5114,6 +5186,8 @@ paths:
       description: |-
         - `fromSymbol` must be sent when type are ISOLATEDMARGIN_MARGIN and ISOLATEDMARGIN_ISOLATEDMARGIN
         - `toSymbol` must be sent when type are MARGIN_ISOLATEDMARGIN and ISOLATEDMARGIN_ISOLATEDMARGIN
+        - Support query within the last 6 months only
+        - If `startTime` and `endTime` not sent, return records of the last 7 days by default
 
         Weight(IP): 1
       tags:
