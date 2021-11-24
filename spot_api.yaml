@@ -42,6 +42,10 @@ tags:
     description: Fiat Endpoints
   - name: C2C
     description: Consumer-To-Consumer Endpoints
+  - name: Crypto Loans
+    description: Crypto Loans Endpoints
+  - name: Pay
+    description: Pay Endpoints
     
 paths:
   /api/v3/ping:
@@ -4153,7 +4157,12 @@ paths:
   /sapi/v1/accountSnapshot:
     get:
       summary: Daily Account Snapshot (USER_DATA)
-      description: 'Weight(IP): 2400'
+      description: |-
+        - The query time period must be less than 30 days
+        - Support query within the last 6 months only
+        - If startTimeand endTime not sent, return records of the last 7 days by default
+        
+        Weight(IP): 2400
       tags:
         - Wallet
       parameters:
@@ -4536,7 +4545,7 @@ paths:
                       type: integer
                       format: int32
                       example: 0
-                      description: 1 for internal transfer, 0 for external transfer
+                      description: "1 for internal transfer, 0 for external transfer"
                     status: 
                       type: integer
                       format: int32
@@ -4548,6 +4557,10 @@ paths:
                       type: integer
                       format: int32
                       example: 3
+                    info:
+                      type: string
+                      example: "The address is not valid. Please confirm with the recipient"
+                      description: Reason for withdrawal failure
                     txId: 
                       type: string
                       example: "0xb5ef8c13b968a406cc62a93a8bd80f9e9a906ef1b3fcf20a2e48573c17659268"
@@ -4563,6 +4576,7 @@ paths:
                       - status
                       - transactionFee
                       - confirmNo
+                      - info
                       - txId
         '400':
           description: Bad Request
@@ -7501,6 +7515,224 @@ paths:
                     example: 66157362489
                 required:
                     - tranId
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/sub-account/subAccountApi/ipRestriction:
+    post:
+      summary: Enable or Disable IP Restriction for a Sub-account API Key (For Master Account)
+      description: 'Weight(UID): 3000'
+      tags:
+        - Sub-Account
+      parameters:
+        - $ref: '#/components/parameters/subAccountEmail'
+        - $ref: '#/components/parameters/subAccountApiKey'
+        - $ref: '#/components/parameters/ipRestrict'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: IP Restriction information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ipRestrict: 
+                    type: string
+                    example: "true"
+                  ipList: 
+                    type: array
+                    items: 
+                      type: string
+                      example: "0.0.0.0"
+                      description: "0.0.0.0 is just an initial state reference (no extra meaning).You can use `POST /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList` to add an IP whitelist"
+                  updateTime: 
+                    type: integer
+                    format: int64
+                    example: 1636369557189
+                  apiKey: 
+                    type: string
+                    example: "k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf"
+                required:
+                    - ipRestrict
+                    - ipList
+                    - updateTime
+                    - apiKey
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    get:
+      summary: Get IP Restriction for a Sub-account API Key (For Master Account)
+      description: 'Weight(UID): 3000'
+      tags:
+        - Sub-Account
+      parameters:
+        - $ref: '#/components/parameters/subAccountEmail'
+        - $ref: '#/components/parameters/subAccountApiKey'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: IP Restriction information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ipRestrict: 
+                    type: string
+                    example: "true"
+                  ipList: 
+                    type: array
+                    items: 
+                      type: string
+                    example:
+                      - "69.210.67.14"
+                      - "8.34.21.10"
+                  updateTime: 
+                    type: integer
+                    format: int64
+                    example: 1636369557189
+                  apiKey: 
+                    type: string
+                    example: "k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf"
+                required:
+                    - ipRestrict
+                    - ipList
+                    - updateTime
+                    - apiKey
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList:
+    post:
+      summary: Add IP List for a Sub-account API Key (For Master Account)
+      description: |-
+        Before the usage of this endpoint, please ensure `POST /sapi/v1/sub-account/subAccountApi/ipRestriction` was used to enable the IP restriction.
+        
+        Weight(UID): 3000
+      tags:
+        - Sub-Account
+      parameters:
+        - $ref: '#/components/parameters/subAccountEmail'
+        - $ref: '#/components/parameters/subAccountApiKey'
+        - $ref: '#/components/parameters/ipAddress'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Add IP information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ip: 
+                    type: string
+                    example: 8.34.21.1015.24.40.1
+                  updateTime: 
+                    type: integer
+                    format: int64
+                    example: 1636369557189
+                  apiKey: 
+                    type: string
+                    example: k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf
+                required:
+                    - ip
+                    - updateTime
+                    - apiKey
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    delete:
+      summary: Delete IP List for a Sub-account API Key (For Master Account)
+      description: "Weight(UID): 3000"
+      tags:
+        - Sub-Account
+      parameters:
+        - $ref: '#/components/parameters/subAccountEmail'
+        - $ref: '#/components/parameters/subAccountApiKey'
+        - $ref: '#/components/parameters/ipAddress'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Delete IP information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ipRestrict: 
+                    type: string
+                    example: "true"
+                  ipList: 
+                    type: array
+                    items: 
+                      type: string
+                    example:
+                      - "69.210.67.14"
+                  updateTime: 
+                    type: integer
+                    format: int64
+                    example: 1636369557189
+                  apiKey: 
+                    type: string
+                    example: "k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf"
+                required:
+                    - ipRestrict
+                    - ipList
+                    - updateTime
+                    - apiKey
         '400':
           description: Bad Request
           content:
@@ -11300,6 +11532,198 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/loan/income:
+    get:
+      summary: Get Crypto Loans Income History (USER_DATA)
+      description: |-
+        - If startTime and endTime are not sent, the recent 7-day data will be returned.
+        - The max interval between startTime and endTime is 30 days.
+        
+        Weight(UID): 6000
+      tags:
+        - Crypto Loans
+      parameters:
+        - $ref: '#/components/parameters/asset'
+        - name: type
+          in: query
+          description: "All types will be returned by default. Enum: borrowIn, collateralSpent, repayAmount, collateralReturn (Collateral return after repayment), addCollateral, removeCollateral, collateralReturnAfterLiquidation"
+          schema:
+            type: string
+            enum: [borrowIn, collateralSpent, repayAmount, collateralReturn, addCollateral, removeCollateral, collateralReturnAfterLiquidation]
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - name: limit
+          in: query
+          description: "default 20, max 100"
+          schema:
+            type: integer
+            format: int32
+            example: 20
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Loan History
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  type: object
+                  properties: 
+                    asset: 
+                      type: string
+                      example: "BUSD"
+                    type: 
+                      type: string
+                      example: "borrowIn"
+                    amount: 
+                      type: string
+                      example: "100"
+                    timestamp: 
+                      type: integer
+                      format: int64
+                      example: 1633771139847
+                    tranId: 
+                      type: string
+                      example: "80423589583"
+                  required:
+                    - asset
+                    - type
+                    - amount
+                    - timestamp
+                    - tranId
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/pay/transactions:
+    get:
+      summary: Get Pay Trade History (USER_DATA)
+      description: |-
+        - If startTimestamp and endTimestamp are not sent, the recent 90 days' data will be returned.
+        - The max interval between startTimestamp and endTimestamp is 90 days.
+        - Support for querying orders within the last 18 months.
+        
+        Weight(UID): 3000
+      tags:
+        - Pay
+      parameters:
+        - name: startTimestamp
+          in: query
+          description: UTC timestamp in ms
+          schema:
+            type: integer
+            format: int64
+        - name: endTimestamp
+          in: query
+          description: UTC timestamp in ms
+          schema:
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          description: "default 100, max 100"
+          schema:
+            type: integer
+            format: int32
+            example: 100
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Pay History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  code: 
+                    type: string
+                    example: "000000"
+                  message: 
+                    type: string
+                    example: "success"
+                  data: 
+                    type: array
+                    items: 
+                      type: object
+                      properties: 
+                        orderType: 
+                          type: string
+                          example: "C2C"
+                          description: "Enum：PAY(C2B Merchant Acquiring Payment), PAY_REFUND(C2B Merchant Acquiring Payment,refund), C2C(C2C Transfer Payment),CRYPTO_BOX(Crypto box), CRYPTO_BOX_RF(Crypto Box, refund), C2C_HOLDING(Transfer to new Binance user), C2C_HOLDING_RF(Transfer to new Binance user,refund), PAYOUT(B2C Disbursement Payment)"
+                        transactionId: 
+                          type: string
+                          example: "M_P_71505104267788288"
+                        transactionTime: 
+                          type: integer
+                          format: int64
+                          example: 1610090460133
+                        amount: 
+                          type: string
+                          example: "23.72469206"
+                          description: "order amount(up to 8 decimal places), positive is income, negative is expenditure"
+                        currency: 
+                          type: string
+                          example: "BNB"
+                        fundsDetail: 
+                          type: array
+                          items: 
+                            type: object
+                            properties: 
+                              currency: 
+                                type: string
+                              amount: 
+                                type: string
+                            example:
+                              - currency: "USDT"
+                                amount: "1.2"
+                              - currency: "ETH"
+                                amount: "0.0001"
+                            required:
+                                - currency
+                                - amount
+                      required:
+                          - orderType
+                          - transactionId
+                          - transactionTime
+                          - amount
+                          - currency
+                          - fundsDetail
+                  success: 
+                    type: boolean
+                required:
+                    - code
+                    - message
+                    - data
+                    - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 
 components:
   parameters:
@@ -11994,6 +12418,26 @@ components:
       schema:
         type: string
         enum: [GTC,FOK,IOC]
+    subAccountApiKey:
+      name: subAccountApiKey
+      in: query
+      required: true
+      schema:
+        type: string
+    ipRestrict:
+      name: ipRestrict
+      in: query
+      required: true
+      description: "true or false"
+      schema:
+        format: boolean
+    ipAddress:
+      name: ipAddress
+      in: query
+      required: true
+      description: "Can be added in batches, separated by commas"
+      schema:
+        format: string
   schemas:
     account:
       type: object
