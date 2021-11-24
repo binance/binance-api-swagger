@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.3.0 - 2021-11-24
+
+### Added
+- New endpoint `GET /sapi/v1/loan/income` to query crypto loan history
+- New endpoint `GET /sapi/v1/pay/transactions` to support user query Pay trade history
+- New endpoints for Sub-Account:
+    - `POST /sapi/v1/sub-account/subAccountApi/ipRestriction` to support master account enable and disable IP restriction for a sub-account API Key
+    - `POST /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList` to support master account add IP list for a sub-account API Key
+    - `GET /sapi/v1/sub-account/subAccountApi/ipRestriction` to support master account query IP restriction for a sub-account API Key
+    - `DELETE /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList` to support master account delete IP list for a sub-account API Key
+
+### Changed
+- New response field `info` added in `GET /sapi/v1/capital/withdraw/history` to show the reason for withdrawal failure
+
 ## 1.2.0 - 2021-11-05
 
 ### Added
