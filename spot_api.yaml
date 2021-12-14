@@ -46,6 +46,12 @@ tags:
     description: Crypto Loans Endpoints
   - name: Pay
     description: Pay Endpoints
+  - name: Convert
+    description: Convert Endpoints
+  - name: Rebate
+    description: Rebate Endpoints
+  - name: NFT
+    description: NFT Endpoints
     
 paths:
   /api/v3/ping:
@@ -3898,13 +3904,7 @@ paths:
         - Margin
       parameters:
         - $ref: '#/components/parameters/asset'
-        - name: vipLevel
-          in: query
-          description: Defaults to user's vip level
-          schema:
-            type: integer
-            format: int32
-          example: 1
+        - $ref: '#/components/parameters/vipLevel'
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/limit'
@@ -3942,6 +3942,216 @@ paths:
                       - dailyInterestRate
                       - timestamp
                       - vipLevel
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/margin/crossMarginData:
+    get:
+      summary: Query Cross Margin Fee Data (USER_DATA)
+      description: |-
+        Get cross margin fee data collection with any vip level or user's current specific data as https://www.binance.com/en/margin-fee
+        
+        Weight(IP): 1 when coin is specified; 5 when the coin parameter is omitted
+      tags:
+        - Margin
+      parameters:
+        - $ref: '#/components/parameters/vipLevel'
+        - $ref: '#/components/parameters/optionalCoin'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Cross Margin Fee Data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    vipLevel: 
+                      type: integer
+                      format: int32
+                      example: 0
+                    coin: 
+                      type: string
+                      example: "BTC"
+                    transferIn: 
+                      type: boolean
+                    borrowable: 
+                      type: boolean
+                    dailyInterest: 
+                      type: string
+                      example: "0.00026125"
+                    yearlyInterest: 
+                      type: string
+                      example: "0.0953"
+                    borrowLimit: 
+                      type: string
+                      example: "180"
+                    marginablePairs: 
+                      type: array
+                      items: 
+                        type: string
+                      example:
+                        - "BNBBTC"
+                        - "TRXBTC"
+                        - "ETHBTC"
+                        - "BTCUSDT"
+                  required:
+                      - vipLevel
+                      - coin
+                      - transferIn
+                      - borrowable
+                      - dailyInterest
+                      - yearlyInterest
+                      - borrowLimit
+                      - marginablePairs
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/margin/isolatedMarginData:
+    get:
+      summary: Query Isolated Margin Fee Data (USER_DATA)
+      description: |-
+        Get isolated margin fee data collection with any vip level or user's current specific data as https://www.binance.com/en/margin-fee
+        
+        Weight(IP): 1 when a single is specified; 10 when the symbol parameter is omitted
+      tags:
+        - Margin
+      parameters:
+        - $ref: '#/components/parameters/vipLevel'
+        - $ref: '#/components/parameters/optionalSymbol'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Isolated Margin Fee Data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    vipLevel: 
+                      type: integer
+                      format: int32
+                      example: 0
+                    symbol: 
+                      type: string
+                      example: "BTCUSDT"
+                    leverage: 
+                      type: string
+                      example: "10"
+                    data: 
+                      type: array
+                      items: 
+                        type: object
+                        properties: 
+                          coin: 
+                            type: string
+                          dailyInterest: 
+                            type: string
+                          borrowLimit: 
+                            type: string
+                      example:
+                        - coin: "BTC"
+                          dailyInterest: "0.00026125"
+                          borrowLimit: "270"
+                        - coin: "USDT"
+                          dailyInterest: "0.000475"
+                          borrowLimit: "2100000"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/margin/isolatedMarginTier:
+    get:
+      summary: Query Isolated Margin Tier Data (USER_DATA)
+      description: |-
+        Get isolated margin tier data collection with any tier as https://www.binance.com/en/margin-data
+        
+        Weight(IP): 1
+      tags:
+        - Margin
+      parameters:
+        - $ref: '#/components/parameters/symbol'
+        - name: tier
+          in: query
+          description: All margin tier data will be returned if tier is omitted
+          schema:
+            type: string
+            example: 1
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Isolated Margin Tier Data 
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties: 
+                    symbol: 
+                      type: string
+                      example: "BTCUSDT"
+                    tier: 
+                      type: integer
+                      format: int32
+                      example: 1
+                    effectiveMultiple: 
+                      type: string
+                      example: "10"
+                    initialRiskRatio: 
+                      type: string
+                      example: "1.111"
+                    liquidationRiskRatio: 
+                      type: string
+                      example: "1.05"
+                    baseAssetMaxBorrowable: 
+                      type: string
+                      example: "9"
+                    quoteAssetMaxBorrowable: 
+                      type: string
+                      example: "70000"
         '400':
           description: Bad Request
           content:
@@ -11724,7 +11934,562 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/convert/tradeFlow:
+    get:
+      summary: Get Convert Trade History (USER_DATA)
+      description: |-
+        - The max interval between startTime and endTime is 30 days.
 
+        Weight(UID): 3000
+      tags:
+        - Convert
+      parameters:
+        - name: startTime
+          in: query
+          required: true
+          description: UTC timestamp in ms
+          schema:
+            type: integer
+            format: int64
+        - name: endTime
+          in: query
+          required: true
+          description: UTC timestamp in ms
+          schema:
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          description: "default 100, max 1000"
+          schema:
+            type: integer
+            format: int32
+            example: 100
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Convert Trade History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  list: 
+                    type: array
+                    items: 
+                      type: object
+                      properties: 
+                        quoteId: 
+                          type: string
+                          example: "f3b91c525b2644c7bc1e1cd31b6e1aa6"
+                        orderId: 
+                          type: integer
+                          format: int64
+                          example: 940708407462087200
+                        orderStatus: 
+                          type: string
+                          example: "SUCCESS"
+                        fromAsset: 
+                          type: string
+                          example: "USDT"
+                        fromAmount: 
+                          type: string
+                          example: "20"
+                        toAsset: 
+                          type: string
+                          example: "BNB"
+                        toAmount: 
+                          type: string
+                          example: "0.06154036"
+                        ratio: 
+                          type: string
+                          example: "0.00307702"
+                          description: "price ratio"
+                        inverseRatio: 
+                          type: string
+                          example: "324.99"
+                          description: "inverse price"
+                        createTime: 
+                          type: integer
+                          format: int64
+                          example: 1624248872184
+                      required:
+                          - quoteId
+                          - orderId
+                          - orderStatus
+                          - fromAsset
+                          - fromAmount
+                          - toAsset
+                          - toAmount
+                          - ratio
+                          - inverseRatio
+                          - createTime
+                  startTime: 
+                    type: integer
+                    format: int64
+                    example: 1623824139000
+                  endTime: 
+                    type: integer
+                    format: int64
+                    example: 1626416139000
+                  limit: 
+                    type: integer
+                    format: int32
+                    example: 100
+                  moreData: 
+                    type: boolean
+                    example: false
+                required:
+                    - list
+                    - startTime
+                    - endTime
+                    - limit
+                    - moreData
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/rebate/taxQuery:
+    get:
+      summary: Get Spot Rebate History Records (USER_DATA)
+      description: |-
+        - The max interval between startTime and endTime is 90 days.
+        - If startTime and endTime are not sent, the recent 7 days' data will be returned.
+        - The earliest startTime is supported on June 10, 2020
+        
+        Weight(UID): 3000
+      tags:
+        - Rebate
+      parameters:
+        - name: startTime
+          in: query
+          description: UTC timestamp in ms
+          schema:
+            type: integer
+            format: int64
+        - name: endTime
+          in: query
+          description: UTC timestamp in ms
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          description: "default 1"
+          schema:
+            type: integer
+            format: int32
+            example: 1
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Rebate History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  status: 
+                    type: string
+                    example: "OK"
+                  type: 
+                    type: string
+                    example: "GENERAL"
+                  code: 
+                    type: string
+                    example: "000000000"
+                  data: 
+                    type: object
+                    properties: 
+                      page: 
+                        type: integer
+                        format: int32
+                        example: 1
+                      totalRecords: 
+                        type: integer
+                        format: int32
+                        example: 2
+                      totalPageNum: 
+                        type: integer
+                        format: int32
+                        example: 1
+                      data: 
+                        type: array
+                        items: 
+                          type: object
+                          properties: 
+                            asset: 
+                              type: string
+                              example: "USDT"
+                            type: 
+                              type: integer
+                              format: int32
+                              example: 1
+                              description: "rebate type：1 is commission rebate，2 is referral kickback"
+                            amount: 
+                              type: string
+                              example: "0.0001126"
+                            updateTime: 
+                              type: integer
+                              format: int64
+                              example: 1637651320000
+                          required:
+                              - asset
+                              - type
+                              - amount
+                              - updateTime
+                    required:
+                        - page
+                        - totalRecords
+                        - totalPageNum
+                        - data
+                required:
+                    - status
+                    - type
+                    - code
+                    - data
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/nft/history/transactions:
+    get:
+      summary: Get NFT Transaction History (USER_DATA)
+      description: |-
+        - The max interval between startTime and endTime is 90 days.
+        - If startTime and endTime are not sent, the recent 7 days' data will be returned.
+        
+        Weight(UID): 3000
+      tags:
+        - NFT
+      parameters:
+        - name: orderType
+          in: query
+          description: "0: purchase order, 1: sell order, 2: royalty income, 3: primary market order, 4: mint fee"
+          required: true
+          schema:
+            type: integer
+            format: int32
+            example: 1
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/limit50'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: NFT Transaction History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  total: 
+                    type: integer
+                    format: int32
+                    example: 1
+                  list: 
+                    type: array
+                    items: 
+                      type: object
+                      properties: 
+                        orderNo: 
+                          type: string
+                          example: "1_470502070600699904"
+                          description: "0: purchase order, 1: sell order, 2: royalty income, 3: primary market order, 4: mint fee"
+                        tokens: 
+                          type: array
+                          items: 
+                            type: object
+                            properties: 
+                              network: 
+                                type: string
+                                example: "BSC"
+                              tokenId: 
+                                type: string
+                                example: "216000000496"
+                              contractAddress: 
+                                type: string
+                                example: "MYSTERY_BOX0000087"
+                            required:
+                                - network
+                                - tokenId
+                                - contractAddress
+                        tradeTime: 
+                          type: integer
+                          format: int64
+                          example: 1626941236000
+                        tradeAmount: 
+                          type: string
+                          example: "19.60000000"
+                        tradeCurrency: 
+                          type: string
+                          example: "BNB"
+                      required:
+                          - orderNo
+                          - tokens
+                          - tradeTime
+                          - tradeAmount
+                          - tradeCurrency
+                required:
+                    - total
+                    - list
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/nft/history/deposit:
+    get:
+      summary: Get NFT Deposit History(USER_DATA)
+      description: |-
+        - The max interval between startTime and endTime is 90 days.
+        - If startTime and endTime are not sent, the recent 7 days' data will be returned.
+        
+        Weight(UID): 3000
+      tags:
+        - NFT
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/limit50'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: NFT Deposit History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  total: 
+                    type: integer
+                    format: int32
+                    example: 1
+                  list: 
+                    type: array
+                    items: 
+                      type: object
+                      properties: 
+                        network: 
+                          type: string
+                          example: "ETH"
+                        txID: 
+                          type: integer
+                          nullable: true
+                          example: null
+                        contractAdrress: 
+                          type: string
+                          example: "0xe507c961ee127d4439977a61af39c34eafee0dc6"
+                        tokenId: 
+                          type: string
+                          example: "10014"
+                        timestamp: 
+                          type: integer
+                          format: int64
+                          example: 1629986047000
+                      required:
+                          - network
+                          - txID
+                          - contractAdrress
+                          - tokenId
+                          - timestamp
+                required:
+                    - total
+                    - list
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/nft/history/withdraw:
+    get:
+      summary: Get NFT Withdraw History (USER_DATA)
+      description: |-
+        - The max interval between startTime and endTime is 90 days.
+        - If startTime and endTime are not sent, the recent 7 days' data will be returned.
+        
+        Weight(UID): 3000
+      tags:
+        - NFT
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/limit50'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: NFT Withdraw History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  total: 
+                    type: integer
+                    format: int32
+                    example: 178
+                  list: 
+                    type: array
+                    items: 
+                      type: object
+                      properties: 
+                        network: 
+                          type: string
+                          example: "ETH"
+                        txID: 
+                          type: string
+                          example: "0x2be5eed31d787fdb4880bc631c8e76bdfb6150e137f5cf1732e0416ea206f57f"
+                        contractAdrress: 
+                          type: string
+                          example: "0xe507c961ee127d4439977a61af39c34eafee0dc6"
+                        tokenId: 
+                          type: string
+                          example: "1000001247"
+                        timestamp: 
+                          type: integer
+                          format: int64
+                          example: 1633674433000
+                        fee: 
+                          type: number
+                          example: 0.1
+                        feeAsset: 
+                          type: string
+                          example: "ETH"
+                      required:
+                          - network
+                          - txID
+                          - contractAdrress
+                          - tokenId
+                          - timestamp
+                          - fee
+                          - feeAsset
+                required:
+                    - total
+                    - list
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/nft/user/getAsset:
+    get:
+      summary: Get NFT Asset (USER_DATA)
+      description: 'Weight(UID): 3000'
+      tags:
+        - NFT
+      parameters:
+        - $ref: '#/components/parameters/limit50'
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Asset Information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: 
+                  total: 
+                    type: integer
+                    format: int32
+                    example: 347
+                  list: 
+                    type: array
+                    items: 
+                      type: object
+                      properties: 
+                        network: 
+                          type: string
+                          example: "BSC"
+                        contractAddress: 
+                          type: string
+                          example: "REGULAR11234567891779"
+                        tokenId: 
+                          type: string
+                          example: "100900000017"
+                      required:
+                          - network
+                          - contractAddress
+                          - tokenId
+                required:
+                    - total
+                    - list
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 components:
   parameters:
     asset:
@@ -11811,6 +12576,14 @@ components:
         type: integer
         format: int32
         example: 500
+    limit50:
+      name: limit
+      in: query
+      description: Default 50, Max 50
+      schema:
+        type: integer
+        format: int32
+        example: 50
     listenKey:
       name: listenKey
       in: query
@@ -12438,6 +13211,15 @@ components:
       description: "Can be added in batches, separated by commas"
       schema:
         format: string
+    vipLevel:
+      name: vipLevel
+      in: query
+      description: Defaults to user's vip level
+      schema:
+        type: integer
+        format: int32
+      example: 1
+
   schemas:
     account:
       type: object
