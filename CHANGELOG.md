@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.5.0 - 2021-01-07
+
+### Added
+- New parameter `clientTranId` added in `POST /sapi/v1/sub-account/universalTransfer` and `GET /sapi/v1/sub-account/universalTransfer` to support custom transfer id
+- New endpoint `GET /sapi/v1/mining/payment/uid` to get Mining account earning.
+- New endpoint `GET /sapi/v1/bswap/unclaimedRewards` to get unclaimed rewards record.
+- New endpoint `POST /sapi/v1/bswap/claimRewards` to claim swap rewards or liquidity rewards.
+- New endpoint `GET /sapi/v1/bswap/claimedHistory`to get history of claimed rewards.
+
+### Changed
+- Corrected some `limit` parameters' type from `string` to `integer`
+
+### Removed
+- Parameter `limit` from `GET /sapi/v1/margin/interestRateHistory`
+- Transfer types `MAIN_MINING`, `MINING_MAIN`, `MINING_UMFUTURE`, `MARGIN_MINING`, and `MINING_MARGIN` as they are discontinued in Universal Transfer endpoint `POST /sapi/v1/asset/transfer` from January 05, 2022 08:00 AM UTC
+
 ## 1.4.0 - 2021-12-14
 
 ### Added
