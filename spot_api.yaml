@@ -1175,9 +1175,9 @@ paths:
                           orderId: 5
                           clientOrderId: "ARzZ9I00CPM8i3NhmU9Ega"
                       required:
-                          - symbol
-                          - orderId
-                          - clientOrderId
+                        - symbol
+                        - orderId
+                        - clientOrderId
                 required:
                   - orderListId
                   - contingencyType
@@ -1312,19 +1312,19 @@ paths:
                             orderId: 5
                             clientOrderId: "Jr1h6xirOxgeJOUuYQS7V3"
                         required:
-                            - symbol
-                            - orderId
-                            - clientOrderId
+                          - symbol
+                          - orderId
+                          - clientOrderId
                   required:
-                      - orderListId
-                      - contingencyType
-                      - listStatusType
-                      - listOrderStatus
-                      - listClientOrderId
-                      - transactionTime
-                      - symbol
-                      - isIsolated
-                      - orders
+                    - orderListId
+                    - contingencyType
+                    - listStatusType
+                    - listOrderStatus
+                    - listClientOrderId
+                    - transactionTime
+                    - symbol
+                    - isIsolated
+                    - orders
         '400':
           description: Bad Request
           content:
@@ -1395,9 +1395,9 @@ paths:
                           clientOrderId: 
                             type: string
                         required:
-                            - symbol
-                            - orderId
-                            - clientOrderId
+                          - symbol
+                          - orderId
+                          - clientOrderId
                         example:
                           - symbol: "LTCBTC"
                             orderId: 4
@@ -1406,14 +1406,14 @@ paths:
                             orderId: 5
                             clientOrderId: "Cv1SnyPD3qhqpbjpYEHbd2"
                   required:
-                      - orderListId
-                      - contingencyType
-                      - listStatusType
-                      - listOrderStatus
-                      - listClientOrderId
-                      - transactionTime
-                      - symbol
-                      - orders
+                    - orderListId
+                    - contingencyType
+                    - listStatusType
+                    - listOrderStatus
+                    - listClientOrderId
+                    - transactionTime
+                    - symbol
+                    - orders
         '400':
           description: Bad Request
           content:
@@ -1676,12 +1676,12 @@ paths:
                         type: 
                           type: string
                       required:
-                          - amount
-                          - asset
-                          - status
-                          - timestamp
-                          - txId
-                          - type
+                        - amount
+                        - asset
+                        - status
+                        - timestamp
+                        - txId
+                        - type
                   total: 
                     type: integer
                     format: int32
@@ -1697,8 +1697,8 @@ paths:
                       type: "ROLL_IN"
                   total: 1
                 required:
-                    - rows
-                    - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -1811,18 +1811,18 @@ paths:
                         status: 
                           type: string
                       required:
-                          - isolatedSymbol
-                          - txId
-                          - asset
-                          - principal
-                          - timestamp
-                          - status
+                        - isolatedSymbol
+                        - txId
+                        - asset
+                        - principal
+                        - timestamp
+                        - status
                   total: 
                     type: integer
                     format: int32
                 required:
-                    - rows
-                    - total
+                  - rows
+                  - total
                 example:
                   rows:
                     -
@@ -1962,21 +1962,21 @@ paths:
                           format: int64
                           example: 2970933056
                       required:
-                          - isolatedSymbol
-                          - amount
-                          - asset
-                          - interest
-                          - principal
-                          - status
-                          - timestamp
-                          - txId
+                        - isolatedSymbol
+                        - amount
+                        - asset
+                        - interest
+                        - principal
+                        - status
+                        - timestamp
+                        - txId
                   total:
                     type: integer
                     format: int32
                     example: 1
                 required:
-                    - rows
-                    - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -2025,12 +2025,12 @@ paths:
                     type: string
                     example: "0.00000000"
                 required:
-                    - assetFullName
-                    - assetName
-                    - isBorrowable
-                    - isMortgageable
-                    - userMinBorrow
-                    - userMinRepay
+                  - assetFullName
+                  - assetName
+                  - isBorrowable
+                  - isMortgageable
+                  - userMinBorrow
+                  - userMinRepay
         '400':
           description: Bad Request
           content:
@@ -2075,13 +2075,13 @@ paths:
                   isSellAllowed:
                     type: boolean
                 required:
-                    - id
-                    - symbol
-                    - base
-                    - quote
-                    - isMarginTrade
-                    - isBuyAllowed
-                    - isSellAllowed
+                  - id
+                  - symbol
+                  - base
+                  - quote
+                  - isMarginTrade
+                  - isBuyAllowed
+                  - isSellAllowed
         '400':
           description: Bad Request
           content:
@@ -2123,12 +2123,12 @@ paths:
                       type: string
                       example: "0.00000000"
                   required:
-                      - assetFullName
-                      - assetName
-                      - isBorrowable
-                      - isMortgageable
-                      - userMinBorrow
-                      - userMinRepay
+                    - assetFullName
+                    - assetName
+                    - isBorrowable
+                    - isMortgageable
+                    - userMinBorrow
+                    - userMinRepay
         '400':
           description: Bad Request
           content:
@@ -2173,13 +2173,13 @@ paths:
                       type: string
                       example: "BNBBTC"
                   required:
-                      - base
-                      - id
-                      - isBuyAllowed
-                      - isMarginTrade
-                      - isSellAllowed
-                      - quote
-                      - symbol
+                    - base
+                    - id
+                    - isBuyAllowed
+                    - isMarginTrade
+                    - isSellAllowed
+                    - quote
+                    - symbol
         '400':
           description: Bad Request
           content:
@@ -2215,9 +2215,9 @@ paths:
                     type: string
                     example: "BNBBTC"
                 required:
-                    - calcTime
-                    - price
-                    - symbol
+                  - calcTime
+                  - price
+                  - symbol
         '400':
           description: Bad Request
           content:
@@ -2417,20 +2417,20 @@ paths:
                           type: string
                           example: "ON_BORROW"
                       required:
-                          - isolatedSymbol
-                          - asset
-                          - interest
-                          - interestAccuredTime
-                          - interestRate
-                          - principal
-                          - type
+                        - isolatedSymbol
+                        - asset
+                        - interest
+                        - interestAccuredTime
+                        - interestRate
+                        - principal
+                        - type
                   total:
                     type: integer
                     format: int32
                     example: 1
                 required:
-                    - rows
-                    - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -2499,23 +2499,23 @@ paths:
                           type: integer
                           format: int64
                       required:
-                          - avgPrice
-                          - executedQty
-                          - orderId
-                          - price
-                          - qty
-                          - side
-                          - symbol
-                          - timeInForce
-                          - isIsolated
-                          - updatedTime
+                        - avgPrice
+                        - executedQty
+                        - orderId
+                        - price
+                        - qty
+                        - side
+                        - symbol
+                        - timeInForce
+                        - isIsolated
+                        - updatedTime
                   total: 
                     type: integer
                     format: int32
                     example: 1
                 required:
-                    - rows
-                    - total
+                  - rows
+                  - total
                 example:
                   rows:
                     -
@@ -2604,21 +2604,21 @@ paths:
                           type: string
                           example: "0.00499500"
                       required:
-                          - asset
-                          - borrowed
-                          - free
-                          - interest
-                          - locked
-                          - netAsset
+                        - asset
+                        - borrowed
+                        - free
+                        - interest
+                        - locked
+                        - netAsset
                 required:
-                    - borrowEnabled
-                    - marginLevel
-                    - totalAssetOfBtc
-                    - totalLiabilityOfBtc
-                    - totalNetAssetOfBtc
-                    - tradeEnabled
-                    - transferEnabled
-                    - userAssets
+                  - borrowEnabled
+                  - marginLevel
+                  - totalAssetOfBtc
+                  - totalLiabilityOfBtc
+                  - totalNetAssetOfBtc
+                  - tradeEnabled
+                  - transferEnabled
+                  - userAssets
         '400':
           description: Bad Request
           content:
@@ -2850,9 +2850,9 @@ paths:
                         clientOrderId: 
                           type: string
                       required:
-                          - symbol
-                          - orderId
-                          - clientOrderId
+                        - symbol
+                        - orderId
+                        - clientOrderId
                     example:
                       - symbol: "LTCBTC"
                         orderId: 2
@@ -2897,20 +2897,20 @@ paths:
                         stopPrice: 
                           type: string
                       required:
-                          - symbol
-                          - orderId
-                          - orderListId
-                          - clientOrderId
-                          - transactTime
-                          - price
-                          - origQty
-                          - executedQty
-                          - cummulativeQuoteQty
-                          - status
-                          - timeInForce
-                          - type
-                          - side
-                          - stopPrice
+                        - symbol
+                        - orderId
+                        - orderListId
+                        - clientOrderId
+                        - transactTime
+                        - price
+                        - origQty
+                        - executedQty
+                        - cummulativeQuoteQty
+                        - status
+                        - timeInForce
+                        - type
+                        - side
+                        - stopPrice
                     example:
                       - symbol: "LTCBTC"
                         orderId: 2
@@ -2940,18 +2940,18 @@ paths:
                         type: "LIMIT_MAKER"
                         side: "BUY"
                 required:
-                    - orderListId
-                    - contingencyType
-                    - listStatusType
-                    - listOrderStatus
-                    - listClientOrderId
-                    - transactionTime
-                    - symbol
-                    - marginBuyBorrowAmount
-                    - marginBuyBorrowAsset
-                    - isIsolated
-                    - orders
-                    - orderReports
+                  - orderListId
+                  - contingencyType
+                  - listStatusType
+                  - listOrderStatus
+                  - listClientOrderId
+                  - transactionTime
+                  - symbol
+                  - marginBuyBorrowAmount
+                  - marginBuyBorrowAsset
+                  - isIsolated
+                  - orders
+                  - orderReports
         '400':
           description: Bad Request
           content:
@@ -3043,19 +3043,19 @@ paths:
                           orderId: 5
                           clientOrderId: "ARzZ9I00CPM8i3NhmU9Ega"
                       required:
-                          - symbol
-                          - orderId
-                          - clientOrderId
+                        - symbol
+                        - orderId
+                        - clientOrderId
                 required:
-                    - orderListId
-                    - contingencyType
-                    - listStatusType
-                    - listOrderStatus
-                    - listClientOrderId
-                    - transactionTime
-                    - symbol
-                    - isIsolated
-                    - orders
+                  - orderListId
+                  - contingencyType
+                  - listStatusType
+                  - listOrderStatus
+                  - listClientOrderId
+                  - transactionTime
+                  - symbol
+                  - isIsolated
+                  - orders
         '400':
           description: Bad Request
           content:
@@ -3191,9 +3191,9 @@ paths:
                           clientOrderId: 
                             type: string
                         required:
-                            - symbol
-                            - orderId
-                            - clientOrderId
+                          - symbol
+                          - orderId
+                          - clientOrderId
                         example:
                           - symbol: "LTCBTC"
                             orderId: 4
@@ -3202,15 +3202,15 @@ paths:
                             orderId: 5
                             clientOrderId: "Jr1h6xirOxgeJOUuYQS7V3"
                   required:
-                      - orderListId
-                      - contingencyType
-                      - listStatusType
-                      - listOrderStatus
-                      - listClientOrderId
-                      - transactionTime
-                      - symbol
-                      - isIsolated
-                      - orders
+                    - orderListId
+                    - contingencyType
+                    - listStatusType
+                    - listOrderStatus
+                    - listClientOrderId
+                    - transactionTime
+                    - symbol
+                    - isIsolated
+                    - orders
         '400':
           description: Bad Request
           content:
@@ -3290,9 +3290,9 @@ paths:
                           clientOrderId: 
                             type: string
                         required:
-                            - symbol
-                            - orderId
-                            - clientOrderId
+                          - symbol
+                          - orderId
+                          - clientOrderId
                         example:
                           - symbol: "LTCBTC"
                             orderId: 4
@@ -3301,15 +3301,15 @@ paths:
                             orderId: 5
                             clientOrderId: "Cv1SnyPD3qhqpbjpYEHbd2"
                   required:
-                      - orderListId
-                      - contingencyType
-                      - listStatusType
-                      - listOrderStatus
-                      - listClientOrderId
-                      - transactionTime
-                      - symbol
-                      - isIsolated
-                      - orders
+                    - orderListId
+                    - contingencyType
+                    - listStatusType
+                    - listOrderStatus
+                    - listClientOrderId
+                    - transactionTime
+                    - symbol
+                    - isIsolated
+                    - orders
         '400':
           description: Bad Request
           content:
@@ -3400,8 +3400,8 @@ paths:
                     example: "60"
                     description: max borrowable amount limited by the account level
                 required:
-                    - amount
-                    - borrowLimit
+                  - amount
+                  - borrowLimit
         '400':
           description: Bad Request
           content:
@@ -3449,8 +3449,8 @@ paths:
                   amount: "1.69248805"
                   borrowLimit: "60"
                 required:
-                    - amount
-                    - borrowLimit
+                  - amount
+                  - borrowLimit
         '400':
           description: Bad Request
           content:
@@ -3604,8 +3604,8 @@ paths:
                     type: string
                     example: "BTCUSDT"
                 required:
-                    - success
-                    - symbol
+                  - success
+                  - symbol
         '400':
           description: Bad Request
           content:
@@ -3647,8 +3647,8 @@ paths:
                     type: string
                     example: "BTCUSDT"
                 required:
-                    - success
-                    - symbol
+                  - success
+                  - symbol
         '400':
           description: Bad Request
           content:
@@ -3693,8 +3693,8 @@ paths:
                     format: int64
                     example: 20
                 required:
-                    - enabledAccount
-                    - maxAccount
+                  - enabledAccount
+                  - maxAccount
         '400':
           description: Bad Request
           content:
@@ -3744,12 +3744,12 @@ paths:
                   isSellAllowed:
                     type: boolean
                 required:
-                    - symbol
-                    - base
-                    - quote
-                    - isMarginTrade
-                    - isBuyAllowed
-                    - isSellAllowed
+                  - symbol
+                  - base
+                  - quote
+                  - isMarginTrade
+                  - isBuyAllowed
+                  - isSellAllowed
         '400':
           description: Bad Request
           content:
@@ -3800,12 +3800,12 @@ paths:
                     isSellAllowed:
                       type: boolean
                   required:
-                      - symbol
-                      - base
-                      - quote
-                      - isMarginTrade
-                      - isBuyAllowed
-                      - isSellAllowed
+                    - symbol
+                    - base
+                    - quote
+                    - isMarginTrade
+                    - isBuyAllowed
+                    - isSellAllowed
         '400':
           description: Bad Request
           content:
@@ -3899,7 +3899,10 @@ paths:
   /sapi/v1/margin/interestRateHistory:
     get:
       summary: Margin Interest Rate History (USER_DATA)
-      description: 'Weight(IP): 1'
+      description:  |-
+        The max interval between startTime and endTime is 30 days.
+
+        Weight(IP): 1
       tags:
         - Margin
       parameters:
@@ -3907,7 +3910,6 @@ paths:
         - $ref: '#/components/parameters/vipLevel'
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -3938,10 +3940,10 @@ paths:
                       format: int32
                       example: 1
                   required:
-                      - asset
-                      - dailyInterestRate
-                      - timestamp
-                      - vipLevel
+                    - asset
+                    - dailyInterestRate
+                    - timestamp
+                    - vipLevel
         '400':
           description: Bad Request
           content:
@@ -4011,14 +4013,14 @@ paths:
                         - "ETHBTC"
                         - "BTCUSDT"
                   required:
-                      - vipLevel
-                      - coin
-                      - transferIn
-                      - borrowable
-                      - dailyInterest
-                      - yearlyInterest
-                      - borrowLimit
-                      - marginablePairs
+                    - vipLevel
+                    - coin
+                    - transferIn
+                    - borrowable
+                    - dailyInterest
+                    - yearlyInterest
+                    - borrowLimit
+                    - marginablePairs
         '400':
           description: Bad Request
           content:
@@ -4191,8 +4193,8 @@ paths:
                     example: "normal"
                     description: '"normal", "system_maintenance"'
                 required:
-                    - status
-                    - msg
+                  - status
+                  - msg
   /sapi/v1/capital/config/getall:
     get:
       summary: All Coins' Information (USER_DATA)
@@ -4309,24 +4311,24 @@ paths:
                           sameAddress:
                             type: boolean
                         required:
-                            - addressRegex
-                            - coin
-                            - depositDesc
-                            - depositEnable
-                            - isDefault
-                            - memoRegex
-                            - minConfirm
-                            - name
-                            - resetAddressStatus
-                            - specialTips
-                            - unLockConfirm
-                            - withdrawDesc
-                            - withdrawEnable
-                            - withdrawFee
-                            - withdrawIntegerMultiple
-                            - withdrawMax
-                            - withdrawMin
-                            - sameAddress
+                          - addressRegex
+                          - coin
+                          - depositDesc
+                          - depositEnable
+                          - isDefault
+                          - memoRegex
+                          - minConfirm
+                          - name
+                          - resetAddressStatus
+                          - specialTips
+                          - unLockConfirm
+                          - withdrawDesc
+                          - withdrawEnable
+                          - withdrawFee
+                          - withdrawIntegerMultiple
+                          - withdrawMax
+                          - withdrawMin
+                          - sameAddress
                     storage:
                       type: string
                       example: "0.00000000"
@@ -4338,20 +4340,20 @@ paths:
                       type: string
                       example: "0.00000000"
                   required:
-                      - coin
-                      - depositAllEnable
-                      - free
-                      - freeze
-                      - ipoable
-                      - ipoing
-                      - isLegalMoney
-                      - locked
-                      - name
-                      - networkList
-                      - storage
-                      - trading
-                      - withdrawAllEnable
-                      - withdrawing
+                    - coin
+                    - depositAllEnable
+                    - free
+                    - freeze
+                    - ipoable
+                    - ipoing
+                    - isLegalMoney
+                    - locked
+                    - name
+                    - networkList
+                    - storage
+                    - trading
+                    - withdrawAllEnable
+                    - withdrawing
         '400':
           description: Bad Request
           content:
@@ -4560,7 +4562,7 @@ paths:
                     type: string
                     example: "7213fea8e94b4a5593d507237e5a555b"
                 required:
-                    - id
+                  - id
         '400':
           description: Bad Request
           content:
@@ -4654,17 +4656,17 @@ paths:
                       type: string
                       example: "12/12"
                   required:
-                      - amount
-                      - coin
-                      - network
-                      - status
-                      - address
-                      - addressTag
-                      - txId
-                      - insertTime
-                      - transferType
-                      - unlockConfirm
-                      - confirmTimes
+                    - amount
+                    - coin
+                    - network
+                    - status
+                    - address
+                    - addressTag
+                    - txId
+                    - insertTime
+                    - transferType
+                    - unlockConfirm
+                    - confirmTimes
         '400':
           description: Bad Request
           content:
@@ -4775,19 +4777,19 @@ paths:
                       type: string
                       example: "0xb5ef8c13b968a406cc62a93a8bd80f9e9a906ef1b3fcf20a2e48573c17659268"
                   required:
-                      - address
-                      - amount
-                      - applyTime
-                      - coin
-                      - id
-                      - withdrawOrderId
-                      - network
-                      - transferType
-                      - status
-                      - transactionFee
-                      - confirmNo
-                      - info
-                      - txId
+                    - address
+                    - amount
+                    - applyTime
+                    - coin
+                    - id
+                    - withdrawOrderId
+                    - network
+                    - transferType
+                    - status
+                    - transactionFee
+                    - confirmNo
+                    - info
+                    - txId
         '400':
           description: Bad Request
           content:
@@ -4845,10 +4847,10 @@ paths:
                     type: string
                     example: "https://btc.com/1HPn8Rx2y6nNSfagQBKy27GB99Vbzg89wv"
                 required:
-                    - address
-                    - coin
-                    - tag
-                    - url
+                  - address
+                  - coin
+                  - tag
+                  - url
         '400':
           description: Bad Request
           content:
@@ -4888,7 +4890,7 @@ paths:
                     type: string
                     example: "Normal"
                 required:
-                    - data
+                  - data
         '400':
           description: Bad Request
           content:
@@ -4955,9 +4957,9 @@ paths:
                             example: 300
                             description: Number of orders
                         required:
-                            - GCR
-                            - IFER
-                            - UFR
+                          - GCR
+                          - IFER
+                          - UFR
                       indicators:
                         description: The indicators updated every 30 seconds
                         type: object
@@ -4987,24 +4989,24 @@ paths:
                                   example: 0.99
                                   description: Trigger UFR value
                               required:
-                                  - i
-                                  - c
-                                  - v
-                                  - t
+                                - i
+                                - c
+                                - v
+                                - t
                         required:
-                            - BTCUSDT
+                          - BTCUSDT
                       updateTime:
                         type: integer
                         format: int64
                         example: 1547630471725
                     required:
-                        - isLocked
-                        - plannedRecoverTime
-                        - triggerCondition
-                        - indicators
-                        - updateTime
+                      - isLocked
+                      - plannedRecoverTime
+                      - triggerCondition
+                      - indicators
+                      - updateTime
                 required:
-                    - data
+                  - data
         '400':
           description: Bad Request
           content:
@@ -5091,21 +5093,21 @@ paths:
                                 type: string
                                 example: "USDT"
                             required:
-                                - transId
-                                - serviceChargeAmount
-                                - amount
-                                - operateTime
-                                - transferedAmount
-                                - fromAsset
+                              - transId
+                              - serviceChargeAmount
+                              - amount
+                              - operateTime
+                              - transferedAmount
+                              - fromAsset
                       required:
-                          - operateTime
-                          - totalTransferedAmount
-                          - totalServiceChargeAmount
-                          - transId
-                          - userAssetDribbletDetails
+                        - operateTime
+                        - totalTransferedAmount
+                        - totalServiceChargeAmount
+                        - transId
+                        - userAssetDribbletDetails
                 required:
-                    - total
-                    - userAssetDribblets
+                  - total
+                  - userAssetDribblets
         '400':
           description: Bad Request
           content:
@@ -5180,16 +5182,16 @@ paths:
                           type: string
                           example: "0.25000000"
                       required:
-                          - amount
-                          - fromAsset
-                          - operateTime
-                          - serviceChargeAmount
-                          - tranId
-                          - transferedAmount
+                        - amount
+                        - fromAsset
+                        - operateTime
+                        - serviceChargeAmount
+                        - tranId
+                        - transferedAmount
                 required:
-                    - totalServiceCharge
-                    - totalTransfered
-                    - transferResult
+                  - totalServiceCharge
+                  - totalTransfered
+                  - transferResult
         '400':
           description: Bad Request
           content:
@@ -5219,7 +5221,8 @@ paths:
           in: query
           required: true
           schema:
-            type: string
+            type: integer
+            format: int32
             default: 20
             maximum: 50
         - $ref: '#/components/parameters/recvWindow'
@@ -5262,19 +5265,19 @@ paths:
                           format: int64
                           example: 2968885920
                       required:
-                          - id
-                          - amount
-                          - asset
-                          - divTime
-                          - enInfo
-                          - tranId
+                        - id
+                        - amount
+                        - asset
+                        - divTime
+                        - enInfo
+                        - tranId
                   total:
                     type: integer
                     format: int32
                     example: 1
                 required:
-                    - rows
-                    - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -5334,13 +5337,13 @@ paths:
                         type: string
                         example: "Delisted, Deposit Suspended"
                     required:
-                        - minWithdrawAmount
-                        - depositStatus
-                        - withdrawFee
-                        - withdrawStatus
-                        - depositTip
+                      - minWithdrawAmount
+                      - depositStatus
+                      - withdrawFee
+                      - withdrawStatus
+                      - depositTip
                 required:
-                    - CTR
+                  - CTR
         '400':
           description: Bad Request
           content:
@@ -5389,9 +5392,9 @@ paths:
                       type: string
                       example: "0.001"
                   required:
-                      - symbol
-                      - makerCommission
-                      - takerCommission
+                    - symbol
+                    - makerCommission
+                    - takerCommission
         '400':
           description: Bad Request
           content:
@@ -5467,15 +5470,15 @@ paths:
                           format: int64
                           example: 1544433328000
                       required:
-                          - asset
-                          - amount
-                          - type
-                          - status
-                          - tranId
-                          - timestamp
+                        - asset
+                        - amount
+                        - type
+                        - status
+                        - tranId
+                        - timestamp
                 required:
-                    - total
-                    - rows
+                  - total
+                  - rows
         '400':
           description: Bad Request
           content:
@@ -5500,7 +5503,6 @@ paths:
         - MAIN_UMFUTURE Spot account transfer to USDⓈ-M Futures account
         - MAIN_CMFUTURE Spot account transfer to COIN-M Futures account
         - MAIN_MARGIN Spot account transfer to Margin（cross）account
-        - MAIN_MINING Spot account transfer to Mining account
         - UMFUTURE_MAIN USDⓈ-M Futures account transfer to Spot account
         - UMFUTURE_MARGIN USDⓈ-M Futures account transfer to Margin（cross）account
         - CMFUTURE_MAIN COIN-M Futures account transfer to Spot account
@@ -5508,10 +5510,6 @@ paths:
         - MARGIN_MAIN Margin（cross）account transfer to Spot account
         - MARGIN_UMFUTURE Margin（cross）account transfer to USDⓈ-M Futures
         - MARGIN_CMFUTURE Margin（cross）account transfer to COIN-M Futures
-        - MARGIN_MINING Margin（cross）account transfer to Mining account
-        - MINING_MAIN Mining account transfer to Spot account
-        - MINING_UMFUTURE Mining account transfer to USDⓈ-M Futures account
-        - MINING_MARGIN Mining account transfer to Margin(cross) account
         - ISOLATEDMARGIN_MARGIN Isolated margin account transfer to Margin(cross) account
         - MARGIN_ISOLATEDMARGIN Margin(cross) account transfer to Isolated margin account
         - ISOLATEDMARGIN_ISOLATEDMARGIN Isolated margin account transfer to Isolated margin account
@@ -5551,7 +5549,7 @@ paths:
                     format: int64
                     example: 13526853623
                 required:
-                    - tranId
+                  - tranId
         '400':
           description: Bad Request
           content:
@@ -5614,12 +5612,12 @@ paths:
                         type: string
                         example: "0.00000091"
                     required:
-                        - asset
-                        - free
-                        - locked
-                        - freeze
-                        - withdrawing
-                        - btcValuation
+                      - asset
+                      - free
+                      - locked
+                      - freeze
+                      - withdrawing
+                      - btcValuation
         '400':
           description: Bad Request
           content:
@@ -5692,17 +5690,17 @@ paths:
                     example: 1628985600000
                     description: Expiration time for spot and margin trading permission
                 required:
-                    - ipRestrict
-                    - createTime
-                    - enableWithdrawals
-                    - enableInternalTransfer
-                    - permitsUniversalTransfer
-                    - enableVanillaOptions
-                    - enableReading
-                    - enableFutures
-                    - enableMargin
-                    - enableSpotAndMarginTrading
-                    - tradingAuthorityExpirationTime
+                  - ipRestrict
+                  - createTime
+                  - enableWithdrawals
+                  - enableInternalTransfer
+                  - permitsUniversalTransfer
+                  - enableVanillaOptions
+                  - enableReading
+                  - enableFutures
+                  - enableMargin
+                  - enableSpotAndMarginTrading
+                  - tradingAuthorityExpirationTime
         '400':
           description: Bad Request
           content:
@@ -5749,7 +5747,7 @@ paths:
                     type: string
                     example: "addsdd_virtual@aasaixwqnoemail.com"
                 required:
-                    - email
+                  - email
         '400':
           description: Bad Request
           content:
@@ -5812,11 +5810,11 @@ paths:
                           format: int64
                           example: 1544433328000
                       required:
-                          - email
-                          - isFreeze
-                          - createTime
+                        - email
+                        - isFreeze
+                        - createTime
                 required:
-                    - subAccounts
+                  - subAccounts
         '400':
           description: Bad Request
           content:
@@ -5891,13 +5889,13 @@ paths:
                       format: int64
                       example: 1544433328000
                   required:
-                      - from
-                      - to
-                      - asset
-                      - qty
-                      - status
-                      - tranId
-                      - time
+                    - from
+                    - to
+                    - asset
+                    - qty
+                    - status
+                    - tranId
+                    - time
         '400':
           description: Bad Request
           content:
@@ -5980,16 +5978,16 @@ paths:
                           format: int64
                           example: 1544433328000
                       required:
-                          - from
-                          - to
-                          - asset
-                          - qty
-                          - tranId
-                          - time
+                        - from
+                        - to
+                        - asset
+                        - qty
+                        - tranId
+                        - time
                 required:
-                    - success
-                    - futuresType
-                    - transfers
+                  - success
+                  - futuresType
+                  - transfers
         '400':
           description: Bad Request
           content:
@@ -6042,8 +6040,8 @@ paths:
                     type: string
                     example: "2934662589"
                 required:
-                    - success
-                    - txnId
+                  - success
+                  - txnId
         '400':
           description: Bad Request
           content:
@@ -6097,11 +6095,11 @@ paths:
                           format: int64
                           example: 0
                       required:
-                          - asset
-                          - free
-                          - locked
+                        - asset
+                        - free
+                        - locked
                 required:
-                    - balances
+                  - balances
         '400':
           description: Bad Request
           content:
@@ -6164,12 +6162,12 @@ paths:
                           type: string
                           example: "9999.00000000"
                       required:
-                          - email
-                          - totalAsset
+                        - email
+                        - totalAsset
                 required:
-                    - totalCount
-                    - masterAccountTotalAsset
-                    - spotSubUserAssetBtcVoList
+                  - totalCount
+                  - masterAccountTotalAsset
+                  - spotSubUserAssetBtcVoList
         '400':
           description: Bad Request
           content:
@@ -6224,10 +6222,10 @@ paths:
                     type: string
                     example: "https://tronscan.org/#/address/TDunhSa7jkTNuKrusUTU1MUHtqXoBPKETV"
                 required:
-                    - address
-                    - coin
-                    - tag
-                    - url
+                  - address
+                  - coin
+                  - tag
+                  - url
         '400':
           description: Bad Request
           content:
@@ -6315,16 +6313,16 @@ paths:
                       type: string
                       example: "12/12"
                   required:
-                      - amount
-                      - coin
-                      - network
-                      - status
-                      - address
-                      - addressTag
-                      - txId
-                      - insertTime
-                      - transferType
-                      - confirmTimes
+                    - amount
+                    - coin
+                    - network
+                    - status
+                    - address
+                    - addressTag
+                    - txId
+                    - insertTime
+                    - transferType
+                    - confirmTimes
         '400':
           description: Bad Request
           content:
@@ -6385,13 +6383,13 @@ paths:
                       example: 1570791523523
                       description: user mobile number
                   required:
-                      - email
-                      - isSubUserEnabled
-                      - isUserActive
-                      - insertTime
-                      - isMarginEnabled
-                      - isFutureEnabled
-                      - mobile
+                    - email
+                    - isSubUserEnabled
+                    - isUserActive
+                    - insertTime
+                    - isMarginEnabled
+                    - isFutureEnabled
+                    - mobile
         '400':
           description: Bad Request
           content:
@@ -6431,8 +6429,8 @@ paths:
                   isMarginEnabled: 
                     type: boolean
                 required:
-                    - email
-                    - isMarginEnabled
+                  - email
+                  - isMarginEnabled
         '400':
           description: Bad Request
           content:
@@ -6497,9 +6495,9 @@ paths:
                         example: "2.00000000"
                         description: Initial margin ratio
                     required:
-                        - forceLiquidationBar
-                        - marginCallBar
-                        - normalBar
+                      - forceLiquidationBar
+                      - marginCallBar
+                      - normalBar
                   marginUserAssetVoList: 
                     type: array
                     items: 
@@ -6524,20 +6522,20 @@ paths:
                           type: string
                           example: "0.00499500"
                       required:
-                          - asset
-                          - borrowed
-                          - free
-                          - interest
-                          - locked
-                          - netAsset
+                        - asset
+                        - borrowed
+                        - free
+                        - interest
+                        - locked
+                        - netAsset
                 required:
-                    - email
-                    - marginLevel
-                    - totalAssetOfBtc
-                    - totalLiabilityOfBtc
-                    - totalNetAssetOfBtc
-                    - marginTradeCoeffVo
-                    - marginUserAssetVoList
+                  - email
+                  - marginLevel
+                  - totalAssetOfBtc
+                  - totalLiabilityOfBtc
+                  - totalNetAssetOfBtc
+                  - marginTradeCoeffVo
+                  - marginUserAssetVoList
         '400':
           description: Bad Request
           content:
@@ -6597,15 +6595,15 @@ paths:
                           type: string
                           example: "1.00000000"
                       required:
-                          - email
-                          - totalAssetOfBtc
-                          - totalLiabilityOfBtc
-                          - totalNetAssetOfBtc
+                        - email
+                        - totalAssetOfBtc
+                        - totalLiabilityOfBtc
+                        - totalNetAssetOfBtc
                 required:
-                    - totalAssetOfBtc
-                    - totalLiabilityOfBtc
-                    - totalNetAssetOfBtc
-                    - subAccountList
+                  - totalAssetOfBtc
+                  - totalLiabilityOfBtc
+                  - totalNetAssetOfBtc
+                  - subAccountList
         '400':
           description: Bad Request
           content:
@@ -6645,8 +6643,8 @@ paths:
                   isFuturesEnabled: 
                     type: boolean
                 required:
-                    - email
-                    - isFuturesEnabled
+                  - email
+                  - isFuturesEnabled
         '400':
           description: Bad Request
           content:
@@ -6719,15 +6717,15 @@ paths:
                           type: string
                           example: "0.88308000"
                       required:
-                          - asset
-                          - initialMargin
-                          - maintenanceMargin
-                          - marginBalance
-                          - maxWithdrawAmount
-                          - openOrderInitialMargin
-                          - positionInitialMargin
-                          - unrealizedProfit
-                          - walletBalance
+                        - asset
+                        - initialMargin
+                        - maintenanceMargin
+                        - marginBalance
+                        - maxWithdrawAmount
+                        - openOrderInitialMargin
+                        - positionInitialMargin
+                        - unrealizedProfit
+                        - walletBalance
                   canDeposit: 
                     type: boolean
                   canTrade: 
@@ -6767,22 +6765,22 @@ paths:
                     format: int64
                     example: 1576756674610
                 required:
-                    - email
-                    - asset
-                    - assets
-                    - canDeposit
-                    - canTrade
-                    - canWithdraw
-                    - feeTier
-                    - maxWithdrawAmount
-                    - totalInitialMargin
-                    - totalMaintenanceMargin
-                    - totalMarginBalance
-                    - totalOpenOrderInitialMargin
-                    - totalPositionInitialMargin
-                    - totalUnrealizedProfit
-                    - totalWalletBalance
-                    - updateTime
+                  - email
+                  - asset
+                  - assets
+                  - canDeposit
+                  - canTrade
+                  - canWithdraw
+                  - feeTier
+                  - maxWithdrawAmount
+                  - totalInitialMargin
+                  - totalMaintenanceMargin
+                  - totalMarginBalance
+                  - totalOpenOrderInitialMargin
+                  - totalPositionInitialMargin
+                  - totalUnrealizedProfit
+                  - totalWalletBalance
+                  - updateTime
         '400':
           description: Bad Request
           content:
@@ -6872,25 +6870,25 @@ paths:
                           type: string
                           example: "USD"
                       required:
-                          - email
-                          - totalInitialMargin
-                          - totalMaintenanceMargin
-                          - totalMarginBalance
-                          - totalOpenOrderInitialMargin
-                          - totalPositionInitialMargin
-                          - totalUnrealizedProfit
-                          - totalWalletBalance
-                          - asset
+                        - email
+                        - totalInitialMargin
+                        - totalMaintenanceMargin
+                        - totalMarginBalance
+                        - totalOpenOrderInitialMargin
+                        - totalPositionInitialMargin
+                        - totalUnrealizedProfit
+                        - totalWalletBalance
+                        - asset
                 required:
-                    - totalInitialMargin
-                    - totalMaintenanceMargin
-                    - totalMarginBalance
-                    - totalOpenOrderInitialMargin
-                    - totalPositionInitialMargin
-                    - totalUnrealizedProfit
-                    - totalWalletBalance
-                    - asset
-                    - subAccountList
+                  - totalInitialMargin
+                  - totalMaintenanceMargin
+                  - totalMarginBalance
+                  - totalOpenOrderInitialMargin
+                  - totalPositionInitialMargin
+                  - totalUnrealizedProfit
+                  - totalWalletBalance
+                  - asset
+                  - subAccountList
         '400':
           description: Bad Request
           content:
@@ -6953,14 +6951,14 @@ paths:
                       type: string
                       example: "-0.01612295"
                   required:
-                      - entryPrice
-                      - leverage
-                      - maxNotional
-                      - liquidationPrice
-                      - markPrice
-                      - positionAmount
-                      - symbol
-                      - unrealizedProfit
+                    - entryPrice
+                    - leverage
+                    - maxNotional
+                    - liquidationPrice
+                    - markPrice
+                    - positionAmount
+                    - symbol
+                    - unrealizedProfit
         '400':
           description: Bad Request
           content:
@@ -7066,7 +7064,7 @@ paths:
                     type: string
                     example: "2966662589"
                 required:
-                    - txnId
+                  - txnId
         '400':
           description: Bad Request
           content:
@@ -7106,7 +7104,7 @@ paths:
                     type: string
                     example: "2966662589"
                 required:
-                    - txnId
+                  - txnId
         '400':
           description: Bad Request
           content:
@@ -7145,7 +7143,7 @@ paths:
                     type: string
                     example: "2966662589"
                 required:
-                    - txnId
+                  - txnId
         '400':
           description: Bad Request
           content:
@@ -7233,16 +7231,16 @@ paths:
                       format: int64
                       example: 1544433325000
                   required:
-                      - counterParty
-                      - email
-                      - type
-                      - asset
-                      - qty
-                      - fromAccountType
-                      - toAccountType
-                      - status
-                      - tranId
-                      - time
+                    - counterParty
+                    - email
+                    - type
+                    - asset
+                    - qty
+                    - fromAccountType
+                    - toAccountType
+                    - status
+                    - tranId
+                    - time
         '400':
           description: Bad Request
           content:
@@ -7269,6 +7267,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/optionalSubAccountFromEmail'
         - $ref: '#/components/parameters/optionalSubAccountToEmail'
+        - $ref: '#/components/parameters/clientTranId'        
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/page'
@@ -7276,7 +7275,8 @@ paths:
           in: query
           description: Default 500, Max 500
           schema:
-            type: string
+            type: integer
+            format: int32
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -7322,15 +7322,15 @@ paths:
                       format: int64
                       example: 1544433325000
                   required:
-                      - tranId
-                      - fromEmail
-                      - toEmail
-                      - asset
-                      - amount
-                      - fromAccountType
-                      - toAccountType
-                      - status
-                      - createTimeStamp
+                    - tranId
+                    - fromEmail
+                    - toEmail
+                    - asset
+                    - amount
+                    - fromAccountType
+                    - toAccountType
+                    - status
+                    - createTimeStamp
         '400':
           description: Bad Request
           content:
@@ -7369,6 +7369,7 @@ paths:
           schema:
             type: string
             enum: ["SPOT","USDT_FUTURE","COIN_FUTURE"]
+        - $ref: '#/components/parameters/clientTranId'
         - $ref: '#/components/parameters/asset'
         - $ref: '#/components/parameters/amount'
         - $ref: '#/components/parameters/recvWindow'
@@ -7389,7 +7390,7 @@ paths:
                     format: int64
                     example: 11945860693
                 required:
-                    - tranId
+                  - tranId
         '400':
           description: Bad Request
           content:
@@ -7470,7 +7471,8 @@ paths:
           in: query
           description: Default 10, Max 20
           schema:
-            type: string
+            type: integer
+            format: int32
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -7575,8 +7577,8 @@ paths:
                   enableBlvt: 
                     type: boolean
                 required:
-                    - email
-                    - enableBlvt
+                  - email
+                  - enableBlvt
         '400':
           description: Bad Request
           content:
@@ -7617,7 +7619,7 @@ paths:
                     format: int64
                     example: 66157362489
                 required:
-                    - tranId
+                  - tranId
         '400':
           description: Bad Request
           content:
@@ -7672,12 +7674,12 @@ paths:
                       type: string
                       example: "0"
                   required:
-                      - coin
-                      - name
-                      - totalBalance
-                      - availableBalance
-                      - inOrder
-                      - btcValue
+                    - coin
+                    - name
+                    - totalBalance
+                    - availableBalance
+                    - inOrder
+                    - btcValue
         '400':
           description: Bad Request
           content:
@@ -7724,7 +7726,7 @@ paths:
                     format: int64
                     example: 66157362489
                 required:
-                    - tranId
+                  - tranId
         '400':
           description: Bad Request
           content:
@@ -7777,10 +7779,10 @@ paths:
                     type: string
                     example: "k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf"
                 required:
-                    - ipRestrict
-                    - ipList
-                    - updateTime
-                    - apiKey
+                  - ipRestrict
+                  - ipList
+                  - updateTime
+                  - apiKey
         '400':
           description: Bad Request
           content:
@@ -7832,10 +7834,10 @@ paths:
                     type: string
                     example: "k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf"
                 required:
-                    - ipRestrict
-                    - ipList
-                    - updateTime
-                    - apiKey
+                  - ipRestrict
+                  - ipList
+                  - updateTime
+                  - apiKey
         '400':
           description: Bad Request
           content:
@@ -7885,9 +7887,9 @@ paths:
                     type: string
                     example: k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf
                 required:
-                    - ip
-                    - updateTime
-                    - apiKey
+                  - ip
+                  - updateTime
+                  - apiKey
         '400':
           description: Bad Request
           content:
@@ -7939,10 +7941,10 @@ paths:
                     type: string
                     example: "k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf"
                 required:
-                    - ipRestrict
-                    - ipList
-                    - updateTime
-                    - apiKey
+                  - ipRestrict
+                  - ipList
+                  - updateTime
+                  - apiKey
         '400':
           description: Bad Request
           content:
@@ -7979,7 +7981,7 @@ paths:
                     type: string
                     example: "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1"
                 required:
-                    - listenKey
+                  - listenKey
     put:
       summary: Ping/Keep-alive a ListenKey (USER_STREAM)
       description: |-
@@ -8054,7 +8056,7 @@ paths:
                     type: string
                     example: "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1"
                 required:
-                    - listenKey
+                  - listenKey
     put:
       summary: Ping/Keep-alive a ListenKey (USER_STREAM)
       description: |-
@@ -8129,7 +8131,7 @@ paths:
                     type: string
                     example: "T3ee22BIYuWqmvne0HNq2A2WsFlEtLhvWCtItw6ffhhdmjifQ2tRbuKkTHhr"
                 required:
-                    - listenKey
+                  - listenKey
     put:
       summary: Ping/Keep-alive a Listen Key (USER_STREAM)
       description: |-
@@ -8250,15 +8252,15 @@ paths:
                           format: int64
                           example: 1626400907000
                       required:
-                          - orderNo
-                          - fiatCurrency
-                          - indicatedAmount
-                          - amount
-                          - totalFee
-                          - method
-                          - status
-                          - createTime
-                          - updateTime
+                        - orderNo
+                        - fiatCurrency
+                        - indicatedAmount
+                        - amount
+                        - totalFee
+                        - method
+                        - status
+                        - createTime
+                        - updateTime
                   total:
                     type: integer
                     format: int32
@@ -8266,11 +8268,11 @@ paths:
                   success:
                     type: boolean
                 required:
-                    - code
-                    - message
-                    - data
-                    - total
-                    - success
+                  - code
+                  - message
+                  - data
+                  - total
+                  - success
         '400':
           description: Bad Request
           content:
@@ -8361,16 +8363,16 @@ paths:
                           format: int64
                           example: 1624529919000
                       required:
-                          - orderNo
-                          - sourceAmount
-                          - fiatCurrency
-                          - obtainAmount
-                          - cryptoCurrency
-                          - totalFee
-                          - price
-                          - status
-                          - createTime
-                          - updateTime
+                        - orderNo
+                        - sourceAmount
+                        - fiatCurrency
+                        - obtainAmount
+                        - cryptoCurrency
+                        - totalFee
+                        - price
+                        - status
+                        - createTime
+                        - updateTime
                   total:
                     type: integer
                     format: int32
@@ -8378,11 +8380,11 @@ paths:
                   success:
                     type: boolean
                 required:
-                    - code
-                    - message
-                    - data
-                    - total
-                    - success
+                  - code
+                  - message
+                  - data
+                  - total
+                  - success
         '400':
           description: Bad Request
           content:
@@ -8455,18 +8457,18 @@ paths:
                       type: string
                       example: "5.00000000"
                   required:
-                      - asset
-                      - avgAnnualInterestRate
-                      - canPurchase
-                      - canRedeem
-                      - dailyInterestPerThousand
-                      - featured
-                      - minPurchaseAmount
-                      - productId
-                      - purchasedAmount
-                      - status
-                      - upLimit
-                      - upLimitPerUser
+                    - asset
+                    - avgAnnualInterestRate
+                    - canPurchase
+                    - canRedeem
+                    - dailyInterestPerThousand
+                    - featured
+                    - minPurchaseAmount
+                    - productId
+                    - purchasedAmount
+                    - status
+                    - upLimit
+                    - upLimitPerUser
         '400':
           description: Bad Request
           content:
@@ -8507,8 +8509,8 @@ paths:
                     type: string
                     example: "50000.00000000"
                 required:
-                    - asset
-                    - leftQuota
+                  - asset
+                  - leftQuota
         '400':
           description: Bad Request
           content:
@@ -8548,7 +8550,7 @@ paths:
                     format: int64
                     example: 40607
                 required:
-                    - purchaseId
+                  - purchaseId
         '400':
           description: Bad Request
           content:
@@ -8596,10 +8598,10 @@ paths:
                     type: string
                     example: "0.10000000"
                 required:
-                    - asset
-                    - dailyQuota
-                    - leftQuota
-                    - minRedemptionAmount
+                  - asset
+                  - dailyQuota
+                  - leftQuota
+                  - minRedemptionAmount
         '400':
           description: Bad Request
           content:
@@ -8711,20 +8713,20 @@ paths:
                       type: string
                       example: "0.22759183"
                   required:
-                      - annualInterestRate
-                      - asset
-                      - avgAnnualInterestRate
-                      - canRedeem
-                      - dailyInterestRate
-                      - freeAmount
-                      - freezeAmount
-                      - lockedAmount
-                      - productId
-                      - productName
-                      - redeemingAmount
-                      - todayPurchasedAmount
-                      - totalAmount
-                      - totalInterest
+                    - annualInterestRate
+                    - asset
+                    - avgAnnualInterestRate
+                    - canRedeem
+                    - dailyInterestRate
+                    - freeAmount
+                    - freezeAmount
+                    - lockedAmount
+                    - productId
+                    - productName
+                    - redeemingAmount
+                    - todayPurchasedAmount
+                    - totalAmount
+                    - totalInterest
         '400':
           description: Bad Request
           content:
@@ -8819,22 +8821,22 @@ paths:
                     withAreaLimitation:
                       type: boolean
                   required:
-                      - asset
-                      - displayPriority
-                      - duration
-                      - interestPerLot
-                      - interestRate
-                      - lotSize
-                      - lotsLowLimit
-                      - lotsPurchased
-                      - lotsUpLimit
-                      - maxLotsPerUser
-                      - needKyc
-                      - projectId
-                      - projectName
-                      - status
-                      - type
-                      - withAreaLimitation
+                    - asset
+                    - displayPriority
+                    - duration
+                    - interestPerLot
+                    - interestRate
+                    - lotSize
+                    - lotsLowLimit
+                    - lotsPurchased
+                    - lotsUpLimit
+                    - maxLotsPerUser
+                    - needKyc
+                    - projectId
+                    - projectName
+                    - status
+                    - type
+                    - withAreaLimitation
         '400':
           description: Bad Request
           content:
@@ -8873,7 +8875,7 @@ paths:
                     type: string
                     example: "18356"
                 required:
-                    - purchaseId
+                  - purchaseId
         '400':
           description: Bad Request
           content:
@@ -8970,23 +8972,23 @@ paths:
                       type: string
                       example: "CUSTOMIZED_FIXED"
                   required:
-                      - asset
-                      - canTransfer
-                      - createTimestamp
-                      - duration
-                      - endTime
-                      - interest
-                      - interestRate
-                      - lot
-                      - positionId
-                      - principal
-                      - projectId
-                      - projectName
-                      - purchaseTime
-                      - redeemDate
-                      - startTime
-                      - status
-                      - type
+                    - asset
+                    - canTransfer
+                    - createTimestamp
+                    - duration
+                    - endTime
+                    - interest
+                    - interestRate
+                    - lot
+                    - positionId
+                    - principal
+                    - projectId
+                    - projectName
+                    - purchaseTime
+                    - redeemDate
+                    - startTime
+                    - status
+                    - type
         '400':
           description: Bad Request
           content:
@@ -9037,10 +9039,10 @@ paths:
                           type: string
                           example: "USDT"
                       required:
-                          - amount
-                          - amountInBTC
-                          - amountInUSDT
-                          - asset
+                        - amount
+                        - amountInBTC
+                        - amountInUSDT
+                        - asset
                   totalAmountInBTC:
                     type: string
                     example: "0.01067982"
@@ -9060,13 +9062,13 @@ paths:
                     type: string
                     example: "77.13289230"
                 required:
-                    - positionAmountVos
-                    - totalAmountInBTC
-                    - totalAmountInUSDT
-                    - totalFixedAmountInBTC
-                    - totalFixedAmountInUSDT
-                    - totalFlexibleInBTC
-                    - totalFlexibleInUSDT
+                  - positionAmountVos
+                  - totalAmountInBTC
+                  - totalAmountInUSDT
+                  - totalFixedAmountInBTC
+                  - totalFixedAmountInUSDT
+                  - totalFlexibleInBTC
+                  - totalFlexibleInUSDT
         '400':
           description: Bad Request
           content:
@@ -9214,11 +9216,11 @@ paths:
                       format: int64
                       example: 1577233578000
                   required:
-                      - asset
-                      - interest
-                      - lendingType
-                      - productName
-                      - time
+                    - asset
+                    - interest
+                    - lendingType
+                    - productName
+                    - time
         '400':
           description: Bad Request
           content:
@@ -9268,9 +9270,9 @@ paths:
                     format: int64
                     example: 1577233578000
                 required:
-                    - dailyPurchaseId
-                    - success
-                    - time
+                  - dailyPurchaseId
+                  - success
+                  - time
         '400':
           description: Bad Request
           content:
@@ -9330,14 +9332,14 @@ paths:
                           type: string
                           example: "h/s"
                       required:
-                          - algoName
-                          - algoId
-                          - poolIndex
-                          - unit
+                        - algoName
+                        - algoId
+                        - poolIndex
+                        - unit
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -9395,15 +9397,15 @@ paths:
                           type: string
                           example: "sha256"
                       required:
-                          - coinName
-                          - coinId
-                          - poolIndex
-                          - algoId
-                          - algoName
+                        - coinName
+                        - coinId
+                        - poolIndex
+                        - algoId
+                        - algoName
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -9471,17 +9473,17 @@ paths:
                                 example: 0
                                 description: Rejection Rate
                             required:
-                                - time
-                                - hashrate
-                                - reject
+                              - time
+                              - hashrate
+                              - reject
                       required:
-                          - workerName
-                          - type
-                          - hashrateDatas
+                        - workerName
+                        - type
+                        - hashrateDatas
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -9567,13 +9569,13 @@ paths:
                               example: 1587712919000
                               description: Last submission time
                           required:
-                              - workerId
-                              - workerName
-                              - status
-                              - hashRate
-                              - dayHashRate
-                              - rejectRate
-                              - lastShareTime
+                            - workerId
+                            - workerName
+                            - status
+                            - hashRate
+                            - dayHashRate
+                            - rejectRate
+                            - lastShareTime
                       totalNum:
                         type: integer
                         format: int64
@@ -9583,13 +9585,13 @@ paths:
                         format: int64
                         example: 20
                     required:
-                        - workerDatas
-                        - totalNum
-                        - pageSize
+                      - workerDatas
+                      - totalNum
+                      - pageSize
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -9684,14 +9686,14 @@ paths:
                               example: 2
                               description: "Status：0:Unpaid, 1:Paying  2：Paid"
                           required:
-                              - time
-                              - type
-                              - hashTransfer
-                              - transferAmount
-                              - dayHashRate
-                              - profitAmount
-                              - coinName
-                              - status
+                            - time
+                            - type
+                            - hashTransfer
+                            - transferAmount
+                            - dayHashRate
+                            - profitAmount
+                            - coinName
+                            - status
                       totalNum:
                         type: integer
                         format: int64
@@ -9703,13 +9705,13 @@ paths:
                         example: 20
                         description: Rows per page
                     required:
-                        - accountProfits
-                        - totalNum
-                        - pageSize
+                      - accountProfits
+                      - totalNum
+                      - pageSize
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -9788,11 +9790,11 @@ paths:
                               example: 2
                               description: '0:Unpaid, 1:Paying  2：Paid'
                           required:
-                              - time
-                              - coinName
-                              - type
-                              - profitAmount
-                              - status
+                            - time
+                            - coinName
+                            - type
+                            - profitAmount
+                            - status
                       totalNum:
                         type: integer
                         format: int64
@@ -9804,13 +9806,13 @@ paths:
                         example: 20
                         description: Rows per page
                     required:
-                        - otherProfits
-                        - totalNum
-                        - pageSize
+                      - otherProfits
+                      - totalNum
+                      - pageSize
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -9898,14 +9900,14 @@ paths:
                               example: 1
                               description: "0 Processing, 1：Cancelled, 2：Terminated "
                           required:
-                              - configId
-                              - poolUsername
-                              - toPoolUsername
-                              - algoName
-                              - hashRate
-                              - startDay
-                              - endDay
-                              - status
+                            - configId
+                            - poolUsername
+                            - toPoolUsername
+                            - algoName
+                            - hashRate
+                            - startDay
+                            - endDay
+                            - status
                       totalNum:
                         type: integer
                         format: int64
@@ -9915,13 +9917,13 @@ paths:
                         format: int64
                         example: 200
                     required:
-                        - configDetails
-                        - totalNum
-                        - pageSize
+                      - configDetails
+                      - totalNum
+                      - pageSize
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -10004,13 +10006,13 @@ paths:
                               type: string
                               example: "BTC"
                           required:
-                              - poolUsername
-                              - toPoolUsername
-                              - algoName
-                              - hashRate
-                              - day
-                              - amount
-                              - coinName
+                            - poolUsername
+                            - toPoolUsername
+                            - algoName
+                            - hashRate
+                            - day
+                            - amount
+                            - coinName
                       totalNum:
                         type: integer
                         format: int64
@@ -10020,13 +10022,13 @@ paths:
                         format: int64
                         example: 200
                     required:
-                        - profitTransferDetails
-                        - totalNum
-                        - pageSize
+                      - profitTransferDetails
+                      - totalNum
+                      - pageSize
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -10078,9 +10080,9 @@ paths:
                     example: 171
                     description: Mining Account
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -10125,9 +10127,9 @@ paths:
                   data:
                     type: boolean
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -10199,9 +10201,9 @@ paths:
                             type: string
                             example: "106.61586001"
                         required:
-                            - BTC
-                            - BSV
-                            - BCH
+                          - BTC
+                          - BSV
+                          - BCH
                       profitYesterday:
                         type: object
                         properties:
@@ -10215,9 +10217,9 @@ paths:
                             type: string
                             example: "106.61586001"
                         required:
-                            - BTC
-                            - BSV
-                            - BCH
+                          - BTC
+                          - BSV
+                          - BCH
                       userName:
                         type: string
                         example: "test"
@@ -10228,19 +10230,19 @@ paths:
                         type: string
                         example: "sha256"
                     required:
-                        - fifteenMinHashRate
-                        - dayHashRate
-                        - validNum
-                        - invalidNum
-                        - profitToday
-                        - profitYesterday
-                        - userName
-                        - unit
-                        - algo
+                      - fifteenMinHashRate
+                      - dayHashRate
+                      - validNum
+                      - invalidNum
+                      - profitToday
+                      - profitYesterday
+                      - userName
+                      - unit
+                      - algo
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -10309,17 +10311,116 @@ paths:
                                 type: string
                                 example: "0.00000000"
                             required:
-                                - time
-                                - hashrate
-                                - reject
+                              - time
+                              - hashrate
+                              - reject
                       required:
-                          - type
-                          - userName
-                          - list
+                        - type
+                        - userName
+                        - list
                 required:
-                    - code
-                    - msg
-                    - data
+                  - code
+                  - msg
+                  - data
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/mining/payment/uid:
+    get:
+      summary: Mining Account Earning (USER_DATA)
+      description: 'Weight(IP): 5'
+      tags:
+        - Mining
+      parameters:
+        - $ref: '#/components/parameters/algo'
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/pageIndex'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Mining account earnings
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  code: 
+                    type: integer
+                    format: int32
+                    example: 0
+                  msg: 
+                    type: string
+                    example: ""
+                  data: 
+                    type: object
+                    properties: 
+                      accountProfits: 
+                        type: array
+                        items: 
+                          type: object
+                          properties: 
+                            time: 
+                              type: integer
+                              format: int64
+                              example: 1607443200000
+                            coinName: 
+                              type: string
+                              example: "BTC"
+                            type: 
+                              type: integer
+                              format: int32
+                              description: "0:Referral 1:Refund 2:Rebate"
+                              example: 2
+                            puid: 
+                              type: integer
+                              format: int32
+                              description: "puid"
+                              example: 59985472
+                            subName: 
+                              type: string
+                              description: "Mining account"
+                              example: "vdvaghani"
+                            amount: 
+                              type: number
+                              example: 0.09186957
+                          required: 
+                            - time
+                            - coinName
+                            - type
+                            - puid
+                            - subName
+                            - amount
+                      totalNum: 
+                        type: integer
+                        format: int32
+                        example: 3
+                      pageSize: 
+                        type: integer
+                        format: int32
+                        example: 20
+                    required: 
+                      - accountProfits
+                      - totalNum
+                      - pageSize
+                required: 
+                  - code
+                  - msg
+                  - data
         '400':
           description: Bad Request
           content:
@@ -10382,9 +10483,9 @@ paths:
                             type: string
                             example: "-22871089.96704"
                         required:
-                            - symbol
-                            - amount
-                            - notionalValue
+                          - symbol
+                          - amount
+                          - notionalValue
                     nav: 
                       type: string
                       example: "4.79"
@@ -10414,21 +10515,21 @@ paths:
                       format: int64
                       example: 1583127900000
                   required:
-                      - tokenName
-                      - description
-                      - underlying
-                      - tokenIssued
-                      - basket
-                      - currentBaskets
-                      - nav
-                      - realLeverage
-                      - fundingRate
-                      - dailyManagementFee
-                      - purchaseFeePct
-                      - dailyPurchaseLimit
-                      - redeemFeePct
-                      - dailyRedeemLimit
-                      - timestamp
+                    - tokenName
+                    - description
+                    - underlying
+                    - tokenIssued
+                    - basket
+                    - currentBaskets
+                    - nav
+                    - realLeverage
+                    - fundingRate
+                    - dailyManagementFee
+                    - purchaseFeePct
+                    - dailyPurchaseLimit
+                    - redeemFeePct
+                    - dailyRedeemLimit
+                    - timestamp
         '400':
           description: Bad Request
           content:
@@ -10487,12 +10588,12 @@ paths:
                     format: int64
                     example: 1600249972899
                 required:
-                    - id
-                    - status
-                    - tokenName
-                    - amount
-                    - cost
-                    - timestamp
+                  - id
+                  - status
+                  - tokenName
+                  - amount
+                  - cost
+                  - timestamp
         '400':
           description: Bad Request
           content:
@@ -10565,13 +10666,13 @@ paths:
                     format: int64
                     example: 1599127217916
                 required:
-                    - id
-                    - tokenName
-                    - amount
-                    - nav
-                    - fee
-                    - totalCharge
-                    - timestamp
+                  - id
+                  - tokenName
+                  - amount
+                  - nav
+                  - fee
+                  - totalCharge
+                  - timestamp
         '400':
           description: Bad Request
           content:
@@ -10630,12 +10731,12 @@ paths:
                     format: int64
                     example: 1600250279614
                 required:
-                    - id
-                    - status
-                    - tokenName
-                    - redeemAmount
-                    - amount
-                    - timestamp
+                  - id
+                  - status
+                  - tokenName
+                  - redeemAmount
+                  - amount
+                  - timestamp
         '400':
           description: Bad Request
           content:
@@ -10715,13 +10816,13 @@ paths:
                       format: int64
                       example: 1599128003050
                   required:
-                      - id
-                      - tokenName
-                      - amount
-                      - nav
-                      - fee
-                      - netProceed
-                      - timestamp
+                    - id
+                    - tokenName
+                    - amount
+                    - nav
+                    - fee
+                    - netProceed
+                    - timestamp
         '400':
           description: Bad Request
           content:
@@ -10769,9 +10870,9 @@ paths:
                       example: "1000"
                       description: USDT
                   required:
-                      - tokenName
-                      - userDailyTotalPurchaseLimit
-                      - userDailyTotalRedeemLimit
+                    - tokenName
+                    - userDailyTotalPurchaseLimit
+                    - userDailyTotalRedeemLimit
         '400':
           description: Bad Request
           content:
@@ -10822,9 +10923,9 @@ paths:
                         - BUSD
                         - USDT
                   required:
-                      - poolId
-                      - poolName
-                      - assets
+                    - poolId
+                    - poolName
+                    - assets
         '400':
           description: Bad Request
           content:
@@ -10882,8 +10983,8 @@ paths:
                           format: double
                           example: 99999245.54
                       required:
-                          - BUSD
-                          - USDT
+                        - BUSD
+                        - USDT
                     share: 
                       type: object
                       properties: 
@@ -10907,18 +11008,18 @@ paths:
                               format: double
                               example: 6206.95
                           required:
-                              - BUSD
-                              - USDT
+                            - BUSD
+                            - USDT
                       required:
-                          - shareAmount
-                          - sharePercentage
-                          - asset
+                        - shareAmount
+                        - sharePercentage
+                        - asset
                   required:
-                      - poolId
-                      - poolNmae
-                      - updateTime
-                      - liquidity
-                      - share
+                    - poolId
+                    - poolNmae
+                    - updateTime
+                    - liquidity
+                    - share
         '400':
           description: Bad Request
           content:
@@ -10962,7 +11063,7 @@ paths:
                     format: int64
                     example: 12341
                 required:
-                    - operationId
+                  - operationId
         '400':
           description: Bad Request
           content:
@@ -11024,7 +11125,7 @@ paths:
                     format: int64
                     example: 12341
                 required:
-                    - operationId
+                  - operationId
         '400':
           description: Bad Request
           content:
@@ -11104,13 +11205,13 @@ paths:
                       type: string
                       example: "10.1"
                   required:
-                      - operationId
-                      - poolId
-                      - poolName
-                      - operation
-                      - status
-                      - updateTime
-                      - shareAmount
+                    - operationId
+                    - poolId
+                    - poolName
+                    - operation
+                    - status
+                    - updateTime
+                    - shareAmount
         '400':
           description: Bad Request
           content:
@@ -11180,13 +11281,13 @@ paths:
                     format: double
                     example: 120
                 required:
-                    - quoteAsset
-                    - baseAsset
-                    - quoteQty
-                    - baseQty
-                    - price
-                    - slippage
-                    - fee
+                  - quoteAsset
+                  - baseAsset
+                  - quoteQty
+                  - baseQty
+                  - price
+                  - slippage
+                  - fee
         '400':
           description: Bad Request
           content:
@@ -11230,7 +11331,7 @@ paths:
                     format: int64
                     example: 2314
                 required:
-                    - swapId
+                  - swapId
         '400':
           description: Bad Request
           content:
@@ -11333,15 +11434,15 @@ paths:
                       format: double
                       example: 120
                   required:
-                      - swapId
-                      - swapTime
-                      - status
-                      - quoteAsset
-                      - baseAsset
-                      - quoteQty
-                      - baseQty
-                      - price
-                      - fee
+                    - swapId
+                    - swapTime
+                    - status
+                    - quoteAsset
+                    - baseAsset
+                    - quoteQty
+                    - baseQty
+                    - price
+                    - fee
         '400':
           description: Bad Request
           content:
@@ -11411,9 +11512,9 @@ paths:
                           format: double
                           description: The swap proceeds only when the slippage is within the set range
                       required:
-                          - constantA
-                          - minRedeemShare
-                          - slippageTolerance
+                        - constantA
+                        - minRedeemShare
+                        - slippageTolerance
                     assetConfigure: 
                       type: object
                       properties: 
@@ -11461,19 +11562,19 @@ paths:
                               format: int64
                               example: 30
                           required:
-                              - minAdd
-                              - maxAdd
-                              - minSwap
-                              - maxSwap
+                            - minAdd
+                            - maxAdd
+                            - minSwap
+                            - maxSwap
                       required:
-                          - BUSD
-                          - USDT
+                        - BUSD
+                        - USDT
                   required:
-                      - poolId
-                      - poolNmae
-                      - updateTime
-                      - liquidity
-                      - assetConfigure
+                    - poolId
+                    - poolNmae
+                    - updateTime
+                    - liquidity
+                    - assetConfigure
         '400':
           description: Bad Request
           content:
@@ -11597,6 +11698,217 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/bswap/unclaimedRewards:
+    get:
+      summary: Get Unclaimed Rewards Record (USER_DATA)
+      description: |-
+       Get unclaimed rewards record.
+        
+       Weight(UID): 1000
+      tags:
+        - BSwap
+      parameters:
+        - $ref: '#/components/parameters/bswapClaimType'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Unclaimed rewards record
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  totalUnclaimedRewards: 
+                    type: object
+                    properties: 
+                      BUSD: 
+                        type: number
+                        format: float
+                        example: 100000315.79
+                      BNB: 
+                        type: number
+                        format: double
+                        example: 0.00000001
+                      USDT: 
+                        type: number
+                        format: double
+                        example: 0.00000002
+                    required: 
+                      - BUSD
+                      - BNB
+                      - USDT
+                  details: 
+                    type: object
+                    properties: 
+                      BNB/USDT: 
+                        type: object
+                        properties: 
+                          BUSD: 
+                            type: number
+                            format: float
+                            example: 100000315.79
+                          USDT: 
+                            type: number
+                            format: double
+                            example: 0.00000002
+                        required: 
+                          - BUSD
+                          - USDT
+                      BNB/BTC: 
+                        type: object
+                        properties: 
+                          BNB: 
+                            type: number
+                            format: double
+                            example: 0.00000001
+                        required: 
+                          - BNB
+                    required: 
+                      - BNB/USDT
+                      - BNB/BTC
+                required: 
+                   - totalUnclaimedRewards
+                   - details
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      summary: Claim rewards (TRADE)
+      description: |-
+       Claim swap rewards or liquidity rewards
+        
+       Weight(UID): 1000
+      tags:
+        - BSwap
+      parameters:
+        - $ref: '#/components/parameters/bswapClaimType'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Result of claim
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  success: 
+                    type: boolean
+                required: 
+                   - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/bswap/claimedHistory:
+    get:
+      summary: Get Claimed History (USER_DATA)
+      description: |-
+       Get history of claimed rewards.
+        
+       Weight(UID): 1000
+      tags:
+        - BSwap
+      parameters:
+        - name: poolId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: assetRewards
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/bswapClaimType'
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - name: limit
+          in: query
+          description: Default 3, max 100
+          schema:
+            type: integer
+            format: int32
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Claimed History
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                    type: object
+                    properties: 
+                      poolId: 
+                        type: integer
+                        format: int32
+                        example: 52
+                      poolName: 
+                        type: string
+                        example: "BNB/USDT"
+                      assetRewards: 
+                        type: string
+                        example: "BNB"
+                      claimTime: 
+                        type: integer
+                        format: int64
+                        example: 1565769342148
+                      claimAmount: 
+                        type: number
+                        format: float
+                        example: 0.00000023
+                      status: 
+                        type: integer
+                        format: int32
+                        example: 1
+                        description: "0: pending, 1: success"
+                    required: 
+                      - poolId
+                      - poolName
+                      - assetRewards
+                      - claimTime
+                      - claimAmount
+                      - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/c2c/orderMatch/listUserOrderHistory:
     get:
       summary: Get C2C Trade History (USER_DATA)
@@ -11704,20 +12016,20 @@ paths:
                           type: string
                           example: "TAKER"
                       required:
-                          - orderNumber
-                          - advNo
-                          - tradeType
-                          - asset
-                          - fiat
-                          - fiatSymbol
-                          - amount
-                          - totalPrice
-                          - unitPrice
-                          - orderStatus
-                          - createTime
-                          - commission
-                          - counterPartNickName
-                          - advertisementRole
+                        - orderNumber
+                        - advNo
+                        - tradeType
+                        - asset
+                        - fiat
+                        - fiatSymbol
+                        - amount
+                        - totalPrice
+                        - unitPrice
+                        - orderStatus
+                        - createTime
+                        - commission
+                        - counterPartNickName
+                        - advertisementRole
                   total: 
                     type: integer
                     format: int32
@@ -11725,11 +12037,11 @@ paths:
                   success: 
                     type: boolean
                 required:
-                    - code
-                    - message
-                    - data
-                    - total
-                    - success
+                  - code
+                  - message
+                  - data
+                  - total
+                  - success
         '400':
           description: Bad Request
           content:
@@ -11906,15 +12218,15 @@ paths:
                               - currency: "ETH"
                                 amount: "0.0001"
                             required:
-                                - currency
-                                - amount
+                              - currency
+                              - amount
                       required:
-                          - orderType
-                          - transactionId
-                          - transactionTime
-                          - amount
-                          - currency
-                          - fundsDetail
+                        - orderType
+                        - transactionId
+                        - transactionTime
+                        - amount
+                        - currency
+                        - fundsDetail
                   success: 
                     type: boolean
                 required:
@@ -12018,16 +12330,16 @@ paths:
                           format: int64
                           example: 1624248872184
                       required:
-                          - quoteId
-                          - orderId
-                          - orderStatus
-                          - fromAsset
-                          - fromAmount
-                          - toAsset
-                          - toAmount
-                          - ratio
-                          - inverseRatio
-                          - createTime
+                        - quoteId
+                        - orderId
+                        - orderStatus
+                        - fromAsset
+                        - fromAmount
+                        - toAsset
+                        - toAmount
+                        - ratio
+                        - inverseRatio
+                        - createTime
                   startTime: 
                     type: integer
                     format: int64
@@ -12150,20 +12462,20 @@ paths:
                               format: int64
                               example: 1637651320000
                           required:
-                              - asset
-                              - type
-                              - amount
-                              - updateTime
+                            - asset
+                            - type
+                            - amount
+                            - updateTime
                     required:
-                        - page
-                        - totalRecords
-                        - totalPageNum
-                        - data
+                      - page
+                      - totalRecords
+                      - totalPageNum
+                      - data
                 required:
-                    - status
-                    - type
-                    - code
-                    - data
+                  - status
+                  - type
+                  - code
+                  - data
         '400':
           description: Bad Request
           content:
@@ -12240,9 +12552,9 @@ paths:
                                 type: string
                                 example: "MYSTERY_BOX0000087"
                             required:
-                                - network
-                                - tokenId
-                                - contractAddress
+                              - network
+                              - tokenId
+                              - contractAddress
                         tradeTime: 
                           type: integer
                           format: int64
@@ -12254,14 +12566,14 @@ paths:
                           type: string
                           example: "BNB"
                       required:
-                          - orderNo
-                          - tokens
-                          - tradeTime
-                          - tradeAmount
-                          - tradeCurrency
+                        - orderNo
+                        - tokens
+                        - tradeTime
+                        - tradeAmount
+                        - tradeCurrency
                 required:
-                    - total
-                    - list
+                  - total
+                  - list
         '400':
           description: Bad Request
           content:
@@ -12329,14 +12641,14 @@ paths:
                           format: int64
                           example: 1629986047000
                       required:
-                          - network
-                          - txID
-                          - contractAdrress
-                          - tokenId
-                          - timestamp
+                        - network
+                        - txID
+                        - contractAdrress
+                        - tokenId
+                        - timestamp
                 required:
-                    - total
-                    - list
+                  - total
+                  - list
         '400':
           description: Bad Request
           content:
@@ -12409,16 +12721,16 @@ paths:
                           type: string
                           example: "ETH"
                       required:
-                          - network
-                          - txID
-                          - contractAdrress
-                          - tokenId
-                          - timestamp
-                          - fee
-                          - feeAsset
+                        - network
+                        - txID
+                        - contractAdrress
+                        - tokenId
+                        - timestamp
+                        - fee
+                        - feeAsset
                 required:
-                    - total
-                    - list
+                  - total
+                  - list
         '400':
           description: Bad Request
           content:
@@ -12472,12 +12784,12 @@ paths:
                           type: string
                           example: "100900000017"
                       required:
-                          - network
-                          - contractAddress
-                          - tokenId
+                        - network
+                        - contractAddress
+                        - tokenId
                 required:
-                    - total
-                    - list
+                  - total
+                  - list
         '400':
           description: Bad Request
           content:
@@ -13219,6 +13531,19 @@ components:
         type: integer
         format: int32
       example: 1
+    clientTranId:
+      name: clientTranId
+      in: query
+      schema:
+        type: string
+    bswapClaimType:
+      name: type
+      in: query
+      description: '0: Swap rewards, 1: Liquidity rewards, default to 0'
+      schema:
+        type: integer
+        format: int32
+        example: 0
 
   schemas:
     account:
@@ -13268,20 +13593,20 @@ components:
                 type: string
                 example: "0.00000000"
             required:
-                - asset
-                - free
-                - locked
+              - asset
+              - free
+              - locked
       required:
-          - makerCommission
-          - takerCommission
-          - buyerCommission
-          - sellerCommission
-          - canTrade
-          - canWithdraw
-          - canDeposit
-          - updateTime
-          - accountType
-          - balances
+        - makerCommission
+        - takerCommission
+        - buyerCommission
+        - sellerCommission
+        - canTrade
+        - canWithdraw
+        - canDeposit
+        - updateTime
+        - accountType
+        - balances
     order:
       type: object
       properties:
@@ -13328,19 +13653,19 @@ components:
           type: string
           example: "SELL"
       required:
-          - symbol
-          - origClientOrderId
-          - orderId
-          - orderListId
-          - clientOrderId
-          - price
-          - origQty
-          - executedQty
-          - cummulativeQuoteQty
-          - status
-          - timeInForce
-          - type
-          - side
+        - symbol
+        - origClientOrderId
+        - orderId
+        - orderListId
+        - clientOrderId
+        - price
+        - origQty
+        - executedQty
+        - cummulativeQuoteQty
+        - status
+        - timeInForce
+        - type
+        - side
     ocoOrder:
       type: object
       properties:
@@ -13380,9 +13705,9 @@ components:
               clientOrderId: 
                 type: string
             required:
-                - symbol
-                - orderId
-                - clientOrderId
+              - symbol
+              - orderId
+              - clientOrderId
           example:
             - symbol: "BNBBTC"
               orderId: 2
@@ -13426,20 +13751,20 @@ components:
               stopPrice: 
                 type: string
             required:
-                - symbol
-                - origClientOrderId
-                - orderId
-                - orderListId
-                - clientOrderId
-                - price
-                - origQty
-                - executedQty
-                - cummulativeQuoteQty
-                - status
-                - timeInForce
-                - type
-                - side
-                - stopPrice
+              - symbol
+              - origClientOrderId
+              - orderId
+              - orderListId
+              - clientOrderId
+              - price
+              - origQty
+              - executedQty
+              - cummulativeQuoteQty
+              - status
+              - timeInForce
+              - type
+              - side
+              - stopPrice
           example:
             - symbol: "BNBBTC"
               origClientOrderId: "pO9ufTiFGg3nw2fOdgeOXa"
@@ -13469,15 +13794,15 @@ components:
               type: "LIMIT_MAKER"
               side: "SELL"
       required:
-          - orderListId
-          - contingencyType
-          - listStatusType
-          - listOrderStatus
-          - listClientOrderId
-          - transactionTime
-          - symbol
-          - orders
-          - orderReports
+        - orderListId
+        - contingencyType
+        - listStatusType
+        - listOrderStatus
+        - listClientOrderId
+        - transactionTime
+        - symbol
+        - orders
+        - orderReports
     marginOcoOrder:
       type: object
       properties:
@@ -13520,9 +13845,9 @@ components:
               clientOrderId: 
                 type: string
             required:
-                - symbol
-                - orderId
-                - clientOrderId
+              - symbol
+              - orderId
+              - clientOrderId
             example:
               - symbol: "BNBUSDT"
                 orderId: 2
@@ -13566,20 +13891,20 @@ components:
               stopPrice: 
                 type: string
             required:
-                - symbol
-                - origClientOrderId
-                - orderId
-                - orderListId
-                - clientOrderId
-                - price
-                - origQty
-                - executedQty
-                - cummulativeQuoteQty
-                - status
-                - timeInForce
-                - type
-                - side
-                - stopPrice
+              - symbol
+              - origClientOrderId
+              - orderId
+              - orderListId
+              - clientOrderId
+              - price
+              - origQty
+              - executedQty
+              - cummulativeQuoteQty
+              - status
+              - timeInForce
+              - type
+              - side
+              - stopPrice
             example:
               - symbol: "BNBUSDT"
                 origClientOrderId: "pO9ufTiFGg3nw2fOdgeOXa"
@@ -13609,16 +13934,16 @@ components:
                 type: "LIMIT_MAKER"
                 side: "SELL"
       required:
-          - orderListId
-          - contingencyType
-          - listStatusType
-          - listOrderStatus
-          - listClientOrderId
-          - transactionTime
-          - symbol
-          - isIsolated
-          - orders
-          - orderReports
+        - orderListId
+        - contingencyType
+        - listStatusType
+        - listOrderStatus
+        - listClientOrderId
+        - transactionTime
+        - symbol
+        - isIsolated
+        - orders
+        - orderReports
     orderDetails:
       type: object
       properties:
@@ -13681,24 +14006,24 @@ components:
           type: string
           example: "0.00000000"
       required:
-          - symbol
-          - orderId
-          - orderListId
-          - clientOrderId
-          - price
-          - origQty
-          - executedQty
-          - cummulativeQuoteQty
-          - status
-          - timeInForce
-          - type
-          - side
-          - stopPrice
-          - icebergQty
-          - time
-          - updateTime
-          - isWorking
-          - origQuoteOrderQty
+        - symbol
+        - orderId
+        - orderListId
+        - clientOrderId
+        - price
+        - origQty
+        - executedQty
+        - cummulativeQuoteQty
+        - status
+        - timeInForce
+        - type
+        - side
+        - stopPrice
+        - icebergQty
+        - time
+        - updateTime
+        - isWorking
+        - origQuoteOrderQty
     orderResponseAck:
       type: object
       properties:
@@ -13721,11 +14046,11 @@ components:
           format: int64
           example: 1507725176595
       required:
-          - symbol
-          - orderId
-          - orderListId
-          - clientOrderId
-          - transactTime
+        - symbol
+        - orderId
+        - orderListId
+        - clientOrderId
+        - transactTime
     orderResponseResult:
       type: object
       properties:
@@ -13772,19 +14097,19 @@ components:
           type: string
           example: "SELL"
       required:
-          - symbol
-          - orderId
-          - orderListId
-          - clientOrderId
-          - transactTime
-          - price
-          - origQty
-          - executedQty
-          - cummulativeQuoteQty
-          - status
-          - timeInForce
-          - type
-          - side
+        - symbol
+        - orderId
+        - orderListId
+        - clientOrderId
+        - transactTime
+        - price
+        - origQty
+        - executedQty
+        - cummulativeQuoteQty
+        - status
+        - timeInForce
+        - type
+        - side
     orderResponseFull:
       type: object
       properties:
@@ -13848,25 +14173,25 @@ components:
                 type: string
                 example: "USDT"
             required:
-                - price
-                - qty
-                - commission
-                - commissionAsset
+              - price
+              - qty
+              - commission
+              - commissionAsset
       required:
-          - symbol
-          - orderId
-          - orderListId
-          - clientOrderId
-          - transactTime
-          - price
-          - origQty
-          - executedQty
-          - cummulativeQuoteQty
-          - status
-          - timeInForce
-          - type
-          - side
-          - fills
+        - symbol
+        - orderId
+        - orderListId
+        - clientOrderId
+        - transactTime
+        - price
+        - origQty
+        - executedQty
+        - cummulativeQuoteQty
+        - status
+        - timeInForce
+        - type
+        - side
+        - fills
     marginOrder:
       type: object
       properties:
@@ -13908,18 +14233,18 @@ components:
           type: string
           example: "SELL"
       required:
-          - symbol
-          - orderId
-          - origClientOrderId
-          - clientOrderId
-          - price
-          - origQty
-          - executedQty
-          - cummulativeQuoteQty
-          - status
-          - timeInForce
-          - type
-          - side
+        - symbol
+        - orderId
+        - origClientOrderId
+        - clientOrderId
+        - price
+        - origQty
+        - executedQty
+        - cummulativeQuoteQty
+        - status
+        - timeInForce
+        - type
+        - side
     marginOrderDetail:
       type: object
       properties:
@@ -13976,23 +14301,23 @@ components:
           format: int64
           example: 1562133008725
       required:
-          - clientOrderId
-          - cummulativeQuoteQty
-          - executedQty
-          - icebergQty
-          - isWorking
-          - orderId
-          - origQty
-          - price
-          - side
-          - status
-          - stopPrice
-          - symbol
-          - isIsolated
-          - time
-          - timeInForce
-          - type
-          - updateTime
+        - clientOrderId
+        - cummulativeQuoteQty
+        - executedQty
+        - icebergQty
+        - isWorking
+        - orderId
+        - origQty
+        - price
+        - side
+        - status
+        - stopPrice
+        - symbol
+        - isIsolated
+        - time
+        - timeInForce
+        - type
+        - updateTime
     canceledMarginOrderDetail:
       type: object
       properties:
@@ -14040,20 +14365,20 @@ components:
           type: string
           example: "BUY"
       required:
-          - symbol
-          - isIsolated
-          - origClientOrderId
-          - orderId
-          - orderListId
-          - clientOrderId
-          - price
-          - origQty
-          - executedQty
-          - cummulativeQuoteQty
-          - status
-          - timeInForce
-          - type
-          - side
+        - symbol
+        - isIsolated
+        - origClientOrderId
+        - orderId
+        - orderListId
+        - clientOrderId
+        - price
+        - origQty
+        - executedQty
+        - cummulativeQuoteQty
+        - status
+        - timeInForce
+        - type
+        - side
     marginOrderResponseAck:
       type: object
       properties:
@@ -14074,11 +14399,11 @@ components:
           format: int64
           example: 1507725176595
       required:
-          - symbol
-          - orderId
-          - clientOrderId
-          - isIsolated
-          - transactTime
+        - symbol
+        - orderId
+        - clientOrderId
+        - isIsolated
+        - transactTime
     marginOrderResponseResult:
       type: object
       properties:
@@ -14123,19 +14448,19 @@ components:
           type: string
           example: "SELL"
       required:
-          - symbol
-          - orderId
-          - clientOrderId
-          - transactTime
-          - price
-          - origQty
-          - executedQty
-          - cummulativeQuoteQty
-          - status
-          - timeInForce
-          - type
-          - isIsolated
-          - side
+        - symbol
+        - orderId
+        - clientOrderId
+        - transactTime
+        - price
+        - origQty
+        - executedQty
+        - cummulativeQuoteQty
+        - status
+        - timeInForce
+        - type
+        - isIsolated
+        - side
     marginOrderResponseFull:
       type: object
       properties:
@@ -14206,27 +14531,27 @@ components:
                 type: string
                 example: "USDT"
             required:
-                - price
-                - qty
-                - commission
-                - commissionAsset
+              - price
+              - qty
+              - commission
+              - commissionAsset
       required:
-          - symbol
-          - orderId
-          - clientOrderId
-          - transactTime
-          - price
-          - origQty
-          - executedQty
-          - cummulativeQuoteQty
-          - status
-          - timeInForce
-          - type
-          - side
-          - marginBuyBorrowAmount
-          - marginBuyBorrowAsset
-          - isIsolated
-          - fills
+        - symbol
+        - orderId
+        - clientOrderId
+        - transactTime
+        - price
+        - origQty
+        - executedQty
+        - cummulativeQuoteQty
+        - status
+        - timeInForce
+        - type
+        - side
+        - marginBuyBorrowAmount
+        - marginBuyBorrowAsset
+        - isIsolated
+        - fills
     marginTrade:
       type: object
       properties:
@@ -14267,18 +14592,18 @@ components:
           format: int64
           example: 1507725176595
       required:
-          - commission
-          - commissionAsset
-          - id
-          - isBestMatch
-          - isBuyer
-          - isMaker
-          - orderId
-          - price
-          - qty
-          - symbol
-          - isIsolated
-          - time
+        - commission
+        - commissionAsset
+        - id
+        - isBestMatch
+        - isBuyer
+        - isMaker
+        - orderId
+        - price
+        - qty
+        - symbol
+        - isIsolated
+        - time
     marginTransferDetails:
       type: object
       properties:
@@ -14311,20 +14636,20 @@ components:
                 type: string
                 example: "ISOLATED_MARGIN"
             required:
-                - amount
-                - asset
-                - status
-                - timestamp
-                - txId
-                - transFrom
-                - transTo
+              - amount
+              - asset
+              - status
+              - timestamp
+              - txId
+              - transFrom
+              - transTo
         total:
           type: integer
           format: int32
           example: 1
       required:
-          - rows
-          - total
+        - rows
+        - total
     isolatedMarginAccountInfo:
       type: object
       properties:
@@ -14365,16 +14690,16 @@ components:
                     type: string
                     example: "0.00000000"
                 required:
-                    - asset
-                    - borrowEnabled
-                    - borrowed
-                    - free
-                    - interest
-                    - locked
-                    - netAsset
-                    - netAssetOfBtc
-                    - repayEnabled
-                    - totalAsset
+                  - asset
+                  - borrowEnabled
+                  - borrowed
+                  - free
+                  - interest
+                  - locked
+                  - netAsset
+                  - netAssetOfBtc
+                  - repayEnabled
+                  - totalAsset
               quoteAsset: 
                 type: object
                 properties: 
@@ -14407,16 +14732,16 @@ components:
                     type: string
                     example: "0.00000000"
                 required:
-                    - asset
-                    - borrowEnabled
-                    - borrowed
-                    - free
-                    - interest
-                    - locked
-                    - netAsset
-                    - netAssetOfBtc
-                    - repayEnabled
-                    - totalAsset
+                  - asset
+                  - borrowEnabled
+                  - borrowed
+                  - free
+                  - interest
+                  - locked
+                  - netAsset
+                  - netAssetOfBtc
+                  - repayEnabled
+                  - totalAsset
               symbol: 
                 type: string
                 example: "BTCUSDT"
@@ -14447,18 +14772,18 @@ components:
               tradeEnabled: 
                 type: boolean
             required:
-                - baseAsset
-                - quoteAsset
-                - symbol
-                - isolatedCreated
-                - enabled
-                - marginLevel
-                - marginLevelStatus
-                - marginRatio
-                - indexPrice
-                - liquidatePrice
-                - liquidateRate
-                - tradeEnabled
+              - baseAsset
+              - quoteAsset
+              - symbol
+              - isolatedCreated
+              - enabled
+              - marginLevel
+              - marginLevelStatus
+              - marginRatio
+              - indexPrice
+              - liquidatePrice
+              - liquidateRate
+              - tradeEnabled
         totalAssetOfBtc: 
           type: string
           example: "0.00000000"
@@ -14469,10 +14794,10 @@ components:
           type: string
           example: "0.00000000"
       required:
-          - assets
-          - totalAssetOfBtc
-          - totalLiabilityOfBtc
-          - totalNetAssetOfBtc
+        - assets
+        - totalAssetOfBtc
+        - totalLiabilityOfBtc
+        - totalNetAssetOfBtc
     bookTickerList:
       type: array
       items:
@@ -14496,11 +14821,11 @@ components:
           type: string
           example: "12.56000000"
       required:
-          - symbol
-          - bidPrice
-          - bidQty
-          - askPrice
-          - askQty
+        - symbol
+        - bidPrice
+        - bidQty
+        - askPrice
+        - askQty
     priceTickerList:
       type: array
       items:
@@ -14515,8 +14840,8 @@ components:
           type: string
           example: "0.17160000"
       required:
-          - symbol
-          - price
+        - symbol
+        - price
     tickerList:
       type: array
       items:
@@ -14587,25 +14912,25 @@ components:
           format: int64
           example: 55958
       required:
-          - symbol
-          - priceChange
-          - priceChangePercent
-          - prevClosePrice
-          - lastPrice
-          - bidPrice
-          - bidQty
-          - askPrice
-          - askQty
-          - openPrice
-          - highPrice
-          - lowPrice
-          - volume
-          - quoteVolume
-          - openTime
-          - closeTime
-          - firstId
-          - lastId
-          - count
+        - symbol
+        - priceChange
+        - priceChangePercent
+        - prevClosePrice
+        - lastPrice
+        - bidPrice
+        - bidQty
+        - askPrice
+        - askQty
+        - openPrice
+        - highPrice
+        - lowPrice
+        - volume
+        - quoteVolume
+        - openTime
+        - closeTime
+        - firstId
+        - lastId
+        - count
     myTrade:
       type: object
       properties:
@@ -14657,19 +14982,19 @@ components:
         isBestMatch:
           type: boolean
       required:
-          - symbol
-          - id
-          - orderId
-          - orderListId
-          - price
-          - qty
-          - quoteQty
-          - commission
-          - commissionAsset
-          - time
-          - isBuyer
-          - isMaker
-          - isBestMatch
+        - symbol
+        - id
+        - orderId
+        - orderListId
+        - price
+        - qty
+        - quoteQty
+        - commission
+        - commissionAsset
+        - time
+        - isBuyer
+        - isMaker
+        - isBestMatch
     transaction:
       type: object
       properties:
@@ -14679,7 +15004,7 @@ components:
           description: transaction id
           example: 345196462
       required:
-          - tranId
+        - tranId
     trade:
       type: object
       properties:
@@ -14710,13 +15035,13 @@ components:
         isBestMatch:
           type: boolean
       required:
-          - id
-          - price
-          - qty
-          - quoteQty
-          - time
-          - isBuyerMaker
-          - isBestMatch
+        - id
+        - price
+        - qty
+        - quoteQty
+        - time
+        - isBuyerMaker
+        - isBestMatch
     aggTrade:
       type: object
       properties:
@@ -14754,14 +15079,14 @@ components:
           type: boolean
           description: Was the trade the best price match?
       required:
-          - a
-          - p
-          - q
-          - f
-          - l
-          - T
-          - m
-          - M
+        - a
+        - p
+        - q
+        - f
+        - l
+        - T
+        - m
+        - M
     bnbBurnStatus:
       type: object
       properties:
@@ -14771,8 +15096,8 @@ components:
           type: boolean
           example: false
       required:
-          - spotBNBBurn
-          - interestBNBBurn
+        - spotBNBBurn
+        - interestBNBBurn
     snapshotSpot:
       type: object
       properties:
@@ -14806,15 +15131,15 @@ components:
                           type: string
                           example: "0.001"
                       required:
-                          - asset
-                          - free
-                          - locked
+                        - asset
+                        - free
+                        - locked
                   totalAssetOfBtc:
                     type: string
                     example: "0.09905021"
                 required:
-                    - balances
-                    - totalAssetOfBtc
+                  - balances
+                  - totalAssetOfBtc
               type:
                 type: string
                 example: "spot"
@@ -14823,13 +15148,13 @@ components:
                 format: int64
                 example: 1576281599000
             required:
-                - data
-                - type
-                - updateTime
+              - data
+              - type
+              - updateTime
       required:
-          - code
-          - msg
-          - snapshotVos
+        - code
+        - msg
+        - snapshotVos
     snapshotMargin:
       type: object
       properties:
@@ -14884,18 +15209,18 @@ components:
                           type: string
                           example: "1.00000000"
                       required:
-                          - asset
-                          - borrowed
-                          - free
-                          - interest
-                          - locked
-                          - netAsset
+                        - asset
+                        - borrowed
+                        - free
+                        - interest
+                        - locked
+                        - netAsset
                 required:
-                    - marginLevel
-                    - totalAssetOfBtc
-                    - totalLiabilityOfBtc
-                    - totalNetAssetOfBtc
-                    - userAssets
+                  - marginLevel
+                  - totalAssetOfBtc
+                  - totalLiabilityOfBtc
+                  - totalNetAssetOfBtc
+                  - userAssets
               type: 
                 type: string
                 example: "margin"
@@ -14904,13 +15229,13 @@ components:
                 format: int64
                 example: 1576281599000
             required:
-                - data
-                - type
-                - updateTime
+              - data
+              - type
+              - updateTime
       required:
-          - code
-          - msg
-          - snapshotVos
+        - code
+        - msg
+        - snapshotVos
     snapshotFutures:
       type: object
       properties:
@@ -14968,14 +15293,14 @@ components:
                           type: string
                           example: "1.24029054"
                       required:
-                          - entryPrice
-                          - markPrice
-                          - positionAmt
-                          - symbol
-                          - unRealizedProfit
+                        - entryPrice
+                        - markPrice
+                        - positionAmt
+                        - symbol
+                        - unRealizedProfit
                 required:
-                    - assets
-                    - position
+                  - assets
+                  - position
               type: 
                 type: string
                 example: "futures"
@@ -14984,13 +15309,13 @@ components:
                 format: int64
                 example: 1576281599000
             required:
-                - data
-                - type
-                - updateTime
+              - data
+              - type
+              - updateTime
       required:
-          - code
-          - msg
-          - snapshotVos
+        - code
+        - msg
+        - snapshotVos
     subAccountUSDTFuturesDetails:
       type: object
       properties: 
@@ -15033,15 +15358,15 @@ components:
                     type: string
                     example: "0.88308000"
                 required:
-                    - asset
-                    - initialMargin
-                    - maintenanceMargin
-                    - marginBalance
-                    - maxWithdrawAmount
-                    - openOrderInitialMargin
-                    - positionInitialMargin
-                    - unrealizedProfit
-                    - walletBalance
+                  - asset
+                  - initialMargin
+                  - maintenanceMargin
+                  - marginBalance
+                  - maxWithdrawAmount
+                  - openOrderInitialMargin
+                  - positionInitialMargin
+                  - unrealizedProfit
+                  - walletBalance
             canDeposit: 
               type: boolean
             canTrade: 
@@ -15081,23 +15406,23 @@ components:
               format: int64
               example: 1576756674610
           required:
-              - email
-              - assets
-              - canDeposit
-              - canTrade
-              - canWithdraw
-              - feeTier
-              - maxWithdrawAmount
-              - totalInitialMargin
-              - totalMaintenanceMargin
-              - totalMarginBalance
-              - totalOpenOrderInitialMargin
-              - totalPositionInitialMargin
-              - totalUnrealizedProfit
-              - totalWalletBalance
-              - updateTime
+            - email
+            - assets
+            - canDeposit
+            - canTrade
+            - canWithdraw
+            - feeTier
+            - maxWithdrawAmount
+            - totalInitialMargin
+            - totalMaintenanceMargin
+            - totalMarginBalance
+            - totalOpenOrderInitialMargin
+            - totalPositionInitialMargin
+            - totalUnrealizedProfit
+            - totalWalletBalance
+            - updateTime
       required:
-          - futureAccountResp
+        - futureAccountResp
     subAccountCOINFuturesDetails:
       type: object
       properties: 
@@ -15137,15 +15462,15 @@ components:
                 type: string
                 example: "0.88308000"
             required:
-                - asset
-                - initialMargin
-                - maintenanceMargin
-                - marginBalance
-                - maxWithdrawAmount
-                - openOrderInitialMargin
-                - positionInitialMargin
-                - unrealizedProfit
-                - walletBalance
+              - asset
+              - initialMargin
+              - maintenanceMargin
+              - marginBalance
+              - maxWithdrawAmount
+              - openOrderInitialMargin
+              - positionInitialMargin
+              - unrealizedProfit
+              - walletBalance
         canDeposit: 
           type: boolean
         canTrade: 
@@ -15161,13 +15486,13 @@ components:
           format: int64
           example: 1598959682001
       required:
-          - email
-          - assets
-          - canDeposit
-          - canTrade
-          - canWithdraw
-          - feeTier
-          - updateTime
+        - email
+        - assets
+        - canDeposit
+        - canTrade
+        - canWithdraw
+        - feeTier
+        - updateTime
     subAccountUSDTFuturesSummary:
       type: object
       properties: 
@@ -15233,27 +15558,27 @@ components:
                     example: "USD"
                     description: The sum of BUSD and USDT
                 required:
-                    - email
-                    - totalInitialMargin
-                    - totalMaintenanceMargin
-                    - totalMarginBalance
-                    - totalOpenOrderInitialMargin
-                    - totalPositionInitialMargin
-                    - totalUnrealizedProfit
-                    - totalWalletBalance
-                    - asset
+                  - email
+                  - totalInitialMargin
+                  - totalMaintenanceMargin
+                  - totalMarginBalance
+                  - totalOpenOrderInitialMargin
+                  - totalPositionInitialMargin
+                  - totalUnrealizedProfit
+                  - totalWalletBalance
+                  - asset
           required:
-              - totalInitialMargin
-              - totalMaintenanceMargin
-              - totalMarginBalance
-              - totalOpenOrderInitialMargin
-              - totalPositionInitialMargin
-              - totalUnrealizedProfit
-              - totalWalletBalance
-              - asset
-              - subAccountList
+            - totalInitialMargin
+            - totalMaintenanceMargin
+            - totalMarginBalance
+            - totalOpenOrderInitialMargin
+            - totalPositionInitialMargin
+            - totalUnrealizedProfit
+            - totalWalletBalance
+            - asset
+            - subAccountList
       required:
-          - futureAccountSummaryResp
+        - futureAccountSummaryResp
     subAccountCOINFuturesSummary:
       type: object
       properties: 
@@ -15293,19 +15618,19 @@ components:
                     type: string
                     example: BTC
                 required:
-                    - email
-                    - totalMarginBalance
-                    - totalUnrealizedProfit
-                    - totalWalletBalance
-                    - asset
+                  - email
+                  - totalMarginBalance
+                  - totalUnrealizedProfit
+                  - totalWalletBalance
+                  - asset
           required:
-              - totalMarginBalanceOfBTC
-              - totalUnrealizedProfitOfBTC
-              - totalWalletBalanceOfBTC
-              - asset
-              - subAccountList
+            - totalMarginBalanceOfBTC
+            - totalUnrealizedProfitOfBTC
+            - totalWalletBalanceOfBTC
+            - asset
+            - subAccountList
       required:
-          - deliveryAccountSummaryResp
+        - deliveryAccountSummaryResp
     subAccountUSDTFuturesPositionRisk:
       type: object
       properties: 
@@ -15341,16 +15666,16 @@ components:
                 type: string
                 example: "-0.01612295"
             required:
-                - entryPrice
-                - leverage
-                - maxNotional
-                - liquidationPrice
-                - markPrice
-                - positionAmount
-                - symbol
-                - unrealizedProfit
+              - entryPrice
+              - leverage
+              - maxNotional
+              - liquidationPrice
+              - markPrice
+              - positionAmount
+              - symbol
+              - unrealizedProfit
       required:
-          - futurePositionRiskVos
+        - futurePositionRiskVos
     subAccountCOINFuturesPositionRisk:
       type: object
       properties: 
@@ -15393,19 +15718,19 @@ components:
                 type: string
                 example: "-0.01612295"
             required:
-                - entryPrice
-                - markPrice
-                - leverage
-                - isolated
-                - isolatedWallet
-                - isolatedMargin
-                - isAutoAddMargin
-                - positionSide
-                - positionAmount
-                - symbol
-                - unrealizedProfit
+              - entryPrice
+              - markPrice
+              - leverage
+              - isolated
+              - isolatedWallet
+              - isolatedMargin
+              - isAutoAddMargin
+              - positionSide
+              - positionAmount
+              - symbol
+              - unrealizedProfit
       required:
-          - deliveryPositionRiskVos
+        - deliveryPositionRiskVos
     savingsFlexiblePurchaseRecord:
       type: array
       items:
@@ -15435,13 +15760,13 @@ components:
             type: string
             example: "SUCCESS"
         required:
-            - amount
-            - asset
-            - createTime
-            - lendingType
-            - productName
-            - purchaseId
-            - status
+          - amount
+          - asset
+          - createTime
+          - lendingType
+          - productName
+          - purchaseId
+          - status
     savingsFixedActivityPurchaseRecord:
       type: array
       items:
@@ -15475,14 +15800,14 @@ components:
             type: string
             example: "SUCCESS"
         required:
-            - amount
-            - asset
-            - createTime
-            - lendingType
-            - lot
-            - productName
-            - purchaseId
-            - status
+          - amount
+          - asset
+          - createTime
+          - lendingType
+          - lot
+          - productName
+          - purchaseId
+          - status
     savingsFlexibleRedemptionRecord:
       type: array
       items:
@@ -15514,14 +15839,14 @@ components:
             type: string
             example: "FAST"
         required:
-            - amount
-            - asset
-            - createTime
-            - principal
-            - projectId
-            - projectName
-            - status
-            - type
+          - amount
+          - asset
+          - createTime
+          - principal
+          - projectId
+          - projectName
+          - status
+          - type
     savingsFixedActivityRedemptionRecord:
       type: array
       items:
@@ -15557,15 +15882,15 @@ components:
             type: string
             example: "PAID"
         required:
-            - amount
-            - asset
-            - createTime
-            - interest
-            - principal
-            - projectId
-            - projectName
-            - startTime
-            - status
+          - amount
+          - asset
+          - createTime
+          - interest
+          - principal
+          - projectId
+          - projectName
+          - startTime
+          - status
     bswapAddLiquidityPreviewCombination:
       type: object
       properties:
@@ -15592,12 +15917,12 @@ components:
           format: double
           example: 1.23
       required:
-          - quoteAsset
-          - baseAsset
-          - quoteAmt
-          - baseAmt
-          - price
-          - share
+        - quoteAsset
+        - baseAsset
+        - quoteAmt
+        - baseAmt
+        - price
+        - share
     bswapAddLiquidityPreviewSingle:
       type: object
       properties:
@@ -15625,12 +15950,12 @@ components:
           format: double
           example: 120
       required:
-          - quoteAsset
-          - quoteAmt
-          - price
-          - share
-          - slippage
-          - fee
+        - quoteAsset
+        - quoteAmt
+        - price
+        - share
+        - slippage
+        - fee
     bswapRmvLiquidityPreviewCombination:
       type: object
       properties:
@@ -15653,11 +15978,11 @@ components:
           format: double
           example: 1.00008334
       required:
-          - quoteAsset
-          - baseAsset
-          - quoteAmt
-          - baseAmt
-          - price
+        - quoteAsset
+        - baseAsset
+        - quoteAmt
+        - baseAmt
+        - price
     bswapRmvLiquidityPreviewSingle:
       type: object
       properties:
@@ -15681,11 +16006,11 @@ components:
           format: double
           example: 120
       required:
-          - quoteAsset
-          - quoteAmt
-          - price
-          - slippage
-          - fee
+        - quoteAsset
+        - quoteAmt
+        - price
+        - slippage
+        - fee
     error:
       type: object
       properties:
