@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.5.0 - 2021-01-07
+## 1.5.0 - 2022-01-07
 
 ### Added
 - New parameter `clientTranId` added in `POST /sapi/v1/sub-account/universalTransfer` and `GET /sapi/v1/sub-account/universalTransfer` to support custom transfer id
