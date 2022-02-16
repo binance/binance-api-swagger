@@ -4278,6 +4278,9 @@ paths:
                           name:
                             type: string
                             example: "BEP2"
+                          network:
+                            type: string
+                            example: "ETH"
                           resetAddressStatus:
                             type: boolean
                             example: false
@@ -4319,6 +4322,7 @@ paths:
                           - memoRegex
                           - minConfirm
                           - name
+                          - network
                           - resetAddressStatus
                           - specialTips
                           - unLockConfirm
