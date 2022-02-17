@@ -52,7 +52,8 @@ tags:
     description: Rebate Endpoints
   - name: NFT
     description: NFT Endpoints
-    
+  - name: Gift Card
+    description: Gift Card Endpoints
 paths:
   /api/v3/ping:
     get:
@@ -1590,8 +1591,8 @@ paths:
         - name: type
           in: query
           description: |-
-            1 -> transfer from main account to margin account \
-            2 -> transfer from margin account to main account
+            * `1` - transfer from main account to margin account
+            * `2` - transfer from margin account to main account
           schema:
             type: integer
             format: int32
@@ -1634,7 +1635,7 @@ paths:
         - $ref: '#/components/parameters/optionalAsset'
         - name: type
           in: query
-          description:  Tranfer Type
+          description: Transfer Type
           schema:
             type: string
             enum: [ROLL_IN, ROLL_OUT]
@@ -4278,6 +4279,9 @@ paths:
                           name:
                             type: string
                             example: "BEP2"
+                          network:
+                            type: string
+                            example: "ETH"
                           resetAddressStatus:
                             type: boolean
                             example: false
@@ -4319,6 +4323,7 @@ paths:
                           - memoRegex
                           - minConfirm
                           - name
+                          - network
                           - resetAddressStatus
                           - specialTips
                           - unLockConfirm
@@ -4371,7 +4376,7 @@ paths:
       summary: Daily Account Snapshot (USER_DATA)
       description: |-
         - The query time period must be less than 30 days
-        - Support query within the last 6 months only
+        - Support query within the last one month only
         - If startTimeand endTime not sent, return records of the last 7 days by default
         
         Weight(IP): 2400
@@ -4391,8 +4396,8 @@ paths:
           schema:
             type: integer
             format: int32
-            default: 5
-            minimum: 5
+            default: 7
+            minimum: 7
             maximum: 30
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
@@ -4592,9 +4597,9 @@ paths:
         - name: status
           in: query
           description: |-
-            0 -> pending\
-            6 -> credited but cannot withdraw\
-            1 -> success
+            * `0` - pending
+            * `6` - credited but cannot withdraw
+            * `1` - success
           schema:
             type: integer
             format: int32
@@ -4701,13 +4706,13 @@ paths:
         - name: status
           in: query
           description: |-
-            0:Email Sent
-            1:Cancelled
-            2:Awaiting Approval
-            3:Rejected
-            4:Processing
-            5:Failure
-            6:Completed
+            * `0` - Email Sent
+            * `1` - Cancelled
+            * `2` - Awaiting Approval
+            * `3` - Rejected
+            * `4` - Processing
+            * `5` - Failure
+            * `6` - Completed
           schema:
             type: integer
             format: int32
@@ -5120,6 +5125,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/asset/dust-btc:
+    post:
+      summary: Get Assets That Can Be Converted Into BNB (USER_DATA)
+      description: 'Weight(IP): 1'
+      tags:
+        - Wallet
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Account assets available to be converted to BNB
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        asset:
+                          type: string
+                          example: "ADA"
+                        assetFullName:
+                          type: string
+                          example: "ADA"
+                        amountFree:
+                          type: string
+                          example: "6.21"
+                          description: "Convertible amount"
+                        toBTC:
+                          type: string
+                          example: "0.00016848"
+                          description: "BTC amount"
+                        toBNB:
+                          type: string
+                          example: "0.01777302"
+                          description: "BNB amount（Not deducted commission fee"
+                        toBNBOffExchange:
+                          type: string
+                          example: "0.01741756"
+                          description: "BNB amount（Deducted commission fee"
+                        exchange:
+                          type: string
+                          example: "0.00035546"
+                          description: "Commission fee"
+                      required:
+                        - asset
+                        - assetFullName
+                        - amountFree
+                        - toBTC
+                        - toBNB
+                        - toBNBOffExchange
+                        - exchange
+                  totalTransferBtc:
+                    type: string
+                    example: "0.00016848"
+                  totalTransferBNB:
+                    type: string
+                    example: "0.01777302"
+                  dribbletPercentage:
+                    type: string
+                    example: "0.02"
+                    description: "Commission fee"
+                required:
+                   - details
+                   - totalTransferBtc
+                   - totalTransferBNB
+                   - dribbletPercentage
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/asset/dust:
     post:
       summary: Dust Transfer (USER_DATA)
@@ -5135,8 +5226,9 @@ paths:
           required: true
           description: The asset being converted. For example, asset=BTC&asset=USDT
           schema:
-            type: string
-            example: asset=BTC&asset=USDT
+            type: array
+            items:
+              type: string
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -5219,12 +5311,11 @@ paths:
         - $ref: '#/components/parameters/endTime'
         - name: limit
           in: query
-          required: true
           schema:
             type: integer
             format: int32
             default: 20
-            maximum: 50
+            maximum: 500
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -6984,13 +7075,10 @@ paths:
         - name: type
           in: query
           description: |-
-            1: transfer from subaccount's spot account to its USDT-margined futures account
-            
-            2: transfer from subaccount's USDT-margined futures account to its spot account
-            
-            3: transfer from subaccount's spot account to its COIN-margined futures account
-            
-            4:transfer from subaccount's COIN-margined futures account to its spot account
+            * `1` - transfer from subaccount's spot account to its USDT-margined futures account
+            * `2` - transfer from subaccount's USDT-margined futures account to its spot account
+            * `3` - transfer from subaccount's spot account to its COIN-margined futures account
+            * `4` - transfer from subaccount's COIN-margined futures account to its spot account
           required: true
           schema:
             type: integer
@@ -7039,9 +7127,8 @@ paths:
         - name: type
           in: query
           description: |-
-            1: transfer from subaccount's spot account to margin account
-            
-            2: transfer from subaccount's margin account to its spot account
+            * `1` - transfer from subaccount's spot account to margin account
+            * `2` - transfer from subaccount's margin account to its spot account
           required: true
           schema:
             type: integer
@@ -7171,9 +7258,8 @@ paths:
         - name: type
           in: query
           description: |-
-            1: transfer in
-            
-            2:  transfer out
+            * `1` - transfer in
+            * `2` - transfer out
           schema:
             type: integer
             format: int32
@@ -7414,9 +7500,8 @@ paths:
         - name: futuresType
           in: query
           description: |-
-            1:USDT Margined Futures
-            
-            2:COIN Margined Futures
+            * `1` - USDT Margined Futures
+            * `2` - COIN Margined Futures
           required: true
           schema:
             type: integer
@@ -7458,9 +7543,8 @@ paths:
         - name: futuresType
           in: query
           description: |-
-            1:USDT Margined Futures
-            
-            2:COIN Margined Futures
+            * `1` - USDT Margined Futures
+            * `2` - COIN Margined Futures
           required: true
           schema:
             type: integer
@@ -7510,9 +7594,8 @@ paths:
         - name: futuresType
           in: query
           description: |-
-            1:USDT Margined Futures
-            
-            2:COIN Margined Futures
+            * `1` - USDT Margined Futures
+            * `2` - COIN Margined Futures
           required: true
           schema:
             type: integer
@@ -11089,7 +11172,9 @@ paths:
         - $ref: '#/components/parameters/poolId'
         - name: type
           in: query
-          description: Can be `SINGLE` for single asset removal, `COMBINATION` for combination of all coins removal
+          description: |-
+            * `SINGLE` - for single asset removal
+            * `COMBINATION` - for combination of all coins removal
           required: true
           schema:
             type: string
@@ -11362,7 +11447,10 @@ paths:
         - $ref: '#/components/parameters/endTime'
         - name: status
           in: query
-          description: '0: pending for swap, 1: success, 2: failed'
+          description: |-
+            * `0` - pending for swap
+            * `1` - success
+            * `2` - failed
           schema:
             type: integer
             format: int32
@@ -11606,7 +11694,9 @@ paths:
             example: 2
         - name: type
           in: query
-          description: '"SINGLE" for adding a single token;"COMBINATION" for adding dual tokens'
+          description: |-
+            * `SINGLE` - for adding a single token
+            * `COMBINATION` - for adding dual tokens
           required: true
           schema:
             type: string
@@ -11659,7 +11749,9 @@ paths:
             example: 2
         - name: type
           in: query
-          description: 'Type is "SINGLE", remove and obtain a single token;Type is "COMBINATION", remove and obtain dual token.'
+          description: |-
+            * `SINGLE` - remove and obtain a single token
+            * `COMBINATION` - remove and obtain dual token
           required: true
           schema:
             type: string
@@ -11785,6 +11877,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/bswap/claimRewards:
     post:
       summary: Claim rewards (TRADE)
       description: |-
@@ -12068,7 +12161,15 @@ paths:
         - $ref: '#/components/parameters/asset'
         - name: type
           in: query
-          description: "All types will be returned by default. Enum: borrowIn, collateralSpent, repayAmount, collateralReturn (Collateral return after repayment), addCollateral, removeCollateral, collateralReturnAfterLiquidation"
+          description: |-
+            All types will be returned by default.
+            * `borrowIn`
+            * `collateralSpent`
+            * `repayAmount`
+            * `collateralReturn` - Collateral return after repayment
+            * `addCollateral`
+            * `removeCollateral`
+            * `collateralReturnAfterLiquidation`
           schema:
             type: string
             enum: [borrowIn, collateralSpent, repayAmount, collateralReturn, addCollateral, removeCollateral, collateralReturnAfterLiquidation]
@@ -12802,6 +12903,232 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/giftcard/createCode:
+    post:
+      summary: Create a Binance Code (USER_DATA)
+      description: |-
+        This API is for creating a Binance Code. To get started with, please make sure:
+
+        - You have a Binance account
+        - You have passed kyc
+        - You have a sufﬁcient balance in your Binance funding wallet
+        - You need Enable Withdrawals for the API Key which requests this endpoint.
+
+        Daily creation volume: 2 BTC / 24H Daily creation times: 200 Codes / 24H
+
+        Weight(IP): 1
+      tags:
+        - Gift Card
+      parameters:
+        - name: token
+          in: query
+          description: The coin type contained in the Binance Code
+          required: true
+          schema:
+            type: string
+        - name: amount
+          in: query
+          description: The amount of the coin
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Code creation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: "000000"
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    type: object
+                    properties:
+                      referenceNo:
+                        type: string
+                        example: "0033002327977405"
+                      code:
+                        type: string
+                        example: "AOGANK3NB4GIT3C6"
+                    required:
+                      - referenceNo
+                      - code
+                  success:
+                    type: boolean
+                required:
+                   - code
+                   - message
+                   - data
+                   - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/giftcard/redeemCode:
+    post:
+      summary: Redeem a Binance Code (USER_DATA)
+      description: |-
+        This API is for redeeming the Binance Code. Once redeemed, the coins will be deposited in your funding wallet.
+
+        Please note that if you enter the wrong code 5 times within 24 hours, you will no longer be able to redeem any Binance Code that day.
+
+        Weight(IP): 1
+      tags:
+        - Gift Card
+      parameters:
+        - name: code
+          in: query
+          description: Binance Code
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Redeemed Information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: "000000"
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: "BNB"
+                      amount:
+                        type: string
+                        example: "10"
+                      referenceNo:
+                        type: string
+                        example: "0033002327977405"
+                      identityNo:
+                        type: string
+                        example: "10316281761814589440"
+                    required:
+                      - token
+                      - amount
+                      - referenceNo
+                      - identityNo
+                  success:
+                    type: boolean
+                required:
+                   - code
+                   - message
+                   - data
+                   - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/giftcard/verify:
+    get:
+      summary: Verify a Binance Code (USER_DATA)
+      description: |-
+        This API is for verifying whether the Binance Code is valid or not by entering Binance Code or reference number.
+
+        Please note that if you enter the wrong binance code 5 times within an hour, you will no longer be able to verify any binance code for that hour.
+
+        Weight(IP): 1
+      tags:
+        - Gift Card
+      parameters:
+        - name: referenceNo
+          in: query
+          description: reference number
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Code Verification
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: "000000"
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    type: object
+                    properties:
+                      valid:
+                        type: boolean
+                      token:
+                        type: string
+                        example: "BNB"
+                      amount:
+                        type: string
+                        example: "0.00000001"
+                    required:
+                      - valid
+                      - token
+                      - amount
+                  success:
+                    type: boolean
+                required:
+                   - code
+                   - message
+                   - data
+                   - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 components:
   parameters:
     asset:
@@ -12846,7 +13173,6 @@ components:
       name: side
       in: query
       required: true
-      description: SELL or BUY
       schema:
         type: string
         enum: ['SELL', 'BUY']
@@ -13070,7 +13396,9 @@ components:
     isIsolatedMargin:
       name: isIsolated
       in: query
-      description: For isolated margin or not, 'TRUE', 'FALSE', default 'FALSE'
+      description: |-
+        * `TRUE` - For isolated margin
+        * `FALSE` - Default, not for isolated margin
       schema:
         type: string
         enum: ['TRUE','FALSE']
@@ -13105,7 +13433,9 @@ components:
       name: transactionType
       in: query
       required: true
-      description: 0-deposit, 1-withdraw
+      description: |-
+       * `0` - deposit
+       * `1` - withdraw
       schema:
         type: string
         enum: ['0', '1']
@@ -13151,7 +13481,7 @@ components:
       name: status
       in: query
       required: true
-      description: "\"ALL\", \"SUBSCRIBABLE\", \"UNSUBSCRIBABLE\"; Default: 'ALL'"
+      description: Default `ALL`
       schema:
         type: string
         enum: ['ALL','SUBSCRIBABLE','UNSUBSCRIBABLE']
@@ -13159,14 +13489,14 @@ components:
       name: status
       in: query
       required: true
-      description: "\"ALL\", \"SUBSCRIBABLE\", \"UNSUBSCRIBABLE\"; Default: 'ALL'"
+      description: Default `ALL`
       schema:
         type: string
         enum: ['ALL','SUBSCRIBABLE','UNSUBSCRIBABLE']
     featured:
       name: featured
       in: query
-      description: '"ALL", "TRUE"; Default: "ALL"'
+      description: Default `ALL`
       schema:
         type: string
         enum: ['ALL','TRUE']
@@ -13186,7 +13516,6 @@ components:
       name: type
       in: query
       required: true
-      description: '"FAST", "NORMAL"'
       schema:
         type: string
         enum: ['FAST','NORMAL']
@@ -13194,7 +13523,6 @@ components:
       name: type
       in: query
       required: true
-      description: '"ACTIVITY", "CUSTOMIZED_FIXED"'
       schema:
         type: string
         enum: ['ACTIVITY','CUSTOMIZED_FIXED']
@@ -13202,10 +13530,10 @@ components:
       name: sortBy
       in: query
       required: true
-      description: '"START_TIME", "LOT_SIZE", "INTEREST_RATE", "DURATION"; default "START_TIME'
+      description: Default `START_TIME`
       schema:
         type: string
-        enum: ['START_TIME','LOT_SIZ','LOT_SIZE','INTEREST_RATE','DURATION']
+        enum: ['START_TIME', 'LOT_SIZE','INTEREST_RATE','DURATION']
     isSortAsc:
       name: isSortAsc
       in: query
@@ -13229,7 +13557,10 @@ components:
       name: lendingType
       in: query
       required: true
-      description: '"DAILY" for flexible, "ACTIVITY" for activity, "CUSTOMIZED_FIXED" for fixed'
+      description: |-
+        * `DAILY` - for flexible
+        * `ACTIVITY` - for activity
+        * `CUSTOMIZED_FIXED` for fixed
       schema:
         type: string
         enum: ['DAILY','ACTIVITY','CUSTOMIZED_FIXED']
@@ -13248,7 +13579,6 @@ components:
       name: status
       in: query
       required: true
-      description: '"HOLDING", "REDEEMED"'
       schema:
         type: string
         enum: ['HOLDING','REDEEMED']
@@ -13455,7 +13785,7 @@ components:
     sideEffectType:
       name: sideEffectType
       in: query
-      description: Default NO_SIDE_EFFECT
+      description: Default `NO_SIDE_EFFECT`
       schema:
         type: string
         enum: [NO_SIDE_EFFECT, MARGIN_BUY, AUTO_REPAY]
@@ -13515,14 +13845,14 @@ components:
       required: true
       description: "true or false"
       schema:
-        format: boolean
+        type: boolean
     ipAddress:
       name: ipAddress
       in: query
       required: true
       description: "Can be added in batches, separated by commas"
       schema:
-        format: string
+        type: string
     vipLevel:
       name: vipLevel
       in: query
