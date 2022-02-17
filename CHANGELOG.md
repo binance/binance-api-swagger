@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.6.0 - 2022-02-17
+
+### Added
+- New endpoints for Binance Gift Card:
+    - `POST /sapi/v1/giftcard/createCode` to create a Binance Code.
+    - `POST /sapi/v1/giftcard/redeemCode` to redeem a Binance Code.
+    - `GET /sapi/v1/giftcard/verify` to verify a Binance Code.
+- New endpoint `POST /sapi/v1/asset/dust-btc` to get assets that can be converted into BNB.
+
+### Changed
+- Added missing field `network` to `/sapi/v1/capital/config/getall` 200 response
+- Correct from `POST /sapi/v1/bswap/unclaimedRewards` to `POST /sapi/v1/bswap/claimRewards`
+- Correct `GET /sapi/v1/asset/assetDividend` parameter `limit`
+- Correct `POST /sapi/v1/asset/dust` parameter `asset`
+- Update description of ENUM parameters to follow same format for values explanation
+- Update query limits of `GET /sapi/v1/accountSnapshot`
+
 ## 1.5.0 - 2022-01-07
 
 ### Added

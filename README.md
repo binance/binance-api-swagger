@@ -20,7 +20,7 @@ There's several options for the approach:
     - You only have to open: https://binance.github.io/binance-api-swagger/
 
 - Local UI instance:
-    1. Install [Docker] (https://docs.docker.com/get-docker/).
+    1. Install [Docker](https://docs.docker.com/get-docker/)
     2. Run locally:
         ```bash
         ./start.sh
@@ -34,6 +34,10 @@ There's several options for the approach:
 
 - IDE (Integrated Development Environment):
     - There's available plugins that can be used to preview Swagger UI.
+
+- Swagger Hub:
+    - https://app.swaggerhub.com/apis/binance_api/BinanceSpotAPI/1.0
+    - You can also explore the `Export` section to export as Client SDK, Server Stub or Documentation in multiple languages.
 
 ## Swagger UI Preview
 <p align="center"><img src="assets/2.png" alt="Swagger UI Preview"/></p>
