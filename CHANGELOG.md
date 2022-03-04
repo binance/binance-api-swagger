@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.7.0 - 2022-03-04
+
+### Added
+- Parameter `type` to `POST /sapi/v1/bswap/liquidityAdd`
+- Response field `allowTrailingStop` to ` GET /api/v3/exchangeInfo`
+- Response fields `isManagedSubAccount` and `isAssetManagementSubAccount` to `GET /sapi/v1/sub-account/list`
+
+### Changed
+- Corrected multiple parameters from different endpoints to be in sync with the API Doc
+- Updated parameter `limit` from `GET api/v3/depth` to englobe its new functionality
+
 ## 1.6.0 - 2022-02-17
 
 ### Added
