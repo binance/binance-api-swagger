@@ -195,6 +195,9 @@ paths:
                           type: boolean
                         quoteOrderQtyMarketAllowed:
                           type: boolean
+                        allowTrailingStop:
+                          type: boolean
+                          example: false
                         isSpotTradingAllowed:
                           type: boolean
                         isMarginTradingAllowed:
@@ -239,6 +242,7 @@ paths:
                         - icebergAllowed
                         - ocoAllowed
                         - quoteOrderQtyMarketAllowed
+                        - allowTrailingStop
                         - isSpotTradingAllowed
                         - isMarginTradingAllowed
                         - filters
@@ -261,22 +265,22 @@ paths:
       description: |-
         | Limit               | Weight(IP)  |
         |---------------------|-------------|
-        | 5, 10, 20, 50, 100  | 1           |
-        | 500                 | 5           |
-        | 1000                | 10          |
-        | 5000                | 50          |
+        | 1-100               | 1           |
+        | 101-500             | 5           |
+        | 501-1000            | 10          |
+        | 1001-5000           | 50          |
       tags:
         - Market
       parameters:
         - $ref: '#/components/parameters/symbol'
         - name: limit
           in: query
+          description: If limit > 5000, then the response will truncate to 5000
           schema:
             type: integer
             format: int32
             default: 100
             maximum: 5000
-            enum: [5, 10, 20, 50, 100, 500, 1000, 5000]
             example: 100
       responses:
         '200':
@@ -354,7 +358,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /api/v3/historicalTrades:
     get:
-      summary: Old Trade Lookup
+      summary: Old Trade Lookup (MARKET_DATA)
       description: |-
         Get older market trades.
 
@@ -424,7 +428,7 @@ paths:
     get:
       summary: Kline/Candlestick Data
       description: |-
-        Kline/candlestick bars for a symbol.\
+        Kline/candlestick bars for a symbol.
         Klines are uniquely identified by their open time.
         
         - If `startTime` and `endTime` are not sent, the most recent klines are returned.
@@ -522,9 +526,9 @@ paths:
         
         - If the symbol is not sent, tickers for all symbols will be returned in an array.
 
-        Weight(IP):\
-        `1` for a single symbol;\
-        `40` when the symbol parameter is omitted;
+        Weight(IP):
+        - `1` for a single symbol;
+        - `40` when the symbol parameter is omitted;
 
       tags:
         - Market
@@ -553,9 +557,9 @@ paths:
         
         - If the symbol is not sent, prices for all symbols will be returned in an array.
 
-        Weight(IP):\
-        `1` for a single symbol;\
-        `2` when the symbol parameter is omitted;
+        Weight(IP):
+        - `1` for a single symbol;
+        - `2` when the symbol parameter is omitted;
       tags:
         - Market
       parameters:
@@ -583,9 +587,9 @@ paths:
 
         - If the symbol is not sent, bookTickers for all symbols will be returned in an array.
         
-        Weight(IP):\
-        `1` for a single symbol;\
-        `2` when the symbol parameter is omitted;
+        Weight(IP):
+        - `1` for a single symbol;
+        - `2` when the symbol parameter is omitted;
       tags:
         - Market
       parameters:
@@ -798,9 +802,9 @@ paths:
       description: |-
         Get all open orders on a symbol. Careful when accessing this with no symbol.
 
-        Weight(IP):\
-        `3` for a single symbol;\
-        `40` when the symbol parameter is omitted;
+        Weight(IP):
+        - `3` for a single symbol;
+        - `40` when the symbol parameter is omitted;
       tags:
         - Trade
       parameters:
@@ -834,7 +838,7 @@ paths:
     delete:
       summary: Cancel all Open Orders on a Symbol (TRADE)
       description: |-
-        Cancels all active orders on a symbol.\
+        Cancels all active orders on a symbol.
         This includes OCO orders.
 
         Weight(IP): 1
@@ -947,7 +951,6 @@ paths:
         - $ref: '#/components/parameters/stopIcebergQty'
         - $ref: '#/components/parameters/stopLimitTimeInForce'
         - $ref: '#/components/parameters/ocoNewOrderRespType'
-        - $ref: '#/components/parameters/sideEffectType'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -1590,6 +1593,7 @@ paths:
         - $ref: '#/components/parameters/amount'
         - name: type
           in: query
+          required: true
           description: |-
             * `1` - transfer from main account to margin account
             * `2` - transfer from margin account to main account
@@ -3473,8 +3477,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/optionalAsset'
         - $ref: '#/components/parameters/symbol'
-        - $ref: '#/components/parameters/transFrom'
-        - $ref: '#/components/parameters/transTo'
+        - $ref: '#/components/parameters/optionalTransFrom'
+        - $ref: '#/components/parameters/optionalTransTo'
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/current'
@@ -4593,7 +4597,7 @@ paths:
       tags:
         - Wallet
       parameters:
-        - $ref: '#/components/parameters/coin'
+        - $ref: '#/components/parameters/optionalCoin'
         - name: status
           in: query
           description: |-
@@ -4698,7 +4702,7 @@ paths:
       tags:
         - Wallet
       parameters:
-        - $ref: '#/components/parameters/coin'
+        - $ref: '#/components/parameters/optionalCoin'
         - name: withdrawOrderId
           in: query
           schema:
@@ -5900,10 +5904,18 @@ paths:
                           type: integer
                           format: int64
                           example: 1544433328000
+                        isManagedSubAccount:
+                          type: boolean
+                          example: false
+                        isAssetManagementSubAccount:
+                          type: boolean
+                          example: false
                       required:
                         - email
                         - isFreeze
                         - createTime
+                        - isManagedSubAccount
+                        - isAssetManagementSubAccount
                 required:
                   - subAccounts
         '400':
@@ -6213,7 +6225,7 @@ paths:
       tags:
         - Sub-Account
       parameters:
-        - $ref: '#/components/parameters/subAccountEmail'
+        - $ref: '#/components/parameters/optionalSubAccountEmail'
         - $ref: '#/components/parameters/page'
         - name: size
           in: query
@@ -8487,7 +8499,7 @@ paths:
       tags:
         - Savings
       parameters:
-        - $ref: '#/components/parameters/flexibleProductStatus'
+        - $ref: '#/components/parameters/optionalFlexibleProductStatus'
         - $ref: '#/components/parameters/featured'
         - $ref: '#/components/parameters/current'
         - $ref: '#/components/parameters/size'
@@ -8831,7 +8843,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/optionalAsset'
         - $ref: '#/components/parameters/fixedAndActivityProductType'
-        - $ref: '#/components/parameters/fixedAndActivityProductStatus'
+        - $ref: '#/components/parameters/optionalFixedAndActivityProductStatus'
         - $ref: '#/components/parameters/isSortAsc'
         - $ref: '#/components/parameters/sortBy'
         - $ref: '#/components/parameters/current'
@@ -8980,7 +8992,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/asset'
         - $ref: '#/components/parameters/fixedAndActivityProjectId'
-        - $ref: '#/components/parameters/fixedAndActivityProductStatus'
+        - $ref: '#/components/parameters/optionalFixedAndActivityProductStatus'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -11021,9 +11033,9 @@ paths:
       description: |-
         Get liquidity information and user share of a pool.
         
-        Weight(IP):\
-        `1`  for one pool;\
-        `10` when the poolId parameter is omitted;
+        Weight(IP):
+        - `1` for one pool;
+        - `10` when the poolId parameter is omitted;
       tags:
         - BSwap
       parameters:
@@ -11126,6 +11138,15 @@ paths:
         - BSwap
       parameters:
         - $ref: '#/components/parameters/poolId'
+        - name: type
+          in: query
+          description: |-
+            * `Single` - to add a single token
+            * `Combination` - to add dual tokens
+          schema:
+            type: string
+            enum: [Single, Combination]
+            example: 'Single'
         - $ref: '#/components/parameters/asset'
         - $ref: '#/components/parameters/quantity'
         - $ref: '#/components/parameters/recvWindow'
@@ -12015,6 +12036,7 @@ paths:
       parameters:
         - name: tradeType
           in: query
+          required: true
           schema:
             type: string
             enum: [BUY, SELL]
@@ -12928,6 +12950,7 @@ paths:
             type: string
         - name: amount
           in: query
+          required: true
           description: The amount of the coin
           schema:
             type: number
@@ -13405,11 +13428,27 @@ components:
     transFrom:
       name: transFrom
       in: query
+      required: true
+      schema:
+        type: string
+        enum: ['SPOT', 'ISOLATED_MARGIN']
+        example: 'SPOT'
+    optionalTransFrom:
+      name: transFrom
+      in: query
       schema:
         type: string
         enum: ['SPOT', 'ISOLATED_MARGIN']
         example: 'SPOT'
     transTo:
+      name: transTo
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: ['SPOT', 'ISOLATED_MARGIN']
+        example: 'ISOLATED_MARGIN'
+    optionalTransTo:
       name: transTo
       in: query
       schema:
@@ -13424,7 +13463,7 @@ components:
         type: string
         example: 'BTCUSDT,BNBUSDT,ADAUSDT'
     arraySymbols:
-      name: arraySymbols
+      name: symbols
       in: query
       schema:
         type: string
@@ -13485,10 +13524,16 @@ components:
       schema:
         type: string
         enum: ['ALL','SUBSCRIBABLE','UNSUBSCRIBABLE']
-    fixedAndActivityProductStatus:
+    optionalFlexibleProductStatus:
       name: status
       in: query
-      required: true
+      description: Default `ALL`
+      schema:
+        type: string
+        enum: ['ALL','SUBSCRIBABLE','UNSUBSCRIBABLE']
+    optionalFixedAndActivityProductStatus:
+      name: status
+      in: query
       description: Default `ALL`
       schema:
         type: string
@@ -13509,7 +13554,6 @@ components:
     fixedAndActivityProjectId:
       name: projectId
       in: query
-      required: true
       schema:
         type: string
     flexibleProductType:
@@ -13529,7 +13573,6 @@ components:
     sortBy:
       name: sortBy
       in: query
-      required: true
       description: Default `START_TIME`
       schema:
         type: string
@@ -13537,7 +13580,6 @@ components:
     isSortAsc:
       name: isSortAsc
       in: query
-      required: true
       description: default "true"
       schema:
         type: boolean
