@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.8.0 - 2022-04-22
+
+### Added
+- New transfer types `MARGIN`, `ISOLATED_MARGIN` and parameter `symbol` to `POST /sapi/v1/sub-account/universalTransfer`
+- New endpoint `GET /sapi/v1/managed-subaccount/accountSnapshot` to support investor master account query asset snapshot of managed sub-account.
+- New optional parameter `trailingDelta` to `POST /api/v3/order`, `POST /api/v3/order/test` and `POST /api/v3/order/oco`
+
+### Changed
+- `GET /sapi/v1/sub-account/universalTransfer` The query time period must be less then 30 days; If startTime and endTime not sent, return records of the last 30 days by default.
+- `/sapi/v1/capital/withdraw/history` Response fields confirmNo and info are now optional.
+
 ## 1.7.0 - 2022-03-04
 
 ### Added

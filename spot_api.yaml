@@ -629,6 +629,7 @@ paths:
         - $ref: '#/components/parameters/optionalPrice'
         - $ref: '#/components/parameters/newClientOrderId'
         - $ref: '#/components/parameters/stopPrice'
+        - $ref: '#/components/parameters/optionalTrailingDelta'
         - $ref: '#/components/parameters/icebergQty'
         - $ref: '#/components/parameters/newOrderRespType'
         - $ref: '#/components/parameters/recvWindow'
@@ -728,6 +729,7 @@ paths:
         - $ref: '#/components/parameters/optionalPrice'
         - $ref: '#/components/parameters/newClientOrderId'
         - $ref: '#/components/parameters/stopPrice'
+        - $ref: '#/components/parameters/optionalTrailingDelta'
         - $ref: '#/components/parameters/icebergQty'
         - $ref: '#/components/parameters/newOrderRespType'
         - $ref: '#/components/parameters/recvWindow'
@@ -945,6 +947,11 @@ paths:
         - $ref: '#/components/parameters/limitClientOrderId'
         - $ref: '#/components/parameters/price'
         - $ref: '#/components/parameters/limitIcebergQty'
+        - name: trailingDelta
+          in: query
+          schema:
+            type: number
+            format: double
         - $ref: '#/components/parameters/stopClientOrderId'
         - $ref: '#/components/parameters/ocoStopPrice'
         - $ref: '#/components/parameters/stopLimitPrice'
@@ -4796,8 +4803,6 @@ paths:
                     - transferType
                     - status
                     - transactionFee
-                    - confirmNo
-                    - info
                     - txId
         '400':
           description: Bad Request
@@ -7355,10 +7360,11 @@ paths:
     get:
       summary: Universal Transfer History (For Master Account)
       description: |-
-        - fromEmail and toEmail cannot be sent at the same time.
-        - Return fromEmail equal master account email by default.
-        - Only get the latest history of past 30 days.
-        
+        - `fromEmail` and `toEmail` cannot be sent at the same time.
+        - Return `fromEmail` equal master account email by default.
+        - The query time period must be less then 30 days.
+        - If startTime and endTime not sent, return records of the last 30 days by default.
+
         Weight(IP): 1
       tags:
         - Sub-Account
@@ -7419,6 +7425,9 @@ paths:
                       type: integer
                       format: int64
                       example: 1544433325000
+                    clientTranId:
+                      type: string
+                      example: "11945860694"
                   required:
                     - tranId
                     - fromEmail
@@ -7429,6 +7438,7 @@ paths:
                     - toAccountType
                     - status
                     - createTimeStamp
+                    - clientTranId
         '400':
           description: Bad Request
           content:
@@ -7447,7 +7457,10 @@ paths:
         - You need to enable "internal transfer" option for the api key which requests this endpoint.
         - Transfer from master account by default if fromEmail is not sent.
         - Transfer to master account by default if toEmail is not sent.
-        - Transfer between futures accounts is not supported.
+        - Supported transfer scenarios:
+          - Master account SPOT transfer to sub-account SPOT,USDT_FUTURE,COIN_FUTURE,MARGIN(Cross),ISOLATED_MARGIN
+          - Sub-account SPOT,USDT_FUTURE,COIN_FUTURE,MARGIN(Cross),ISOLATED_MARGIN transfer to master account SPOT
+          - Transfer between two sub-account SPOT accounts
         
         Weight(IP): 1
       tags:
@@ -7460,14 +7473,20 @@ paths:
           required: true
           schema:
             type: string
-            enum: ["SPOT","USDT_FUTURE","COIN_FUTURE"]
+            enum: ["SPOT","USDT_FUTURE","COIN_FUTURE","MARGIN","ISOLATED_MARGIN"]
         - name: toAccountType
           in: query
           required: true
           schema:
             type: string
-            enum: ["SPOT","USDT_FUTURE","COIN_FUTURE"]
+            enum: ["SPOT","USDT_FUTURE","COIN_FUTURE","MARGIN","ISOLATED_MARGIN"]
         - $ref: '#/components/parameters/clientTranId'
+        - name: symbol
+          in: query
+          description: Only supported under ISOLATED_MARGIN type
+          schema:
+            type: string
+            example: BNBUSDT
         - $ref: '#/components/parameters/asset'
         - $ref: '#/components/parameters/amount'
         - $ref: '#/components/parameters/recvWindow'
@@ -7487,8 +7506,12 @@ paths:
                     type: integer
                     format: int64
                     example: 11945860693
+                  clientTranId: 
+                    type: string
+                    example: "11945860694"
                 required:
                   - tranId
+                  - clientTranId
         '400':
           description: Bad Request
           content:
@@ -7822,6 +7845,111 @@ paths:
                     example: 66157362489
                 required:
                   - tranId
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/managed-subaccount/accountSnapshot:
+    get:
+      summary: Managed sub-account snapshot (For Investor Master Account)
+      description: |-
+        - The query time period must be less then 30 days
+        - Support query within the last one month only
+        - If `startTime` and `endTime` not sent, return records of the last 7 days by default
+
+        Weight(IP): 2400
+      tags:
+        - Sub-Account
+      parameters:
+        - $ref: '#/components/parameters/subAccountEmail'
+        - name: type
+          in: query
+          required: true
+          description: "\"SPOT\", \"MARGIN\"(cross), \"FUTURES\"(UM)"
+          schema:
+            type: string
+            example: 'SPOT'
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - name: limit
+          in: query
+          description: min 7, max 30, default 7
+          schema:
+            type: integer
+            format: int32
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature' 
+      responses:
+        '200':
+          description: Sub-account spot snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                    example: 200
+                  msg:
+                    type: string
+                    example: ''
+                  snapshotVos:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        data:
+                          type: object
+                          properties:
+                            balances:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  asset:
+                                    type: string
+                                    example: BTC
+                                  free:
+                                    type: string
+                                    example: '0.09905021'
+                                  locked:
+                                    type: string
+                                    example: '0.00000000'
+                                required:
+                                  - asset
+                                  - free
+                                  - locked
+                            totalAssetOfBtc:
+                              type: string
+                              example: '0.09942700'
+                          required:
+                            - balances
+                            - totalAssetOfBtc
+                        type:
+                          type: string
+                          example: spot
+                        updateTime:
+                          type: integer
+                          format: int64
+                          example: 1576281599000
+                      required:
+                        - data
+                        - type
+                        - updateTime
+                required:
+                  - code
+                  - msg
+                  - snapshotVos
         '400':
           description: Bad Request
           content:
@@ -13902,7 +14030,7 @@ components:
       schema:
         type: integer
         format: int32
-      example: 1
+        example: 1
     clientTranId:
       name: clientTranId
       in: query
@@ -13916,6 +14044,13 @@ components:
         type: integer
         format: int32
         example: 0
+    optionalTrailingDelta:
+      name: trailingDelta
+      in: query
+      description: Used with STOP_LOSS, STOP_LOSS_LIMIT, TAKE_PROFIT, and TAKE_PROFIT_LIMIT orders.
+      schema:
+        type: number
+        format: double
 
   schemas:
     account:
