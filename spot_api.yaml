@@ -32,8 +32,12 @@ tags:
     description: Isolated User Data Stream
   - name: Savings
     description: Savings Endpoints
+  - name: Staking
+    description: Staking Endpoints
   - name: Mining
     description: Mining Endpoints
+  - name: Portfolio Margin
+    description: Portfolio Margin Endpoints
   - name: BLVT
     description: Binance Leveraged Tokens Endpoints
   - name: BSwap
@@ -534,6 +538,7 @@ paths:
         - Market
       parameters:
         - $ref: '#/components/parameters/optionalSymbol'
+        - $ref: '#/components/parameters/arraySymbols'
       responses:
         '200':
           description: 24hr ticker
@@ -564,6 +569,7 @@ paths:
         - Market
       parameters:
         - $ref: '#/components/parameters/optionalSymbol'
+        - $ref: '#/components/parameters/arraySymbols'
       responses:
         '200':
           description: Price ticker
@@ -594,6 +600,7 @@ paths:
         - Market
       parameters:
         - $ref: '#/components/parameters/optionalSymbol'
+        - $ref: '#/components/parameters/arraySymbols'
       responses:
         '200':
           description: Order book ticker
@@ -4166,6 +4173,73 @@ paths:
                     quoteAssetMaxBorrowable: 
                       type: string
                       example: "70000"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/margin/rateLimit/order:
+    get:
+      summary: Query Current Margin Order Count Usage (TRADE)
+      description: |-
+        Displays the user's current margin order count usage for all intervals.
+
+        Weight(IP): 20
+      tags:
+        - Margin
+      parameters:
+        - $ref: '#/components/parameters/optionalIsIsolated'
+        - name: symbol
+          in: query
+          description: isolated symbol, mandatory for isolated margin
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Usage.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    rateLimitType:
+                      type: string
+                      example: ORDERS
+                    interval:
+                      type: string
+                      example: SECOND
+                    intervalNum:
+                      type: integer
+                      format: int64
+                      example: 10
+                    limit:
+                      type: integer
+                      format: int64
+                      example: 10000
+                    count:
+                      type: integer
+                      format: int64
+                      example: 0
+                  required:
+                    - rateLimitType
+                    - interval
+                    - intervalNum
+                    - limit
+                    - count
         '400':
           description: Bad Request
           content:
@@ -9508,6 +9582,524 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/staking/productList:
+    get:
+      summary: Get Staking Product List (USER_DATA)
+      description: |-
+        Get available Staking product list.
+
+        Weight(IP): 1
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/product'
+        - $ref: '#/components/parameters/optionalAsset'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Product list.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    projectId:
+                      type: string
+                      example: Axs*90
+                    detail:
+                      type: object
+                      properties:
+                        asset:
+                          type: string
+                          example: AXS
+                        rewardAsset:
+                          type: string
+                          example: AXS
+                        duration:
+                          type: integer
+                          format: int64
+                          example: 90
+                        renewable:
+                          type: boolean
+                          example: true
+                        apy:
+                          type: string
+                          example: '1.2069'
+                      required:
+                        - asset
+                        - rewardAsset
+                        - duration
+                        - renewable
+                        - apy
+                    quota:
+                      type: object
+                      properties:
+                        totalPersonalQuota:
+                          type: string
+                          example: '2'
+                        minimum:
+                          type: string
+                          example: '0.001'
+                      required:
+                        - totalPersonalQuota
+                        - minimum
+                  required:
+                    - projectId
+                    - detail
+                    - quota
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/staking/purchase:
+    post:
+      summary: Purchase Staking Product (USER_DATA)
+      description: 'Weight(IP): 1'
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/product'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/amount'
+        - name: renewable
+          in: query
+          description: true or false, default false. Active if product is `STAKING` or `L_DEFI`
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Position Id.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  positionId:
+                    type: string
+                    example: '12345'
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - positionId
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/staking/redeem:
+    post:
+      summary: Redeem Staking Product (USER_DATA)
+      description: |-
+        Redeem Staking product. Locked staking and Locked DeFI staking belong to early redemption, redeeming in advance will result in loss of interest that you have earned.
+
+        Weight(IP): 1
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/product'
+        - name: positionId
+          in: query
+          description: Mandatory if product is `STAKING` or `L_DEFI`
+          schema:
+            type: string
+        - $ref: '#/components/parameters/productId'
+        - name: amount
+          in: query
+          description: Mandatory if product is `F_DEFI`
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/staking/position:
+    get:
+      summary: Get Staking Product Position (USER_DATA)
+      description: 'Weight(IP): 1'
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/product'
+        - name: productId
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/optionalAsset'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Position.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    positionId:
+                      type: string
+                      example: '123123'
+                    projectId:
+                      type: string
+                      example: Axs*90
+                    asset:
+                      type: string
+                      example: AXS
+                    amount:
+                      type: string
+                      example: '122.09202928'
+                    purchaseTime:
+                      type: string
+                      example: '1646182276000'
+                    duration:
+                      type: string
+                      example: '60'
+                    accrualDays:
+                      type: string
+                      example: '4'
+                    rewardAsset:
+                      type: string
+                      example: AXS
+                    APY:
+                      type: string
+                      example: '0.2032'
+                    rewardAmt:
+                      type: string
+                      example: '5.17181528'
+                    extraRewardAsset:
+                      type: string
+                      example: BNB
+                    extraRewardAPY:
+                      type: string
+                      example: '0.0203'
+                    estExtraRewardAmt:
+                      type: string
+                      example: '5.17181528'
+                    nextInterestPay:
+                      type: string
+                      example: '1.29295383'
+                    nextInterestPayDate:
+                      type: string
+                      example: '1646697600000'
+                    payInterestPeriod:
+                      type: string
+                      example: '1'
+                    redeemAmountEarly:
+                      type: string
+                      example: '2802.24068892'
+                    interestEndDate:
+                      type: string
+                      example: '1651449600000'
+                    deliverDate:
+                      type: string
+                      example: '1651536000000'
+                    redeemPeriod:
+                      type: string
+                      example: '1'
+                    redeemingAmt:
+                      type: string
+                      example: '232.2323'
+                    partialAmtDeliverDate:
+                      type: string
+                      example: '1651536000000'
+                    canRedeemEarly:
+                      type: boolean
+                      example: true
+                    renewable:
+                      type: boolean
+                      example: true
+                    type:
+                      type: string
+                      example: AUTO
+                    status:
+                      type: string
+                      example: HOLDING
+                  required:
+                    - positionId
+                    - projectId
+                    - asset
+                    - amount
+                    - purchaseTime
+                    - duration
+                    - accrualDays
+                    - rewardAsset
+                    - APY
+                    - rewardAmt
+                    - extraRewardAsset
+                    - extraRewardAPY
+                    - estExtraRewardAmt
+                    - nextInterestPay
+                    - nextInterestPayDate
+                    - payInterestPeriod
+                    - redeemAmountEarly
+                    - interestEndDate
+                    - deliverDate
+                    - redeemPeriod
+                    - redeemingAmt
+                    - partialAmtDeliverDate
+                    - canRedeemEarly
+                    - renewable
+                    - type
+                    - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/staking/stakingRecord:
+    get:
+      summary: Get Staking History (USER_DATA)
+      description: 'Weight(IP): 1'
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/product'
+        - name: txnType
+          in: query
+          required: true
+          description: '`SUBSCRIPTION`, `REDEMPTION`, `INTEREST`'
+          schema:
+            type: string
+        - $ref: '#/components/parameters/optionalAsset'
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Staking History.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    positionId:
+                      type: string
+                      example: '123123'
+                    time:
+                      type: integer
+                      format: int64
+                      example: 1575018510000
+                    asset:
+                      type: string
+                      example: BNB
+                    project:
+                      type: string
+                      example: BSC
+                    amount:
+                      type: string
+                      example: '21312.23223'
+                    lockPeriod:
+                      type: string
+                      example: '30'
+                    deliverDate:
+                      type: string
+                      example: '1575018510000'
+                    type:
+                      type: string
+                      example: AUTO
+                    status:
+                      type: string
+                      example: success
+                  required:
+                    - positionId
+                    - time
+                    - asset
+                    - project
+                    - amount
+                    - lockPeriod
+                    - deliverDate
+                    - type
+                    - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/staking/setAutoStaking:
+    post:
+      summary: Set Auto Staking (USER_DATA)
+      description: |-
+        Set auto staking on Locked Staking or Locked DeFi Staking
+
+        Weight(IP): 1
+      tags:
+        - Staking
+      parameters:
+        - name: product
+          in: query
+          required: true
+          description: |-
+            * `STAKING` - for Locked Staking
+            * `L_DEFI` - for locked DeFi Staking
+          schema:
+            type: string
+        - name: positionId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: renewable
+          in: query
+          required: true
+          description: true or false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/staking/personalLeftQuota:
+    get:
+      summary: Get Personal Left Quota of Staking Product (USER_DATA)
+      description: 'Weight(IP): 1'
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/product'
+        - $ref: '#/components/parameters/productId'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Quota.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    leftPersonalQuota:
+                      type: string
+                      example: '1000'
+                  required:
+                    - leftPersonalQuota
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/mining/pub/algoList:
     get:
       summary: Acquiring Algorithm (MARKET_DATA)
@@ -10644,6 +11236,55 @@ paths:
                   - code
                   - msg
                   - data
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/portfolio/account:
+    get:
+      summary: Get Portfolio Margin Account Info (USER_DATA)
+      description: 'Weight(IP): 1'
+      tags:
+        - Portfolio Margin
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Portfolio account.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uniMMR:
+                    type: string
+                    example: '1.87987800'
+                  accountEquity:
+                    type: string
+                    example: '122607.35137903'
+                  accountMaintMargin:
+                    type: string
+                    example: '23.72469206'
+                  accountStatus:
+                    type: string
+                    example: NORMAL
+                required:
+                  - uniMMR
+                  - accountEquity
+                  - accountMaintMargin
+                  - accountStatus
         '400':
           description: Bad Request
           content:
@@ -13151,6 +13792,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: externalUid
+          in: query
+          description: Each external unique ID represents a unique user on the partner platform. The function helps you to identify the redemption behavior of different users, such as redemption frequency and amount. It also helps risk and limit control of a single account, such as daily limit on redemption volume, frequency, and incorrect number of entries. This will also prevent a single user account reach the partner's daily redemption limits. We strongly recommend you to use this feature and transfer us the User ID of your users if you have different users redeeming Binance codes on your platform. To protect user data privacy, you may choose to transfer the user id in any desired format (max. 400 characters).
+          schema:
+            type: string
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -13268,6 +13914,61 @@ paths:
                    - message
                    - data
                    - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/giftcard/cryptography/rsa-public-key:
+    get:
+      summary: Fetch RSA Public Key (USER_DATA)
+      description: |-
+        This API is for fetching the RSA Public Key.
+        This RSA Public key will be used to encrypt the card code.
+        Please note that the RSA Public key fetched is valid only for the current day.
+
+        Weight(IP): 1
+      tags:
+        - Gift Card
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: RSA Public Key.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '000000'
+                  message:
+                    type: string
+                    example: success
+                  data:
+                    type: string
+                    example: >-
+                      MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCXBBVKLAc1GQ5FsIFFqOHrPTox5noBONIKr+IAedTR9FkVxq6e65updEbfdhRNkMOeYIO2i0UylrjGC0X8YSoIszmrVHeV0l06Zh1oJuZos1+7N+WLuz9JvlPaawof3GUakTxYWWCa9+8KIbLKsoKMdfS96VT+8iOXO3quMGKUmQIDAQAB
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - code
+                  - message
+                  - data
+                  - success
         '400':
           description: Bad Request
           content:
@@ -14051,6 +14752,30 @@ components:
       schema:
         type: number
         format: double
+    product:
+      name: product
+      in: query
+      required: true
+      description: |-
+        * `STAKING` - for Locked Staking
+        * `F_DEFI` - for flexible DeFi Staking
+        * `L_DEFI` - for locked DeFi Staking
+      schema:
+        type: string
+    productId:
+      name: productId
+      in: query
+      required: true
+      schema:
+        type: string
+    optionalIsIsolated:
+      name: isIsolated
+      in: query
+      description: |-
+        * `TRUE` - For isolated margin
+        * `FALSE` - Default, not for isolated margin
+      schema:
+        type: string
 
   schemas:
     account:
