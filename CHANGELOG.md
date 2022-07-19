@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.10.0 - 2022-07-19
+
+### Added
+- New endpoint for Market:
+  - `GET /api/v3/ticker` for rolling window price change statistics based on windowSize provided.
+
+- New endpoints for Trade:
+  - `POST /api/v3/order/cancelReplace` to cancel an existing order and place a new order on the same symbol.
+
+- New endpoint for Margin:
+  - `POST /sapi/v3/asset/getUserAsset` to get user assets.
+
+- New endpoint for Wallet:
+  - `GET /sapi/v1/margin/dribblet` to query the historical information of user's margin account small-value asset conversion BNB.
+
+### Changed
+- Update endpoint for Fiat:
+  - `GET /sapi/v1/fiat/orders`: Weight changes from IP(1) to UID(90000)
+
+- Update endpoint for Pay:
+  - `GET /sapi/v1/pay/transactions`: Param names changed: startTimestamp -> startTime; endTimestamp -> endTime.
+
+- Update endpoint for Convert:
+  - `GET /sapi/v1/fiat/orders`: Weight changes from IP(3000) to IP(100)
+
 ## 1.9.0 - 2022-05-23
 
 ### Added
