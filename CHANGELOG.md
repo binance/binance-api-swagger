@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.11.0 - TBD
+## 1.11.0 - 2022-08-15
 
 ### Added
 New endpoint for Portfolio Margin:
