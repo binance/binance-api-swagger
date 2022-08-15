@@ -745,6 +745,8 @@ paths:
         - $ref: '#/components/parameters/quoteOrderQty'
         - $ref: '#/components/parameters/optionalPrice'
         - $ref: '#/components/parameters/newClientOrderId'
+        - $ref: '#/components/parameters/strategyId'
+        - $ref: '#/components/parameters/strategyType'
         - $ref: '#/components/parameters/stopPrice'
         - $ref: '#/components/parameters/optionalTrailingDelta'
         - $ref: '#/components/parameters/icebergQty'
@@ -845,6 +847,8 @@ paths:
         - $ref: '#/components/parameters/quoteOrderQty'
         - $ref: '#/components/parameters/optionalPrice'
         - $ref: '#/components/parameters/newClientOrderId'
+        - $ref: '#/components/parameters/strategyId'
+        - $ref: '#/components/parameters/strategyType'
         - $ref: '#/components/parameters/stopPrice'
         - $ref: '#/components/parameters/optionalTrailingDelta'
         - $ref: '#/components/parameters/icebergQty'
@@ -963,6 +967,8 @@ paths:
             format: int64
             example: 12        
         - $ref: '#/components/parameters/newClientOrderId'
+        - $ref: '#/components/parameters/strategyId'
+        - $ref: '#/components/parameters/strategyType'
         - $ref: '#/components/parameters/stopPrice'
         - $ref: '#/components/parameters/optionalTrailingDelta'
         - $ref: '#/components/parameters/icebergQty'
@@ -1091,7 +1097,6 @@ paths:
                         example: BUY
                       fills:
                         type: array
-                        items: null
                     required:
                       - symbol
                       - orderId
@@ -1271,6 +1276,8 @@ paths:
         - $ref: '#/components/parameters/side'
         - $ref: '#/components/parameters/quantity'
         - $ref: '#/components/parameters/limitClientOrderId'
+        - $ref: '#/components/parameters/limitStrategyId'
+        - $ref: '#/components/parameters/limitStrategyType'
         - $ref: '#/components/parameters/price'
         - $ref: '#/components/parameters/limitIcebergQty'
         - name: trailingDelta
@@ -1280,6 +1287,8 @@ paths:
             format: double
         - $ref: '#/components/parameters/stopClientOrderId'
         - $ref: '#/components/parameters/ocoStopPrice'
+        - $ref: '#/components/parameters/stopStrategyId'
+        - $ref: '#/components/parameters/stopStrategyType'
         - $ref: '#/components/parameters/stopLimitPrice'
         - $ref: '#/components/parameters/stopIcebergQty'
         - $ref: '#/components/parameters/stopLimitTimeInForce'
@@ -11781,6 +11790,121 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/portfolio/collateralRate:
+    get:
+      summary: Portfolio Margin Collateral Rate (MARKET_DATA)
+      description: |-
+        Portfolio Margin Collateral Rate.
+
+        Weight(IP): 50
+      tags:
+        - Portfolio Margin
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Portfolio Margin Collateral Rate.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    asset:
+                      type: string
+                      example: USDC
+                    collateralRate:
+                      type: string
+                      example: '1.0000'
+                  required:
+                    - asset
+                    - collateralRate
+  /sapi/v1/portfolio/pmLoan:
+    get:
+      summary: Query Portfolio Margin Bankruptcy Loan Amount (USER_DATA)
+      description: |-
+        Query Portfolio Margin Bankruptcy Loan Amount.
+
+        Weight(UID): 500
+      tags:
+        - Portfolio Margin
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Portfolio Margin Bankruptcy Loan Amount.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  asset:
+                    type: string
+                    example: BUSD
+                  amount:
+                    type: string
+                    example: '579.45'
+                required:
+                  - asset
+                  - amount
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/portfolio/repay:
+    post:
+      summary: Portfolio Margin Bankruptcy Loan Repay (USER_DATA)
+      description: |-
+        Repay Portfolio Margin Bankruptcy Loan.
+
+        Weight(UID): 3000
+      tags:
+        - Portfolio Margin
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Transaction.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tranId:
+                    type: integer
+                    format: int64
+                    example: 58203331886213500
+                required:
+                  - tranId
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/blvt/tokenInfo:
     get:
       summary: BLVT Info (MARKET_DATA)
@@ -14600,6 +14724,19 @@ components:
       description: Used to uniquely identify this cancel. Automatically generated by default
       schema:
         type: string
+    strategyId:
+      name: strategyId
+      in: query
+      schema:
+        type: integer
+        format: int64
+    strategyType:
+      name: strategyType
+      in: query
+      description: "The value cannot be less than 1000000."
+      schema:
+        type: integer
+        format: int64
     newOrderRespType:
       name: newOrderRespType
       in: query
@@ -15146,6 +15283,19 @@ components:
       description: 'A unique Id for the limit order'
       schema:
         type: string
+    limitStrategyId:
+      name: limitStrategyId
+      in: query
+      schema:
+        type: integer
+        format: int64
+    limitStrategyType:
+      name: limitStrategyType
+      in: query
+      description: "The value cannot be less than 1000000."
+      schema:
+        type: integer
+        format: int64
     limitIcebergQty:
       name: limitIcebergQty
       in: query
@@ -15158,6 +15308,18 @@ components:
       description: 'A unique Id for the stop loss/stop loss limit leg'
       schema:
         type: string
+    stopStrategyId:
+      name: stopStrategyId
+      in: query
+      schema:
+        type: integer
+        format: int64
+    stopStrategyType:
+      name: stopStrategyType
+      in: query
+      schema:
+        type: integer
+        format: int64
     ocoStopPrice:
       name: stopPrice
       in: query
@@ -15808,6 +15970,14 @@ components:
         side: 
           type: string
           example: "SELL"
+        strategyId: 
+          type: integer
+          format: int64
+          example: 1
+        strategyType: 
+          type: integer
+          format: int64
+          example: 1000000
       required:
         - symbol
         - orderId
@@ -15867,6 +16037,14 @@ components:
         side: 
           type: string
           example: "SELL"
+        strategyId: 
+          type: integer
+          format: int64
+          example: 1
+        strategyType: 
+          type: integer
+          format: int64
+          example: 1000000
         fills: 
           type: array
           items: 
