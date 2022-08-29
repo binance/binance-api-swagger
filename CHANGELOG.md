@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.12.0 - TBC
+
+### Added
+- New endpoint for Market:
+  - `GET /api/v3/uiKlines`
+
+- New kline interval: `1s`
+
+- New field `brokered` has been added to `GET /api/v3/account`
+
+### Changed
+- Changes to `GET /api/v3/ticker` and `GET /api/v3/ticker/24hr`
+  - New optional parameter type added
+  - Supported values for parameter type are FULL and MINI
+    - FULL is the default value and the response that is currently being returned from the endpoint
+    - MINI omits the following fields from the response: priceChangePercent, weightedAvgPrice, bidPrice, bidQty, askPrice, askQty, and lastQty
+  
 ## 1.11.0 - 2022-08-15
 
 ### Added
