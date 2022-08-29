@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.12.0 - TBC
+## 1.12.0 - 2022-08-29
 
 ### Added
 - New endpoint for Market:
