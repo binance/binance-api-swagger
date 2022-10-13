@@ -1,5 +1,47 @@
 # Changelog
 
+## 1.13.0 - 2022-10-13
+
+### Added
+- New endpoints for Futures:  
+  - `POST /sapi/v1/futures/transfer`  
+  - `GET /sapi/v1/futures/transfer`  
+  - `GET /sapi/v1/futures/loan/borrow/history`  
+  - `GET /sapi/v1/futures/loan/repay/history`  
+  - `GET /sapi/v2/futures/loan/wallet`  
+  - `GET /sapi/v1/futures/loan/adjustCollateral/history`  
+  - `GET /sapi/v1/futures/loan/liquidationHistory`  
+  - `GET /sapi/v1/futures/loan/interestHistory`  
+- New endpoints for Futures Algo:  
+  - `POST /sapi/v1/algo/futures/newOrderVp`  
+  - `POST /sapi/v1/algo/futures/newOrderTwap`  
+  - `DELETE /sapi/v1/algo/futures/order`  
+  - `GET /sapi/v1/algo/futures/openOrders`  
+  - `GET /sapi/v1/algo/futures/historicalOrders`  
+  - `GET /sapi/v1/algo/futures/subOrders`  
+- New endpoint for Margin：
+  - `GET /sapi/v1/margin/tradeCoeff`: Get personal margin level information  
+- New endpoints for Wallet:
+  - `POST /sapi/v1/asset/convert-transfer`: Convert transfer, convert between BUSD and stablecoins.  
+  - `POST /sapi/v1/asset/convert-transfer/queryByPage`: Query convert transfer  
+- New endpoints for Crypto Loan
+  - `POST /sapi/v1/loan/borrow`: Borrow - Crypto Loan Borrow  
+  - `GET /sapi/v1/loan/borrow/history`: Borrow - Get Loan Borrow History  
+  - `GET /sapi/v1/loan/ongoing/orders`: Borrow - Get Loan Ongoing Orders  
+  - `POST /sapi/v1/loan/repay`: Repay - Crypto Loan Repay  
+  - `GET /sapi/v1/loan/repay/history`: Repay - Get Loan Repayment History  
+  - `POST /sapi/v1/loan/adjust/ltv`: Adjust LTV - Crypto Loan Adjust LTV  
+  - `GET /sapi/v1/loan/ltv/adjustment/history`: Adjust LTV - Get Loan LTV Adjustment History  
+
+### Changed
+- Changes to `GET /api/v3/exchangeInfo`
+  - New optional parameter permissions added to display all symbols with the permissions matching the parameter provided. (eg.SPOT, MARGIN, LEVERAGED)
+  - If not provided, the default value will be ["SPOT","MARGIN", "LEVERAGED"].
+- Update endpoint for Sub-Account:
+  - `POST /sapi/v1/sub-account/subAccountApi/ipRestriction`: Add new param thirdParty  
+  - `POST /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList`: Add new param thirdPartyName  
+  - `DELETE /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList`: Add new param thirdPartyName 
+
 ## 1.12.0 - 2022-08-29
 
 ### Added
