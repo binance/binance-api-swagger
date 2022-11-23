@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.13.1 - 2022-11-23
+### Changed
+- Upgrade Swagger UI
+
+
 ## 1.13.0 - 2022-10-13
 
 ### Added
