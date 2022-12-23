@@ -1,5 +1,37 @@
 # Changelog
 
+## 1.14.0 - 2022-12-23
+### Added
+VIP Loans:
+- `GET /sapi/v1/loan/vip/collateral/account`: Check Locked Value of VIP Collateral Account
+- `GET /sapi/v1/loan/vip/ongoing/orders`: Get VIP Loan Ongoing Orders
+- `POST /sapi/v1/loan/vip/repay`: VIP Loan Repay
+- `GET /sapi/v1/loan/vip/repay/history`: Get VIP Loan Repayment History
+
+Crypto Loan:
+- `GET /sapi/v1/loan/loanable/data`: Get interest rate and borrow limit of loanable assets. The borrow limit is shown in USD value.
+- `GET /sapi/v1/loan/collateral/data`: Get LTV information and collateral limit of collateral assets. The collateral limit is shown in USD value.
+- `GET /sapi/v1/loan/repay/collateral/rate`: Get the the rate of collateral coin / loan coin when using collateral repay, the rate will be valid within 8 second.
+- `POST /sapi/v1/loan/customize/margin_call`: Customize margin call for ongoing orders only.
+
+Convert:
+- `GET /sapi/v1/convert/exchangeInfo`: Query for all convertible token pairs and the tokens’ respective upper/lower limits
+- `GET /sapi/v1/convert/assetInfo`: Query for supported asset’s precision information
+- `POST /sapi/v1/convert/getQuote`: Request a quote for the requested token pairs
+- `POST /sapi/v1/convert/acceptQuote`: Accept the offered quote by quote ID.
+- `GET /sapi/v1/convert/orderStatus`: Query order status by order ID.
+
+Wallet:
+- `GET /sapi/v1/asset/ledger-transfer/cloud-mining/queryByPage`: The query of Cloud-Mining payment and refund history
+
+Sub-account:
+- `GET /sapi/v1/sub-account/apiRestrictions/ipRestriction/thirdPartyList`: To query Sub-Account API key Third Party IP whitelist
+- `POST /sapi/v2/sub-account/subAccountApi/ipRestriction`: To support master account update IP Restriction for Sub-Account API key
+
+Binance Code:
+- `POST /sapi/v1/giftcard/buyCode`: For buying a fixed-value Binance Code.
+- `GET /sapi/v1/giftcard/buyCode/token-limit`: To verify which tokens are available for you to purchase fixed-value gift cards as mentioned in section 2 and its’ limitation.
+
 ## 1.13.1 - 2022-11-23
 ### Changed
 - Upgrade Swagger UI
@@ -8,44 +40,44 @@
 ## 1.13.0 - 2022-10-13
 
 ### Added
-- New endpoints for Futures:  
-  - `POST /sapi/v1/futures/transfer`  
-  - `GET /sapi/v1/futures/transfer`  
-  - `GET /sapi/v1/futures/loan/borrow/history`  
-  - `GET /sapi/v1/futures/loan/repay/history`  
-  - `GET /sapi/v2/futures/loan/wallet`  
-  - `GET /sapi/v1/futures/loan/adjustCollateral/history`  
-  - `GET /sapi/v1/futures/loan/liquidationHistory`  
-  - `GET /sapi/v1/futures/loan/interestHistory`  
-- New endpoints for Futures Algo:  
-  - `POST /sapi/v1/algo/futures/newOrderVp`  
-  - `POST /sapi/v1/algo/futures/newOrderTwap`  
-  - `DELETE /sapi/v1/algo/futures/order`  
-  - `GET /sapi/v1/algo/futures/openOrders`  
-  - `GET /sapi/v1/algo/futures/historicalOrders`  
-  - `GET /sapi/v1/algo/futures/subOrders`  
+- New endpoints for Futures:
+  - `POST /sapi/v1/futures/transfer`
+  - `GET /sapi/v1/futures/transfer`
+  - `GET /sapi/v1/futures/loan/borrow/history`
+  - `GET /sapi/v1/futures/loan/repay/history`
+  - `GET /sapi/v2/futures/loan/wallet`
+  - `GET /sapi/v1/futures/loan/adjustCollateral/history`
+  - `GET /sapi/v1/futures/loan/liquidationHistory`
+  - `GET /sapi/v1/futures/loan/interestHistory`
+- New endpoints for Futures Algo:
+  - `POST /sapi/v1/algo/futures/newOrderVp`
+  - `POST /sapi/v1/algo/futures/newOrderTwap`
+  - `DELETE /sapi/v1/algo/futures/order`
+  - `GET /sapi/v1/algo/futures/openOrders`
+  - `GET /sapi/v1/algo/futures/historicalOrders`
+  - `GET /sapi/v1/algo/futures/subOrders`
 - New endpoint for Margin：
-  - `GET /sapi/v1/margin/tradeCoeff`: Get personal margin level information  
+  - `GET /sapi/v1/margin/tradeCoeff`: Get personal margin level information
 - New endpoints for Wallet:
-  - `POST /sapi/v1/asset/convert-transfer`: Convert transfer, convert between BUSD and stablecoins.  
-  - `POST /sapi/v1/asset/convert-transfer/queryByPage`: Query convert transfer  
+  - `POST /sapi/v1/asset/convert-transfer`: Convert transfer, convert between BUSD and stablecoins.
+  - `POST /sapi/v1/asset/convert-transfer/queryByPage`: Query convert transfer
 - New endpoints for Crypto Loan
-  - `POST /sapi/v1/loan/borrow`: Borrow - Crypto Loan Borrow  
-  - `GET /sapi/v1/loan/borrow/history`: Borrow - Get Loan Borrow History  
-  - `GET /sapi/v1/loan/ongoing/orders`: Borrow - Get Loan Ongoing Orders  
-  - `POST /sapi/v1/loan/repay`: Repay - Crypto Loan Repay  
-  - `GET /sapi/v1/loan/repay/history`: Repay - Get Loan Repayment History  
-  - `POST /sapi/v1/loan/adjust/ltv`: Adjust LTV - Crypto Loan Adjust LTV  
-  - `GET /sapi/v1/loan/ltv/adjustment/history`: Adjust LTV - Get Loan LTV Adjustment History  
+  - `POST /sapi/v1/loan/borrow`: Borrow - Crypto Loan Borrow
+  - `GET /sapi/v1/loan/borrow/history`: Borrow - Get Loan Borrow History
+  - `GET /sapi/v1/loan/ongoing/orders`: Borrow - Get Loan Ongoing Orders
+  - `POST /sapi/v1/loan/repay`: Repay - Crypto Loan Repay
+  - `GET /sapi/v1/loan/repay/history`: Repay - Get Loan Repayment History
+  - `POST /sapi/v1/loan/adjust/ltv`: Adjust LTV - Crypto Loan Adjust LTV
+  - `GET /sapi/v1/loan/ltv/adjustment/history`: Adjust LTV - Get Loan LTV Adjustment History
 
 ### Changed
 - Changes to `GET /api/v3/exchangeInfo`
   - New optional parameter permissions added to display all symbols with the permissions matching the parameter provided. (eg.SPOT, MARGIN, LEVERAGED)
   - If not provided, the default value will be ["SPOT","MARGIN", "LEVERAGED"].
 - Update endpoint for Sub-Account:
-  - `POST /sapi/v1/sub-account/subAccountApi/ipRestriction`: Add new param thirdParty  
-  - `POST /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList`: Add new param thirdPartyName  
-  - `DELETE /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList`: Add new param thirdPartyName 
+  - `POST /sapi/v1/sub-account/subAccountApi/ipRestriction`: Add new param thirdParty
+  - `POST /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList`: Add new param thirdPartyName
+  - `DELETE /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList`: Add new param thirdPartyName
 
 ## 1.12.0 - 2022-08-29
 
@@ -63,7 +95,7 @@
   - Supported values for parameter type are FULL and MINI
     - FULL is the default value and the response that is currently being returned from the endpoint
     - MINI omits the following fields from the response: priceChangePercent, weightedAvgPrice, bidPrice, bidQty, askPrice, askQty, and lastQty
-  
+
 ## 1.11.0 - 2022-08-15
 
 ### Added
