@@ -240,6 +240,14 @@ paths:
                           items:
                             type: string
                             example: "SPOT"
+                        defaultSelfTradePreventionMode:
+                          type: string
+                          example: "NONE"
+                        allowedSelfTradePreventionModes:
+                          type: array
+                          items:
+                            type: string
+                            example: "NONE"
                       required:
                         - symbol
                         - status
@@ -258,6 +266,8 @@ paths:
                         - isMarginTradingAllowed
                         - filters
                         - permissions
+                        - defaultSelfTradePreventionMode
+                        - allowedSelfTradePreventionModes
                 required:
                   - timezone
                   - serverTime
@@ -408,8 +418,16 @@ paths:
       summary: Compressed/Aggregate Trades List
       description: |-
         Get compressed, aggregate trades. Trades that fill at the time, from the same order, with the same price will have the quantity aggregated.
-        - If `startTime` and `endTime` are sent, time between startTime and endTime must be less than 1 hour.
         - If `fromId`, `startTime`, and `endTime` are not sent, the most recent aggregate trades will be returned.
+        - Note that if a trade has the following values, this was a duplicate aggregate trade and marked as invalid:
+        
+          p = '0' // price
+          
+          q = '0' // qty
+          
+          f = -1 // ﬁrst_trade_id
+          
+          l = -1 // last_trade_id
 
         Weight(IP): 1
       tags:
@@ -1004,9 +1022,9 @@ paths:
       description: |-
         Cancels an existing order and places a new order on the same symbol.
 
-        Filters are evaluated before the cancel order is placed.
+        Filters and Order Count are evaluated before the processing of the cancellation and order placement occurs.
 
-        If the new order placement is successfully sent to the engine, the order count will increase by 1.
+        A new order that was not attempted (i.e. when newOrderResult: NOT_ATTEMPTED), will still increase the order count by 1.
 
         Weight(IP): 1
       tags:
@@ -1115,6 +1133,9 @@ paths:
                       side:
                         type: string
                         example: SELL
+                      selfTradePreventionMode:
+                        type: string
+                        example: NONE
                     required:
                       - symbol
                       - origClientOrderId
@@ -1129,6 +1150,7 @@ paths:
                       - timeInForce
                       - type
                       - side
+                      - selfTradePreventionMode
                   newOrderResponse:
                     type: object
                     properties:
@@ -1174,11 +1196,18 @@ paths:
                       side:
                         type: string
                         example: BUY
+                      workingTime:
+                        type: integer
+                        format: int64
+                        example: 1669277163808
                       fills:
                         type: array
                         items:
                           type: string
                         maxItems: 0
+                      selfTradePreventionMode:
+                        type: string
+                        example: NONE
                     required:
                       - symbol
                       - orderId
@@ -1193,7 +1222,9 @@ paths:
                       - timeInForce
                       - type
                       - side
+                      - workingTime
                       - fills
+                      - selfTradePreventionMode
                 required:
                   - cancelResult
                   - newOrderResult
@@ -1470,6 +1501,10 @@ paths:
                           type: string
                         stopPrice:
                           type: string
+                        workingTime:
+                          type: string
+                        selfTradePreventionMode:
+                          type: string
                       required:
                         - symbol
                         - orderId
@@ -1485,6 +1520,8 @@ paths:
                         - type
                         - side
                         - stopPrice
+                        - workingTime
+                        - selfTradePreventionMode
                     example:
                       - symbol: "LTCBTC"
                         orderId: 2
@@ -1500,6 +1537,8 @@ paths:
                         type: "STOP_LOSS"
                         side: "BUY"
                         stopPrice: "0.960664"
+                        workingTime: -1
+                        selfTradePreventionMode: "NONE"
                       - symbol: "LTCBTC"
                         orderId: 3
                         orderListId: 0
@@ -1513,6 +1552,8 @@ paths:
                         timeInForce: "GTC"
                         type: "LIMIT_MAKER"
                         side: "BUY"
+                        workingTime: 1563417480525
+                        selfTradePreventionMode: "NONE"
                 required:
                   - orderListId
                   - contingencyType
@@ -1895,6 +1936,23 @@ paths:
         Get trades for a specific account and symbol.
 
         If `fromId` is set, it will get id >= that `fromId`. Otherwise most recent orders are returned.
+        
+        The time between startTime and endTime can't be longer than 24 hours.
+        These are the supported combinations of all parameters:
+
+          symbol
+
+          symbol + orderId
+
+          symbol + startTime
+
+          symbol + endTime
+
+          symbol + fromId
+
+          symbol + startTime + endTime
+
+          symbol+ orderId + fromId
 
         Weight(IP): 10
       tags:
@@ -6814,6 +6872,106 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/capital/contract/convertible-coins:
+    get:
+      summary: Query auto-converting stable coins (USER_DATA)
+      description: |-
+        Get a user's auto-conversion settings in deposit/withdrawal
+        
+        Weight(UID): 600'
+      tags:
+        - Wallet
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: User's auto-conversion settings i
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  convertEnabled: 
+                    type: boolean
+                  coins: 
+                    type: array
+                    items: 
+                      type: string
+                      example: "USDC"
+                  exchangeRates: 
+                    type: object
+                    properties: 
+                      USDC: 
+                        type: string
+                        example: "1"
+                      TUSD: 
+                        type: string
+                        example: "1"
+                      USDP: 
+                        type: string
+                        example: "1"
+                    required: 
+                      - USDC
+                      - TUSD
+                      - USDP
+                required: 
+                   - convertEnabled
+                   - coins
+                   - exchangeRates
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      summary: Switch on/off BUSD and stable coins conversion (USER_DATA) (USER_DATA)
+      description: |-
+        User can use it to turn on or turn off the BUSD auto-conversion from/to a specific stable coin.
+        
+        Weight(UID): 600'
+      tags:
+        - Wallet
+      parameters:
+        - name: coin
+          in: query
+          required: true
+          description: "Must be USDC, USDP or TUSD"
+          schema:
+            type: string
+        - name: enable
+          in: query
+          required: true
+          description: "true: turn on the auto-conversion. false: turn off the auto-conversion"
+          schema:
+            type: boolean
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/sub-account/virtualSubAccount:
     post:
       summary: Create a Virtual Sub-account(For Master Account)
@@ -8964,66 +9122,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/sub-account/subAccountApi/ipRestriction:
-    post:
-      summary: Enable or Disable IP Restriction for a Sub-account API Key (For Master Account)
-      description: 'Weight(UID): 3000'
-      tags:
-        - Sub-Account
-      parameters:
-        - $ref: '#/components/parameters/subAccountEmail'
-        - $ref: '#/components/parameters/subAccountApiKey'
-        - $ref: '#/components/parameters/ipRestrict'
-        - $ref: '#/components/parameters/thirdParty'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: IP Restriction information
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ipRestrict:
-                    type: string
-                    example: "true"
-                  ipList:
-                    type: array
-                    items:
-                      anyOf:
-                        - type: string
-                          example: "0.0.0.0"
-                          description: "0.0.0.0 is just an initial state reference (no extra meaning).You can use `POST /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList` to add an IP whitelist"
-                        - type: string
-                          example: "thirdPartyName"
-                          description: "only return if you open third party IP list and input a third party name. You can use `POST /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList` to add third party name."
-                  updateTime:
-                    type: integer
-                    format: int64
-                    example: 1636369557189
-                  apiKey:
-                    type: string
-                    example: "k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf"
-                required:
-                  - ipRestrict
-                  - ipList
-                  - updateTime
-                  - apiKey
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
     get:
       summary: Get IP Restriction for a Sub-account API Key (For Master Account)
       description: 'Weight(UID): 3000'
@@ -9080,60 +9178,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList:
-    post:
-      summary: Add IP List for a Sub-account API Key (For Master Account)
-      description: |-
-        Before the usage of this endpoint, please ensure `POST /sapi/v1/sub-account/subAccountApi/ipRestriction` was used to enable the IP restriction.
-
-        Weight(UID): 3000
-      tags:
-        - Sub-Account
-      parameters:
-        - $ref: '#/components/parameters/subAccountEmail'
-        - $ref: '#/components/parameters/subAccountApiKey'
-        - $ref: '#/components/parameters/ipAddress'
-        - $ref: '#/components/parameters/thirdPartyName'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Add IP information
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ip:
-                    type: string
-                    example:
-                    - "8.34.21.1015.24.40.1"
-                    - "thirdPartyName"
-                  updateTime:
-                    type: integer
-                    format: int64
-                    example: 1636369557189
-                  apiKey:
-                    type: string
-                    example: k5V49ldtn4tszj6W3hystegdfvmGbqDzjmkCtpTvC0G74WhK7yd4rfCTo4lShf
-                required:
-                  - ip
-                  - updateTime
-                  - apiKey
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
     delete:
       summary: Delete IP List for a Sub-account API Key (For Master Account)
       description: "Weight(UID): 3000"
@@ -17765,7 +17809,7 @@ paths:
 
         - You have a Binance account
         - You have passed kyc
-        - You have a sufﬁcient balance in your Binance funding wallet
+        - You have a sufficient balance in your Binance funding wallet
         - You need Enable Withdrawals for the API Key which requests this endpoint.
 
         Daily creation volume: 2 BTC / 24H Daily creation times: 200 Codes / 24H
@@ -18055,7 +18099,7 @@ paths:
         To get started with, please make sure:
         - You have a Binance account
         - You have passed kyc
-        - You have a sufﬁcient balance in your Binance funding wallet
+        - You have a sufficient balance in your Binance funding wallet
         - You need Enable Withdrawals for the API Key which requests this endpoint.
 
         Daily creation volume: 2 BTC / 24H Daily creation times: 200 Codes / 24H
@@ -19149,6 +19193,26 @@ components:
           type: integer
           format: int64
           example: 0
+        commissionRates: 
+          type: object
+          properties: 
+            maker: 
+              type: string
+              example: "0.00150000"
+            taker: 
+              type: string
+              example: "0.00150000"
+            buyer: 
+              type: string
+              example: "0.00000000"
+            seller: 
+              type: string
+              example: "0.00000000"
+          required: 
+            - maker
+            - taker
+            - buyer
+            - seller
         canTrade:
           type: boolean
         canWithdraw:
@@ -19157,6 +19221,10 @@ components:
           type: boolean
         brokered:
           type: boolean
+          example: false
+        requireSelfTradePrevention:
+          type: boolean
+          example: false
         updateTime:
           type: integer
           format: int64
@@ -19187,10 +19255,12 @@ components:
         - takerCommission
         - buyerCommission
         - sellerCommission
+        - commissionRates
         - canTrade
         - canWithdraw
         - canDeposit
         - brokered
+        - requireSelfTradePrevention
         - updateTime
         - accountType
         - balances
@@ -19239,6 +19309,9 @@ components:
         side:
           type: string
           example: "SELL"
+        selfTradePreventionMode:
+          type: string
+          example: "NONE"
       required:
         - symbol
         - origClientOrderId
@@ -19253,6 +19326,7 @@ components:
         - timeInForce
         - type
         - side
+        - selfTradePreventionMode
     ocoOrder:
       type: object
       properties:
@@ -19337,6 +19411,8 @@ components:
                 type: string
               stopPrice:
                 type: string
+              selfTradePreventionMode:
+                type: string
             required:
               - symbol
               - origClientOrderId
@@ -19352,6 +19428,7 @@ components:
               - type
               - side
               - stopPrice
+              - selfTradePreventionMode
           example:
             - symbol: "BNBBTC"
               origClientOrderId: "pO9ufTiFGg3nw2fOdgeOXa"
@@ -19380,6 +19457,7 @@ components:
               timeInForce: "GTC"
               type: "LIMIT_MAKER"
               side: "SELL"
+              selfTradePreventionMode: "NONE"
       required:
         - orderListId
         - contingencyType
@@ -19589,9 +19667,16 @@ components:
           example: 1499827319559
         isWorking:
           type: boolean
+        workingTime:
+          type: integer
+          format: int64
+          example: 1499827319559
         origQuoteOrderQty:
           type: string
           example: "0.00000000"
+        selfTradePreventionMode:
+          type: string
+          example: NONE
       required:
         - symbol
         - orderId
@@ -19610,7 +19695,9 @@ components:
         - time
         - updateTime
         - isWorking
+        - workingTime
         - origQuoteOrderQty
+        - selfTradePreventionMode
     orderResponseAck:
       type: object
       properties:
@@ -19691,6 +19778,13 @@ components:
           type: integer
           format: int64
           example: 1000000
+        workingTime:
+          type: integer
+          format: int64
+          example: 1507725176595
+        selfTradePreventionMode:
+          type: string
+          example: "NONE"        
       required:
         - symbol
         - orderId
@@ -19705,6 +19799,8 @@ components:
         - timeInForce
         - type
         - side
+        - workingTime
+        - selfTradePreventionMode
     orderResponseFull:
       type: object
       properties:
@@ -19758,6 +19854,13 @@ components:
           type: integer
           format: int64
           example: 1000000
+        workingTime:
+          type: integer
+          format: int64
+          example: 1507725176595
+        selfTradePreventionMode:
+          type: string
+          example: "NONE"
         fills:
           type: array
           items:
@@ -19794,6 +19897,8 @@ components:
         - timeInForce
         - type
         - side
+        - workingTime
+        - selfTradePreventionMode
         - fills
     marginOrder:
       type: object

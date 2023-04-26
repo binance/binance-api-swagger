@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.15.0 - 2023-04-26
+### Added
+- New response fields `defaultSelfTradePreventionMode` and `allowedSelfTradePreventionModes` to `GET /api/v3/exchangeInfo`.
+- New response field `selfTradePreventionMode` to the following endpoints:
+  - `POST /api/v3/order`
+  - `POST /api/v3/order/oco`
+  - `POST /api/v3/order/cancelReplace`
+  - `GET /api/v3/order`
+  - `DELETE /api/v3/order`
+  - `DELETE /api/v3/orderList`
+- New response field `requireSelfTradePrevention` to `GET /api/v3/account`.
+- New response field `workingTime` to the following endpoints:
+  - `POST /api/v3/order`
+  - `GET /api/v3/order`
+  - `POST /api/v3/order/cancelReplace`
+  - `POST /api/v3/order/oco`
+  - `GET /api/v3/openOrders`
+  - `GET /api/v3/allOrders`
+- New response field `commissionRates` to `GET /api/v3/acccount`.
+
+### Removed
+- Discontinued endpoints `POST /sapi/v1/sub-account/subAccountApi/ipRestriction` and `POST /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList`.
+
+### Changed
+- Replace `sufﬁcient` word (contains special character) with `sufficient`.
+
 ## 1.14.0 - 2022-12-23
 ### Added
 VIP Loans:
