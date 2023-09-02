@@ -1,5 +1,101 @@
 # Changelog
 
+## 1.16.0 - 2023-09-02
+### Added
+- `GET /sapi/v1/managed-subaccount/queryTransLogForInvestor`
+- `GET /sapi/v1/managed-subaccount/queryTransLogForTradeParent`
+- `GET /sapi/v1/managed-subaccount/fetch-future-asset`
+- `GET /sapi/v1/managed-subaccount/marginAsset`
+- `GET /sapi/v1/margin/crossMarginCollateralRatio`
+- `GET /api/v3/myPreventedMatches`
+- `GET /sapi/v1/margin/exchange-small-liability`
+- `GET /sapi/v1/margin/exchange-small-liability-history`
+- `GET /sapi/v4/sub-account/assets`
+- `GET /sapi/v1/margin/next-hourly-interest-rate`
+- `GET /sapi/v1/portfolio/interest-history`
+- `GET /sapi/v1/managed-subaccount/info`
+- `GET /sapi/v1/sub-account/transaction-statistics`
+- `POST /sapi/v1/algo/spot/newOrderTwap`
+- `DELETE /sapi/v1/algo/spot/order`
+- `GET /sapi/v1/algo/spot/openOrders`
+- `GET /sapi/v1/algo/spot/historicalOrders`
+- `GET /sapi/v1/algo/spot/subOrders`
+- `GET /sapi/v1/managed-subaccount/deposit/address`
+- `GET /sapi/v1/portfolio/asset-index-price`
+- `POST /sapi/v1/capital/deposit/credit-apply`
+- `POST /sapi/v1/portfolio/auto-collection`
+- `POST /sapi/v1/portfolio/bnb-transfer`
+- `GET /sapi/v1/lending/auto-invest/target-asset/list`
+- `GET /sapi/v1/lending/auto-invest/target-asset/roi/list`
+- `GET /sapi/v1/lending/auto-invest/all/asset`
+- `GET /sapi/v1/lending/auto-invest/source-asset/list`
+- `POST /sapi/v1/lending/auto-invest/plan/add`
+- `POST/sapi/v1/lending/auto-invest/plan/edit`
+- `POST /sapi/v1/lending/auto-invest/plan/edit-status`
+- `GET /sapi/v1/lending/auto-invest/plan/list`
+- `GET /sapi/v1/lending/auto-invest/plan/id`
+- `GET /sapi/v1/lending/auto-invest/history/list`
+- `POST /sapi/v1/sub-account/eoptions/enable`
+- `GET /sapi/v1/managed-subaccount/query-trans-log`
+- `GET /sapi/v1/margin/dust`
+- `POST /sapi/v1/margin/dust`
+- `POST /sapi/v1/loan/vip/borrow`
+- `GET /sapi/v1/loan/vip/loanable/data`
+- `GET /sapi/v1/loan/vip/collateral/data`
+- `GET /sapi/v1/loan/vip/request/data`
+- `POST /sapi/v1/margin/max-leverage`
+- `POST /sapi/v1/portfolio/repay-futures-switch`
+- `GET /sapi/v1/portfolio/repay-futures-switch`
+- `POST /sapi/v1/portfolio/repay-futures-negative-balance`
+- `POST /sapi/v1/loan/vip/renew`
+- `POST /sapi/v1/portfolio/asset-collection`
+- `POST /sapi/v1/loan/flexible/borrow`
+- `GET /sapi/v1/loan/flexible/ongoing/orders`
+- `GET /sapi/v1/loan/flexible/borrow/history`
+- `POST /sapi/v1/loan/flexible/repay`
+- `GET /sapi/v1/loan/flexible/repay/history`
+- `POST /sapi/v1/loan/flexible/adjust/ltv`
+- `GET /sapi/v1/loan/flexible/ltv/adjustment/history`
+- `GET /sapi/v1/loan/flexible/loanable/data`
+- `GET /sapi/v1/loan/flexible/collateral/data`
+
+### Changed
+- Add new fields `preventedMatchId` and `preventedQuantity` to :
+  - `GET /api/v3/order`
+  - `GET /api/v3/openOrders`
+  - `GET /api/v3/allOrders`
+- Add new optional parameter `selfTradePreventionMode` to:
+  - `POST /api/v3/order`
+  - `POST /api/v3/order/oco`
+  - `POST /api/v3/order/cancelReplace`
+- Add new optional parameter `cancelRestrictions` to:
+  - `DELETE /api/v3/order`
+  - `POST /api/v3/order/cancelReplace`
+- Add `totalCollateralValueAfterHaircut` and `lockedCollateralValue` to `GET /sapi/v1/loan/vip/ongoing/orders`
+- Add `preventSor` and `uid` to `GET /api/v3/account`
+- Update security type from `MARKET_DATA` to `NONE` to `GET /api/v3/historicalTrades`
+- Add `transactTime` to:
+  - `DELETE /api/v3/order`
+  - `POST /api/v3/order/cancelReplace`
+  - `DELETE /api/v3/openOrders`
+  - `DELETE /api/v3/orderList`
+- Add `isFlexibleRate` to `POST /sapi/v1/loan/vip/borrow`
+- Add `autoRepayAtCancel` and `selfTradePreventionMode` to `POST /sapi/v1/margin/order`
+- Add `selfTradePreventionMode` to `POST /sapi/v1/margin/order/oco`
+
+### Removed
+- `GET /sapi/v1/lending/daily/product/list`
+- `GET /sapi/v1/lending/daily/userLeftQuota`
+- `POST /sapi/v1/lending/daily/purchase`
+- `GET /sapi/v1/lending/daily/userRedemptionQuota`
+- `POST /sapi/v1/lending/daily/redeem`
+- `GET /sapi/v1/lending/daily/token/position`
+- `GET /sapi/v1/lending/union/account`
+- `GET /sapi/v1/lending/union/purchaseRecord`
+- `GET /sapi/v1/lending/union/redemptionRecord`
+- `GET /sapi/v1/lending/union/interestHistory`
+
+
 ## 1.15.0 - 2023-04-26
 ### Added
 - New response fields `defaultSelfTradePreventionMode` and `allowedSelfTradePreventionModes` to `GET /api/v3/exchangeInfo`.
@@ -19,6 +115,7 @@
   - `GET /api/v3/openOrders`
   - `GET /api/v3/allOrders`
 - New response field `commissionRates` to `GET /api/v3/acccount`.
+
 
 ### Removed
 - Discontinued endpoints `POST /sapi/v1/sub-account/subAccountApi/ipRestriction` and `POST /sapi/v1/sub-account/subAccountApi/ipRestriction/ipList`.
