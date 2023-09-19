@@ -9976,9 +9976,9 @@ paths:
                         - createTime
                         - status
                         - tranId
-              required:
-                - count
-                - managerSubTransferHistoryVos
+                required:
+                  - count
+                  - managerSubTransferHistoryVos
         '400':
           description: Bad Request
           content:
@@ -10606,7 +10606,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         userId:
                           type: integer
                           format: int64
@@ -20078,7 +20078,7 @@ paths:
           schema:
             type: integer
             format: int64
-            exampe: 1624248872185
+            example: 1624248872185
         - name: limit
           in: query
           description: "default 100, max 1000"
@@ -21206,8 +21206,14 @@ paths:
                     items:
                       type: string
                       example: ["BTC", "BNB"]
-                  required:
-                    - targetAssets
+                  sourceAssets:
+                    type: array
+                    items:
+                      type: string
+                      example: ["BTC", "BNB"]
+                required:
+                  - targetAssets
+                  - sourceAssets
         '400':
           description: Bad Request
           content:
@@ -21295,7 +21301,7 @@ paths:
                         - assetMaxAmount
                         - scale
                         - flexibleAmount
-                require:
+                required:
                   - feeRate
                   - sourceAssets
         '400':
@@ -21644,22 +21650,22 @@ paths:
                           example: "true"
                         creationDateTime:
                           type: number
-                          foramt: int64
+                          format: int64
                           example: 1648378800000
                         firstExecutionDateTime:
                           type: number
-                          foramt: int64
+                          format: int64
                           example: 1648378800000
                         nextExecutionDateTime:
                           type: number
-                          foramt: int64
+                          format: int64
                           example: 1648378800000
                         status:
                           type: string
                           example: "ONGOING"
                         lastUpdatedDateTime:
                           type: number
-                          foramt: int64
+                          format: int64
                           example: 1648378800000
                         targetAsset:
                           type: string
@@ -21807,15 +21813,15 @@ paths:
                           example: "false"
                         creationDateTime:
                           type: number
-                          foramt: int64
+                          format: int64
                           example: 1648378800000
                         firstExecutionDateTime:
                           type: number
-                          foramt: int64
+                          format: int64
                           example: 1648378800000
                         nextExecutionDateTime:
                           type: number
-                          foramt: int64
+                          format: int64
                           example: 1648378800000
                         status:
                           type: string
@@ -21992,7 +21998,7 @@ paths:
                       example: 1234
                     transactionDateTime:
                       type: number
-                      foramt: int64
+                      format: int64
                       example: 1648378800000
                     transactionStatus:
                       type: string
@@ -22091,7 +22097,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         asset:
                           type: string
                           example: "BTC"
@@ -22203,7 +22209,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         projectId:
                           type: string
                           example: "BNB"
@@ -22575,7 +22581,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         totalAmount:
                           type: string
                           example: "75.46000000"
@@ -22702,7 +22708,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         positionId:
                           type: string
                           example: "123123"
@@ -22870,7 +22876,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         amount:
                           type: string
                           example: "100.00000000"
@@ -22971,7 +22977,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         positionId:
                           type: string
                           example: "123123"
@@ -23081,7 +23087,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         amount:
                           type: string
                           example: "10.54000000"
@@ -23174,7 +23180,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         positionId:
                           type: string
                           example: "123123"
@@ -23272,7 +23278,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         asset:
                           type: string
                           example: "BUSD"
@@ -23350,7 +23356,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         positionId:
                           type: string
                           example: "123123"
@@ -23771,7 +23777,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         productId:
                           type: string
                           example: "BUSD001"
@@ -23842,7 +23848,7 @@ paths:
                     type: array
                     items:
                       type: object
-                      properities:
+                      properties:
                         amount:
                           type: string
                           example: "100.00000000"
@@ -23909,7 +23915,7 @@ components:
         type: string
         enum: ['true','false']
         example: 'true'
-      interestBNBBurn:
+    interestBNBBurn:
         name: interestBNBBurn
         in: query
         description: Determines whether to use BNB to pay for margin loan interest
@@ -24195,7 +24201,7 @@ components:
         type: string
         example: "BNB"
     collateralAmount:
-      mame: collateralAmount
+      name: collateralAmount
       in: query
       schema:
         type: number
@@ -27324,166 +27330,6 @@ components:
               - unrealizedProfit
       required:
         - deliveryPositionRiskVos
-    savingsFlexiblePurchaseRecord:
-      type: array
-      items:
-        type: object
-        properties:
-          amount:
-            type: string
-            example: "100.00000000"
-          asset:
-            type: string
-            example: "USDT"
-          createTime:
-            type: integer
-            format: int64
-            example: 1575018510000
-          lendingType:
-            type: string
-            example: "DAILY"
-          productName:
-            type: string
-            example: "USDT"
-          purchaseId:
-            type: integer
-            format: int64
-            example: 26055
-          status:
-            type: string
-            example: "SUCCESS"
-        required:
-          - amount
-          - asset
-          - createTime
-          - lendingType
-          - productName
-          - purchaseId
-          - status
-    savingsFixedActivityPurchaseRecord:
-      type: array
-      items:
-        type: object
-        properties:
-          amount:
-            type: string
-            example: "100.00000000"
-          asset:
-            type: string
-            example: "USDT"
-          createTime:
-            type: integer
-            format: int64
-            example: 1575018453000
-          lendingType:
-            type: string
-            example: "ACTIVITY"
-          lot:
-            type: integer
-            format: int64
-            example: 1
-          productName:
-            type: string
-            example: "【Special】USDT 7D (8%)"
-          purchaseId:
-            type: integer
-            format: int64
-            example: 36857
-          status:
-            type: string
-            example: "SUCCESS"
-        required:
-          - amount
-          - asset
-          - createTime
-          - lendingType
-          - lot
-          - productName
-          - purchaseId
-          - status
-    savingsFlexibleRedemptionRecord:
-      type: array
-      items:
-        type: object
-        properties:
-          amount:
-            type: string
-            example: "10.54000000"
-          asset:
-            type: string
-            example: "USDT"
-          createTime:
-            type: integer
-            format: int64
-            example: 1577257222000
-          principal:
-            type: string
-            example: "10.54000000"
-          projectId:
-            type: string
-            example: "USDT001"
-          projectName:
-            type: string
-            example: "USDT"
-          status:
-            type: string
-            example: "PAID"
-          type:
-            type: string
-            example: "FAST"
-        required:
-          - amount
-          - asset
-          - createTime
-          - principal
-          - projectId
-          - projectName
-          - status
-          - type
-    savingsFixedActivityRedemptionRecord:
-      type: array
-      items:
-        type: object
-        properties:
-          amount:
-            type: string
-            example: "0.07070000"
-          asset:
-            type: string
-            example: "USDT"
-          createTime:
-            type: integer
-            format: int64
-            example: 1566200161000
-          interest:
-            type: string
-            example: "0.00070000"
-          principal:
-            type: string
-            example: "0.07000000"
-          projectId:
-            type: string
-            example: "test06"
-          projectName:
-            type: string
-            example: "USDT 1 day (10% annualized)"
-          startTime:
-            type: integer
-            format: int64
-            example: 1566198000000
-          status:
-            type: string
-            example: "PAID"
-        required:
-          - amount
-          - asset
-          - createTime
-          - interest
-          - principal
-          - projectId
-          - projectName
-          - startTime
-          - status
     bswapAddLiquidityPreviewCombination:
       type: object
       properties:

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.17.1 - 2023-09-19
+### Changed
+- Fixing typo
+
 ## 1.17.0 - 2023-09-19
 ### Added
 - `GET /sapi/v1/simple-earn/flexible/list`
