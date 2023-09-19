@@ -68,6 +68,8 @@ tags:
     description: Gift Card Endpoints
   - name: Auto-Invest
     description: Auto-Invest Endpoints
+  - name: Simple Earn
+    description: Simple Earn Endpoints
 paths:
   /api/v3/ping:
     get:
@@ -2133,7 +2135,7 @@ paths:
                       format: int64
                       example: 1
                     selfTradePreventionMode:
-                      type: sting
+                      type: string
                       example: "EXPIRE_MAKER"
                     price:
                       type: string
@@ -2189,7 +2191,8 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [1,2]
+            minimum: 1
+            maximum: 2
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -4995,16 +4998,12 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/margin/crossMarginCollateralRatio:
     get:
-      summary: Cross margin collateral ratio
+      summary: Cross margin collateral ratio (MARKET_DATA)
       description: |-
 
         Weight(IP): 100
       tags:
         - Margin
-      parameters:
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
       security:
         - ApiKeyAuth: []
       responses:
@@ -5051,7 +5050,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/margin/exchange-small-liability:
     get:
-      summary: Get Small Liability Exchange Coin List
+      summary: Get Small Liability Exchange Coin List (USER_DATA)
       description: |-
         Query the coins which can be small liability exchange
 
@@ -5110,7 +5109,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/margin/exchange-small-liability-history:
     get:
-      summary: Get Small Liability Exchange History
+      summary: Get Small Liability Exchange History (USER_DATA)
       description: |-
         Get Small liability Exchange History
 
@@ -5186,7 +5185,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/margin/next-hourly-interest-rate:
     get:
-      summary: Get a future hourly interest rate
+      summary: Get a future hourly interest rate (USER_DATA)
       description: |-
         Get user the next hourly estimate interest
 
@@ -5245,7 +5244,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/margin/dust:
     get:
-      summary: Get Assets That Can Be Converted Into BNB
+      summary: Get Assets That Can Be Converted Into BNB (USER_DATA)
       description: |-
         Get assets that can be converted into BNB.
 
@@ -5327,7 +5326,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
     post:
-      summary: Dust Transfer
+      summary: Dust Transfer (TRADE)
       description: |-
         Convert dust assets to BNB
 
@@ -5404,8 +5403,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/margin/max-leverage:
-    get:
-      summary: Adjust cross margin max leverage
+    post:
+      summary: Adjust cross margin max leverage (USER_DATA)
       description: |-
         Adjust cross margin max leverage
 
@@ -5883,7 +5882,6 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [0, 6, 1]
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/offset'
@@ -5996,7 +5994,8 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [0,1,2,3,4,5,6]
+            minimum: 0
+            maximum: 6
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/offset'
@@ -7133,7 +7132,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/asset/convert-transfer/queryByPage:
-    post:
+    get:
       summary: Query Convert Transfer (USER_DATA)
       description: |-
         Weight(UID): 5
@@ -8177,8 +8176,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/capital/deposit/credit-apply:
-    get:
-      summary: One click arrival deposit apply
+    post:
+      summary: One click arrival deposit apply (USER_DATA)
       description: |-
         Apply deposit credit for expired address (One click arrival)
 
@@ -8578,7 +8577,12 @@ paths:
       tags:
         - Sub-Account
       parameters:
-        - $ref: '#/components/parameters/subAccountEmail'
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            example: alice@test.com
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -8906,7 +8910,8 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [1,2,3,4]
+            minimum: 1
+            maximum: 4
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -8956,7 +8961,8 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [1,2]
+            minimum: 1
+            maximum: 2
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -9086,7 +9092,6 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [1,2]
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/limit'
@@ -9347,7 +9352,7 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [1,2]
+            example: 1
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -9390,7 +9395,7 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [1,2]
+            example: 1
         - $ref: '#/components/parameters/page'
         - name: limit
           in: query
@@ -9441,7 +9446,7 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [1,2]
+            example: 1
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -10013,7 +10018,7 @@ paths:
                     format: int32
                     example: 200
                   message:
-                    type: String
+                    type: string
                     example: "OK"
                   snapshotVos:
                     type: array
@@ -10554,50 +10559,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/sub-account/apiRestrictions/ipRestriction/thirdPartyList:
-    get:
-      summary: Query Sub-Account API key Third Party IP whitelist (For Master Account)
-      description: |-
-        Get Third Party IP whitelist for API key
-
-        Weight(IP): 10
-      tags:
-        - Sub-Account
-      parameters:
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Third Party IP whitelist
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  thirdPartyName:
-                    type: array
-                    items:
-                      type: string
-                    example:
-                      - "thirdPartyName1"
-                      - "thirdPartyName2"
-                required:
-                  - thirdPartyName
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
   /sapi/v1/sub-account/transaction-statistics:
     get:
       summary: Query Sub-account Transaction Statistics (For Master Account)
@@ -10812,7 +10773,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v4/sub-account/assets:
-    post:
+    get:
       summary: Query Sub-account Assets (For Master Account)
       description: |-
         Fetch sub-account assets
@@ -15014,8 +14975,11 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/account:
     get:
-      summary: Get Portfolio Margin Account Info (USER_DATA)
-      description: 'Weight(IP): 1'
+      summary: Portfolio Margin Account (USER_DATA)
+      description: |-
+        Get the account info
+
+        'Weight(IP): 1'
       tags:
         - Portfolio Margin
       parameters:
@@ -15099,7 +15063,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/pmLoan:
     get:
-      summary: Query Portfolio Margin Bankruptcy Loan Amount (USER_DATA)
+      summary: Portfolio Margin Bankruptcy Loan Amount (USER_DATA)
       description: |-
         Query Portfolio Margin Bankruptcy Loan Amount.
 
@@ -15183,8 +15147,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/interest-history:
-    post:
-      summary: Query Classic Portfolio Margin Negative Balance Interest History
+    get:
+      summary: Query Classic Portfolio Margin Negative Balance Interest History (USER_DATA)
       description: |-
         Query interest history of negative balance for portfolio margin.
 
@@ -15246,8 +15210,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/asset-index-price:
-    post:
-      summary: Query Portfolio Margin Asset Index Price
+    get:
+      summary: Query Portfolio Margin Asset Index Price (MARKET_DATA)
       description: |-
         Query Portfolio Margin Asset Index Price
 
@@ -15293,7 +15257,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/auto-collection:
     post:
-      summary: Fund Auto-collection
+      summary: Fund Auto-collection (USER_DATA)
       description: |-
         Transfers all assets from Futures Account to Margin account
 
@@ -15333,7 +15297,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/bnb-transfer:
     post:
-      summary: BNB Transfer
+      summary: BNB Transfer (USER_DATA)
       description: |-
         BNB transfer can be between Margin Account and USDM Account
 
@@ -15343,10 +15307,11 @@ paths:
       parameters:
         - name: transferSide
           in: query
+          required: true
           schema:
             type: string
             enum: ['TO_UM','FROM_UM']
-            example: 'true'
+            example: 'TO_UM'
         - $ref: '#/components/parameters/amount'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
@@ -15381,7 +15346,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/repay-futures-switch:
     post:
-      summary: Change Auto-repay-futures Status
+      summary: Change Auto-repay-futures Status (USER_DATA)
       description: |-
         Change Auto-repay-futures Status
 
@@ -15421,7 +15386,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
     get:
-      summary: Get Auto-repay-futures Status
+      summary: Get Auto-repay-futures Status (USER_DATA)
       description: |-
         Query Auto-repay-futures Status
 
@@ -15461,7 +15426,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/repay-futures-negative-balance:
     post:
-      summary: Repay futures Negative Balance
+      summary: Repay futures Negative Balance (USER_DATA)
       description: |-
         Repay futures Negative Balance
 
@@ -15501,7 +15466,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/asset-collection:
     post:
-      summary: Fund Collection by Asset
+      summary: Fund Collection by Asset (USER_DATA)
       description: |-
         Transfers specific asset from Futures Account to Margin account
 
@@ -16487,7 +16452,7 @@ paths:
           schema:
             type: integer
             format: int32
-            enum: [0,1,2]
+            example: 1
         - name: quoteAsset
           in: query
           schema:
@@ -17548,9 +17513,9 @@ paths:
           in: query
           required: true
           schema:
-            type: boolean
-            enum: [TRUE, FALSE]
-            example: TRUE
+            type: string
+            enum: ['TRUE', 'FALSE']
+            example: 'TRUE'
         - name: loanTerm
           in: query
           schema:
@@ -17793,7 +17758,7 @@ paths:
           in: query
           schema:
             type: integer
-            enum: [30, 60]
+            example: 30
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -17860,13 +17825,13 @@ paths:
           in: query
           description: |-
             All types will be returned by default.
-            * `borrowIn`
-            * `collateralSpent`
-            * `repayAmount`
-            * `collateralReturn` - Collateral return after repayment
-            * `addCollateral`
-            * `removeCollateral`
-            * `collateralReturnAfterLiquidation`
+              * `borrowIn`
+              * `collateralSpent`
+              * `repayAmount`
+              * `collateralReturn` - Collateral return after repayment
+              * `addCollateral`
+              * `removeCollateral`
+              * `collateralReturnAfterLiquidation`
           schema:
             type: string
             enum: [borrowIn, collateralSpent, repayAmount, collateralReturn, addCollateral, removeCollateral, collateralReturnAfterLiquidation]
@@ -18108,7 +18073,7 @@ paths:
     get:
       summary: Get Loan Ongoing Orders (USER_DATA)
       description: |-
-        Weight(IP): 400
+        Weight(IP): 300
       tags:
         - Crypto Loans
       parameters:
@@ -18243,6 +18208,7 @@ paths:
           description: "Default: TRUE. TRUE: Return extra collateral to spot account; FALSE: Keep extra collateral in the order."
           schema:
             type: boolean
+            example: True
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -18885,7 +18851,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/loan/flexible/borrow:
     post:
-      summary: Borrow - Flexible Loan Borrow
+      summary: Borrow - Flexible Loan Borrow (TRADE)
       description: |-
 
         Weight(UID): 6000
@@ -18941,9 +18907,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/ongoing/order:
+  /sapi/v1/loan/flexible/ongoing/orders:
     get:
-      summary: Borrow - Get Flexible Loan Ongoing Orders
+      summary: Borrow - Get Flexible Loan Ongoing Orders (USER_DATA)
       description: |-
 
         Weight(IP): 300
@@ -19013,7 +18979,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/loan/flexible/borrow/history:
     get:
-      summary: Borrow - Get Flexible Loan Borrow History
+      summary: Borrow - Get Flexible Loan Borrow History (USER_DATA)
       description: |-
 
         Weight(IP): 400
@@ -19090,7 +19056,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/loan/flexible/repay:
     post:
-      summary: Repay - Flexible Loan Repay
+      summary: Repay - Flexible Loan Repay (TRADE)
       description: |-
 
         Weight(IP): 6000
@@ -19172,7 +19138,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/loan/flexible/repay/history:
     get:
-      summary: Repay - Get Flexible Loan Repayment History
+      summary: Repay - Get Flexible Loan Repayment History (USER_DATA)
       description: |-
 
         Weight(IP): 400
@@ -19182,7 +19148,7 @@ paths:
         - $ref: '#/components/parameters/loanCoin'
         - $ref: '#/components/parameters/collateralCoin'
         - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/entTime'
+        - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/current'
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/recvWindow'
@@ -19250,7 +19216,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/loan/flexible/adjust/ltv:
     post:
-      summary: Adjust LTV - Flexible Loan Adjust LTV
+      summary: Adjust LTV - Flexible Loan Adjust LTV (TRADE)
       description: |-
 
         Weight(UID): 6000
@@ -19323,7 +19289,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/loan/flexible/ltv/adjustment/history:
     get:
-      summary: Adjust LTV - Get Flexible Loan LTV Adjustment History
+      summary: Adjust LTV - Get Flexible Loan LTV Adjustment History (USER_DATA)
       description: |-
 
         Weight(IP): 400
@@ -19405,7 +19371,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/loan/flexible/loanable/data:
     get:
-      summary: Get Flexible Loan Assets Data
+      summary: Get Flexible Loan Assets Data (USER_DATA)
       description: |-
         Get interest rate and borrow limit of flexible loanable assets. The borrow limit is shown in USD value.
 
@@ -19470,7 +19436,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/loan/flexible/collateral/data:
     get:
-      summary: Get Flexible Loan Collateral Assets Data
+      summary: Get Flexible Loan Collateral Assets Data (USER_DATA)
       description: |-
         Get LTV information and collateral limit of flexible loan's collateral assets. The collateral limit is shown in USD value.
 
@@ -19727,11 +19693,11 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/convert/exchangeInfo:
     get:
-      summary: List All Convert Pairs (USER_DATA)
+      summary: List All Convert Pairs
       description: |-
         Query for all convertible token pairs and the tokens’ respective upper/lower limits
 
-        Weight(IP): 500
+        Weight(IP): 3000
       tags:
         - Convert
       parameters:
@@ -19749,11 +19715,6 @@ paths:
           schema:
             type: string
             example: "USDT"
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
       responses:
         '200':
           description: List Convert Pairs
@@ -19805,7 +19766,7 @@ paths:
     get:
       summary: Query order quantity precision per asset (USER_DATA)
       description: |-
-        Query for supported asset’s precision information
+        Query for supported asset precision information
 
         Weight(IP): 100
       tags:
@@ -19854,7 +19815,7 @@ paths:
       description: |-
         Request a quote for the requested token pairs
 
-        Weight(UID): 3000
+        Weight(UID): 200
       tags:
         - Convert
       parameters:
@@ -19877,6 +19838,7 @@ paths:
           schema:
             type: number
             format: float
+            example: 1.0
         - name: toAmount
           in: query
           required: false
@@ -19884,13 +19846,21 @@ paths:
           schema:
             type: number
             format: float
+            example: 1.0
         - name: validTime
           in: query
           required: false
           description: 10s, 30s, 1m, 2m, default 10s
           schema:
             type: string
-            enum: [10s,30s,1m,2m]
+            example: 10s
+        - name: walletType
+          in: query
+          required: false
+          description: SPOT or FUNDING. Default is SPOT
+          schema:
+            type: string
+            example: SPOT
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -19957,6 +19927,7 @@ paths:
           required: true
           schema:
             type: string
+            example: 1000
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -20008,9 +19979,16 @@ paths:
       parameters:
         - name: orderId
           in: query
-          required: true
+          required: false
           schema:
             type: string
+            example: 1000
+        - name: quoteId
+          in: query
+          required: false
+          schema:
+            type: string
+            example: 1000
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -20081,7 +20059,7 @@ paths:
       description: |-
         - The max interval between startTime and endTime is 30 days.
 
-        Weight(UID): 100
+        Weight(UID): 3000
       tags:
         - Convert
       parameters:
@@ -20092,6 +20070,7 @@ paths:
           schema:
             type: integer
             format: int64
+            example: 1624248872184
         - name: endTime
           in: query
           required: true
@@ -20099,9 +20078,11 @@ paths:
           schema:
             type: integer
             format: int64
+            exampe: 1624248872185
         - name: limit
           in: query
           description: "default 100, max 1000"
+          required: false
           schema:
             type: integer
             format: int32
@@ -21078,7 +21059,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/lending/auto-invest/target-asset/list:
     get:
-      summary: Get target asset list
+      summary: Get target asset list (USER_DATA)
       description: |-
         Weight(IP): 1
       tags:
@@ -21146,7 +21127,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/lending/auto-invest/target-asset/roi/list:
     get:
-      summary: Get target asset ROI data
+      summary: Get target asset ROI data (USER_DATA)
       description: |-
         ROI return list for target asset
 
@@ -21160,7 +21141,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [FIVE_YEAR, THREE_YEAR, ONE_YEAR, SIX_MONTH, THREE_MONTH, SEVEN_DAY]
+            example: FIVE_YEAR
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -21199,7 +21180,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/lending/auto-invest/all/asset:
     get:
-      summary: Query all source asset and target asset
+      summary: Query all source asset and target asset (USER_DATA)
       description: |-
         Query all source assets and target assets
 
@@ -21239,9 +21220,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/lending/auto-invest/source-asset/asset:
+  /sapi/v1/lending/auto-invest/source-asset/list:
     get:
-      summary: Query source asset list
+      summary: Query source asset list (USER_DATA)
       description: |-
         Query Source Asset to be used for investment
 
@@ -21249,7 +21230,11 @@ paths:
       tags:
         - Auto-Invest
       parameters:
-        - $ref: '#/components/parameters/targetAsset'
+        - name: targetAsset
+          in: query
+          schema:
+            type: string
+            example: BTC
         - name: indexId
           in: query
           schema:
@@ -21261,12 +21246,13 @@ paths:
           required: true
           schema:
             type: string
-            enum: [RECURRING, ONE_TIME]
+            example: RECURRING
         - name: flexibleAllowedToUse
           in: query
           required: false
           schema:
             type: boolean
+            example: true
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -21326,7 +21312,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/lending/auto-invest/plan/add:
     post:
-      summary: Investment plan creation
+      summary: Investment plan creation (USER_DATA)
       description: |-
         Post an investment plan creation
 
@@ -21334,17 +21320,13 @@ paths:
       tags:
         - Auto-Invest
       parameters:
-        - name: UID
-          in: query
-          required: true
-          schema:
-            type: string
         - name: sourceType
           in: query
           required: true
           schema:
             type: string
             enum: [MAIN_SITE, TR]
+            example: MAIN_SITE
         - name: requestId
           in: query
           schema:
@@ -21355,6 +21337,7 @@ paths:
           schema:
             type: string
             enum: [SINGLE, PORTFOLIO, INDEX]
+            example: SINGLE
         - name: IndexId
           in: query
           schema:
@@ -22074,6 +22057,1842 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/list:
+    get:
+      summary: Get Simple Earn Flexible Product List (USER_DATA)
+      description: |-
+        Get available Simple Earn flexible product list
+
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: asset
+          in: query
+          schema:
+            type: string
+            example: BTC
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Simple Earn Flexible Product List
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        asset:
+                          type: string
+                          example: "BTC"
+                        latestAnnualPercentageRate:
+                          type: string
+                          example: "0.05000000"
+                        tierAnnualPercentageRate:
+                          type: object
+                          properties:
+                            0-5BTC:
+                              type: number
+                              format: double
+                              example: 0.05
+                            5-10BTC:
+                              type: number
+                              format: double
+                              example: 0.03
+                          required:
+                            - 0-5BTC
+                            - 5-10BTC
+                        airDropPercentageRate:
+                          type: string
+                          example: "0.05000000"
+                        canPurchase:
+                          type: boolean
+                          example: true
+                        canRedeem:
+                          type: boolean
+                          example: true
+                        isSoldOut:
+                          type: boolean
+                          example: true
+                        hot:
+                          type: boolean
+                          example: true
+                        minPurchaseAmount:
+                          type: string
+                          example: "0.01000000"
+                        productId:
+                          type: string
+                          example: "BTC001"
+                        subscriptionStartTime:
+                          type: string
+                          example: "1646182276000"
+                        status:
+                          type: string
+                          example: "PURCHASING"
+                      required:
+                        - asset
+                        - latestAnnualPercentageRate
+                        - tierAnnualPercentageRate
+                        - airDropPercentageRate
+                        - canPurchase
+                        - canRedeem
+                        - isSoldOut
+                        - hot
+                        - minPurchaseAmount
+                        - productId
+                        - subscriptionStartTime
+                        - status
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/list:
+    get:
+      summary: Get Simple Earn Locked Product List (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: asset
+          in: query
+          schema:
+            type: string
+            example: BNB
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Simple Earn Locked Product List
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        projectId:
+                          type: string
+                          example: "BNB"
+                        detail:
+                          type: object
+                          properties:
+                            asset:
+                              type: string
+                              example: "AXS"
+                            rewardAsset:
+                              type: string
+                              example: "AXS"
+                            duration:
+                              type: integer
+                              format: int64
+                              example: 90
+                            renewable:
+                              type: boolean
+                              example: true
+                            isSoldOut:
+                              type: boolean
+                              example: true
+                            apr:
+                              type: string
+                              example: "1.2069"
+                            status:
+                              type: string
+                              example: "CREATED"
+                            subscriptionStartTime:
+                              type: string
+                              example: "1646182276000"
+                            extraRewardAsset:
+                              type: string
+                              example: "BNB"
+                            extraRewardAPR:
+                              type: string
+                              example: "0.23"
+                          required:
+                            - asset
+                            - rewardAsset
+                            - duration
+                            - renewable
+                            - isSoldOut
+                            - apr
+                            - status
+                            - subscriptionStartTime
+                            - extraRewardAsset
+                            - extraRewardAPR
+                        quota:
+                          type: object
+                          properties:
+                            totalPersonalQuota:
+                              type: string
+                              example: "2"
+                            minimum:
+                              type: string
+                              example: "0.001"
+                          required:
+                            - totalPersonalQuota
+                            - minimum
+                      required:
+                        - projectId
+                        - detail
+                        - quota
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/subscribe:
+    post:
+      summary: Subscribe Flexible Product (TRADE)
+      description: |-
+        Weight(IP): 1
+
+        Rate Limit: 1/3s per account
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: autoSubscribe
+          in: query
+          description: "true or false, default true."
+          schema:
+            type: boolean
+        - name: sourceAccount
+          in: query
+          description: "SPOT,FUND,ALL, default SPOT"
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Flexible Product Subscription Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchaseId:
+                    type: integer
+                    format: int64
+                    example: 40607
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - purchaseId
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/subscribe:
+    post:
+      summary: Subscribe Locked Product (TRADE)
+      description: |-
+        Weight(IP): 1
+
+        Rate Limit: 1/3s per account
+      tags:
+        - Simple Earn
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: autoSubscribe
+          in: query
+          description: "true or false, default true."
+          schema:
+            type: boolean
+        - name: sourceAccount
+          in: query
+          description: "SPOT,FUND,ALL, default SPOT"
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Locked Product Subscription Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  purchaseId:
+                    type: integer
+                    format: int64
+                    example: 40607
+                  positionId:
+                    type: string
+                    example: "12345"
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - purchaseId
+                  - positionId
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/redeem:
+    post:
+      summary: Redeem Flexible Product (TRADE)
+      description: |-
+        Weight(IP): 1
+
+        Rate Limit: 1/3s per account
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: redeemAll
+          in: query
+          description: "true or false, default to false"
+          schema:
+            type: boolean
+        - name: amount
+          in: query
+          description: "if redeemAll is false, amount is mandatory"
+          schema:
+            type: number
+            format: double
+        - name: destAccount
+          in: query
+          description: "SPOT,FUND,ALL, default SPOT"
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Redeem Flexible Product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redeemId:
+                    type: integer
+                    format: int64
+                    example: 40607
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - redeemId
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/redeem:
+    post:
+      summary: Redeem Locked Product (TRADE)
+      description: |-
+        Weight(IP): 1
+
+        Rate Limit: 1/3s per account
+      tags:
+        - Simple Earn
+      parameters:
+        - name: positionId
+          in: query
+          required: true
+          description: "1234"
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Redeem Locked Product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redeemId:
+                    type: integer
+                    format: int64
+                    example: 40607
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - redeemId
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/position:
+    get:
+      summary: Get Flexible Product Position (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: asset
+          in: query
+          schema:
+            type: string
+        - name: productId
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Flexible Product Position
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        totalAmount:
+                          type: string
+                          example: "75.46000000"
+                        tierAnnualPercentageRate:
+                          type: object
+                          properties:
+                            0-5BTC:
+                              type: number
+                              format: double
+                              example: 0.05
+                            5-10BTC:
+                              type: number
+                              format: double
+                              example: 0.03
+                          required:
+                            - 0-5BTC
+                            - 5-10BTC
+                        latestAnnualPercentageRate:
+                          type: string
+                          example: "0.02599895"
+                        yesterdayAirdropPercentageRate:
+                          type: string
+                          example: "0.02599895"
+                        asset:
+                          type: string
+                          example: "USDT"
+                        airDropAsset:
+                          type: string
+                          example: "BETH"
+                        canRedeem:
+                          type: boolean
+                          example: true
+                        collateralAmount:
+                          type: string
+                          example: "232.23123213"
+                        productId:
+                          type: string
+                          example: "USDT001"
+                        yesterdayRealTimeRewards:
+                          type: string
+                          example: "0.10293829"
+                        cumulativeBonusRewards:
+                          type: string
+                          example: "0.22759183"
+                        cumulativeRealTimeRewards:
+                          type: string
+                          example: "0.22759183"
+                        cumulativeTotalRewards:
+                          type: string
+                          example: "0.45459183"
+                        autoSubscribe:
+                          type: boolean
+                          example: true
+                      required:
+                        - totalAmount
+                        - tierAnnualPercentageRate
+                        - latestAnnualPercentageRate
+                        - yesterdayAirdropPercentageRate
+                        - asset
+                        - airDropAsset
+                        - canRedeem
+                        - collateralAmount
+                        - productId
+                        - yesterdayRealTimeRewards
+                        - cumulativeBonusRewards
+                        - cumulativeRealTimeRewards
+                        - cumulativeTotalRewards
+                        - autoSubscribe
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/position:
+    get:
+      summary: Get Locked Product Position (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: asset
+          in: query
+          schema:
+            type: string
+        - name: positionId
+          in: query
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Locked Product Position
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        positionId:
+                          type: string
+                          example: "123123"
+                        projectId:
+                          type: string
+                          example: "Axs*90"
+                        asset:
+                          type: string
+                          example: "AXS"
+                        amount:
+                          type: string
+                          example: "122.09202928"
+                        purchaseTime:
+                          type: string
+                          example: "1646182276000"
+                        duration:
+                          type: string
+                          example: "60"
+                        accrualDays:
+                          type: string
+                          example: "4"
+                        rewardAsset:
+                          type: string
+                          example: "AXS"
+                        APY:
+                          type: string
+                          example: "0.23"
+                        isRenewable:
+                          type: boolean
+                          example: true
+                        isAutoRenew:
+                          type: boolean
+                          example: true
+                        redeemDate:
+                          type: string
+                          example: "1732182276000"
+                      required:
+                        - positionId
+                        - projectId
+                        - asset
+                        - amount
+                        - purchaseTime
+                        - duration
+                        - accrualDays
+                        - rewardAsset
+                        - APY
+                        - isRenewable
+                        - isAutoRenew
+                        - redeemDate
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/account:
+    get:
+      summary: Simple Account (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Account Information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalAmountInBTC:
+                    type: string
+                    example: "0.01067982"
+                  totalAmountInUSDT:
+                    type: string
+                    example: "77.13289230"
+                  totalFlexibleAmountInBTC:
+                    type: string
+                    example: "0.00000000"
+                  totalFlexibleAmountInUSDT:
+                    type: string
+                    example: "0.00000000"
+                  totalLockedInBTC:
+                    type: string
+                    example: "0.01067982"
+                  totalLockedInUSDT:
+                    type: string
+                    example: "77.13289230"
+                required:
+                 - totalAmountInBTC
+                 - totalAmountInUSDT
+                 - totalFlexibleAmountInBTC
+                 - totalFlexibleAmountInUSDT
+                 - totalLockedInBTC
+                 - totalLockedInUSDT
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/history/subscriptionRecord:
+    get:
+      summary: Get Flexible Subscription Record (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          schema:
+            type: string
+        - name: purchaseId
+          in: query
+          schema:
+            type: string
+        - name: asset
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Flexible Product Position
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        amount:
+                          type: string
+                          example: "100.00000000"
+                        asset:
+                          type: string
+                          example: "USDT"
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        purchaseId:
+                          type: integer
+                          format: int64
+                          example: 26055
+                        type:
+                          type: string
+                          example: "AUTO"
+                          description: "AUTO for auto subscribe, NORMAL for normal subscription, CONVERT for Locked to Flexible, LOAN for flexible loan collateral, AI for Auto Invest subscribe, TRANSFER for Locked Savings to Flexible"
+                        sourceAccount:
+                          type: string
+                          example: "SPOT"
+                          description: "SPOT, FUNDING, SPOTANDFUNDING"
+                        amtFromSpot:
+                          type: string
+                          example: "30"
+                          description: "Display if sourceAccount is SPOTANDFUNDING "
+                        amtFromFunding:
+                          type: string
+                          example: "70"
+                          description: "Display if sourceAccount is SPOTANDFUNDING"
+                        status:
+                          type: string
+                          example: "SUCCESS"
+                          description: "PURCHASING/SUCCESS/FAILED"
+                      required:
+                        - amount
+                        - asset
+                        - time
+                        - purchaseId
+                        - type
+                        - sourceAccount
+                        - amtFromSpot
+                        - amtFromFunding
+                        - status
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/history/subscriptionRecord:
+    get:
+      summary: Get Locked Subscription Record (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: purchaseId
+          in: query
+          schema:
+            type: string
+        - name: asset
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Locked Subscription Record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        positionId:
+                          type: string
+                          example: "123123"
+                        purchaseId:
+                          type: integer
+                          format: int64
+                          example: 26055
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        asset:
+                          type: string
+                          example: "BNB"
+                        amount:
+                          type: string
+                          example: "21312.23223"
+                        lockPeriod:
+                          type: string
+                          example: "30"
+                        type:
+                          type: string
+                          example: "AUTO"
+                          description: "NORMAL for normal subscription, AUTO for auto-subscription order, ACTIVITY for activity order, TRIAL for trial fund order, RESTAKE for restake order"
+                        sourceAccount:
+                          type: string
+                          example: "SPOT"
+                          description: "SPOT, FUNDING, SPOTANDFUNDING"
+                        amtFromSpot:
+                          type: string
+                          example: "30"
+                          description: "Display if sourceAccount is SPOTANDFUNDING "
+                        amtFromFunding:
+                          type: string
+                          example: "70"
+                          description: "Display if sourceAccount is SPOTANDFUNDING"
+                        status:
+                          type: string
+                          example: "SUCCESS"
+                          description: "PURCHASING/SUCCESS/FAILED"
+                      required:
+                        - positionId
+                        - purchaseId
+                        - time
+                        - asset
+                        - amount
+                        - lockPeriod
+                        - type
+                        - sourceAccount
+                        - amtFromSpot
+                        - amtFromFunding
+                        - status
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/history/redemptionRecord:
+    get:
+      summary: Get Flexible Redemption Record (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          schema:
+            type: string
+        - name: redeemId
+          in: query
+          schema:
+            type: string
+        - name: asset
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Flexible Redemption Record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        amount:
+                          type: string
+                          example: "10.54000000"
+                        asset:
+                          type: string
+                          example: "USDT"
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1577257222000
+                        projectId:
+                          type: string
+                          example: "USDT001"
+                        redeemId:
+                          type: integer
+                          format: int64
+                          example: 40607
+                        destAccount:
+                          type: string
+                          example: "SPOT"
+                          description: "SPOT, FUNDING"
+                        status:
+                          type: string
+                          example: "PAID"
+                      required:
+                        - amount
+                        - asset
+                        - time
+                        - projectId
+                        - redeemId
+                        - destAccount
+                        - status
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/history/redemptionRecord:
+    get:
+      summary: Get Locked Redemption Record (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: positionId
+          in: query
+          schema:
+            type: string
+        - name: redeemId
+          in: query
+          schema:
+            type: string
+        - name: asset
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Locked Redemption Record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        positionId:
+                          type: string
+                          example: "123123"
+                        redeemId:
+                          type: integer
+                          format: int64
+                          example: 40607
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        asset:
+                          type: string
+                          example: "BNB"
+                        lockPeriod:
+                          type: string
+                          example: "30"
+                        amount:
+                          type: string
+                          example: "21312.23223"
+                        type:
+                          type: string
+                          example: "MATURE"
+                          description: "MATURE for redeem to Spot Wallet, NEW_TRANSFERRED for redeem to Flexible product, AHEAD for early redemption"
+                        deliverDate:
+                          type: string
+                          example: "1575018510000"
+                        status:
+                          type: string
+                          example: "PAID"
+                      required:
+                        - positionId
+                        - redeemId
+                        - time
+                        - asset
+                        - lockPeriod
+                        - amount
+                        - type
+                        - deliverDate
+                        - status
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/history/rewardsRecord:
+    get:
+      summary: Get Flexible Rewards History (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          schema:
+            type: string
+        - name: asset
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - name: type
+          in: query
+          required: true
+          description: '"BONUS", "REALTIME", "REWARDS"'
+          schema:
+            type: string
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Flexible Rewards History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        asset:
+                          type: string
+                          example: "BUSD"
+                        rewards:
+                          type: string
+                          example: "0.00006408"
+                        projectId:
+                          type: string
+                          example: "USDT001"
+                        type:
+                          type: string
+                          example: "BONUS"
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1577257222000
+                      required:
+                        - asset
+                        - rewards
+                        - projectId
+                        - type
+                        - time
+                  total:
+                    type: integer
+                    format: int64
+                    example: 2
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/history/rewardsRecord:
+    get:
+      summary: Get Locked Rewards History (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: positionId
+          in: query
+          schema:
+            type: string
+        - name: asset
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Locked Rewards History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        positionId:
+                          type: string
+                          example: "123123"
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1577257222000
+                        asset:
+                          type: string
+                          example: "BNB"
+                        lockPeriod:
+                          type: string
+                          example: "30"
+                        amount:
+                          type: string
+                          example: "21312.23223"
+                      required:
+                        - positionId
+                        - time
+                        - asset
+                        - lockPeriod
+                        - amount
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/setAutoSubscribe:
+    post:
+      summary: Set Flexible Auto Subscribe (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: autoSubscribe
+          in: query
+          required: true
+          description: "true or false"
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Flexible Product Subscription Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/setAutoSubscribe:
+    post:
+      summary: Set Locked Auto Subscribe (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: positionId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: autoSubscribe
+          in: query
+          required: true
+          description: "true or false"
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Locked Auto Subscribe
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/personalLeftQuota:
+    get:
+      summary: Get Flexible Personal Left Quota (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Flexible Personal Left Quota
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  leftPersonalQuota:
+                    type: string
+                    example: "1000"
+                required:
+                  - leftPersonalQuota
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/personalLeftQuota:
+    get:
+      summary: Get Locked Personal Left Quota (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Locked Personal Left Quota
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  leftPersonalQuota:
+                    type: string
+                    example: "1000"
+                required:
+                  - leftPersonalQuota
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/subscriptionPreview:
+    get:
+      summary: Get Flexible Subscription Preview (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Flexible Subscription Preview
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalAmount:
+                    type: string
+                    example: "1232.32230982"
+                  rewardAsset:
+                    type: string
+                    example: "BUSD"
+                  airDropAsset:
+                    type: string
+                    example: "BETH"
+                  estDailyBonusRewards:
+                    type: string
+                    example: "0.22759183"
+                  estDailyRealTimeRewards:
+                    type: string
+                    example: "0.22759183"
+                  estDailyAirdropRewards:
+                    type: string
+                    example: "0.22759183"
+                required:
+                 - totalAmount
+                 - rewardAsset
+                 - airDropAsset
+                 - estDailyBonusRewards
+                 - estDailyRealTimeRewards
+                 - estDailyAirdropRewards
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/subscriptionPreview:
+    get:
+      summary: Get Locked Subscription Preview (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - name: autoSubscribe
+          in: query
+          description: "true or false, default true."
+          schema:
+            type: boolean
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Locked Product Subscription Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    rewardAsset:
+                      type: string
+                      example: "AXS"
+                    totalRewardAmt:
+                      type: string
+                      example: "5.17181528"
+                    extraRewardAsset:
+                      type: string
+                      example: "BNB"
+                    estTotalExtraRewardAmt:
+                      type: string
+                      example: "5.17181528"
+                    nextPay:
+                      type: string
+                      example: "1.29295383"
+                    nextPayDate:
+                      type: string
+                      example: "1646697600000"
+                    valueDate:
+                      type: string
+                      example: "1646697600000"
+                    rewardsEndDate:
+                      type: string
+                      example: "1651449600000"
+                    deliverDate:
+                      type: string
+                      example: "1651536000000"
+                    nextSubscriptionDate:
+                      type: string
+                      example: "1651536000000"
+                  required:
+                    - rewardAsset
+                    - totalRewardAmt
+                    - extraRewardAsset
+                    - estTotalExtraRewardAmt
+                    - nextPay
+                    - nextPayDate
+                    - valueDate
+                    - rewardsEndDate
+                    - deliverDate
+                    - nextSubscriptionDate
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/history/rateHistory:
+    get:
+      summary: Get Rate History (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Rate History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        productId:
+                          type: string
+                          example: "BUSD001"
+                        asset:
+                          type: string
+                          example: "BUSD"
+                        annualPercentageRate:
+                          type: string
+                          example: "0.00006408"
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1577233578000
+                      required:
+                        - productId
+                        - asset
+                        - annualPercentageRate
+                        - time
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/flexible/history/collateralRecord:
+    get:
+      summary: Get Collateral Record (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Simple Earn
+      parameters:
+        - name: productId
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Collateral Record
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properities:
+                        amount:
+                          type: string
+                          example: "100.00000000"
+                        productId:
+                          type: string
+                          example: "BUSD001"
+                        asset:
+                          type: string
+                          example: "USDT"
+                        createTime:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        type:
+                          type: string
+                          example: "REPAY"
+                        productName:
+                          type: string
+                          example: "USDT"
+                        orderId:
+                          type: integer
+                          format: int64
+                          example: 26055
+                      required:
+                        - amount
+                        - productId
+                        - asset
+                        - createTime
+                        - type
+                        - productName
+                        - orderId
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                 - rows
+                 - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 components:
   parameters:
     getCrossMargingTransferHistoryType:
@@ -22108,7 +23927,6 @@ components:
       schema:
         type: integer
         format: int32
-        enum: [0, 6, 1]
     withdrawHistory:
       name: status
       in: query
@@ -22123,7 +23941,8 @@ components:
       schema:
         type: integer
         format: int32
-        enum: [0,1,2,3,4,5,6]
+        minimum: 0
+        maximum: 6
     queryConvertTransfer:
       name: accountType
       in: query
@@ -22565,12 +24384,13 @@ components:
       in: query
       required: true
       description: |-
-       * `0` - deposit
-       * `1` - withdraw
+        * `0` - deposit
+        * `1` - withdraw
       schema:
-        type: string
-        enum: ['0', '1']
-        example: '0'
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 1
     beginTime:
       name: beginTime
       in: query
@@ -22947,7 +24767,8 @@ components:
       schema:
         type: integer
         format: int32
-        enum: [1,2]
+        minimum: 1
+        maximum: 2
     limitClientOrderId:
       name: limitClientOrderId
       in: query
@@ -23142,7 +24963,7 @@ components:
     targetAsset:
       name: targetAsset
       in: query
-      required: false
+      required: true
       schema:
         type: string
         example: "BTC"

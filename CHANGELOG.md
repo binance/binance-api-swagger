@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.17.0 - 2023-09-19
+### Added
+- `GET /sapi/v1/simple-earn/flexible/list`
+- `GET /sapi/v1/simple-earn/locked/list`
+- `POST /sapi/v1/simple-earn/flexible/subscribe`
+- `POST /sapi/v1/simple-earn/locked/subscribe`
+- `POST /sapi/v1/simple-earn/flexible/redeem`
+- `POST /sapi/v1/simple-earn/locked/redeem`
+- `GET /sapi/v1/simple-earn/flexible/position`
+- `GET /sapi/v1/simple-earn/locked/position`
+- `GET /sapi/v1/simple-earn/account`
+- `GET /sapi/v1/simple-earn/flexible/history/subscriptionRecord`
+- `GET /sapi/v1/simple-earn/locked/history/subscriptionRecord`
+- `GET /sapi/v1/simple-earn/flexible/history/redemptionRecord`
+- `GET /sapi/v1/simple-earn/locked/history/redemptionRecord`
+- `GET /sapi/v1/simple-earn/flexible/history/rewardsRecord`
+- `GET /sapi/v1/simple-earn/locked/history/rewardsRecord`
+- `POST /sapi/v1/simple-earn/flexible/setAutoSubscribe`
+- `POST /sapi/v1/simple-earn/locked/setAutoSubscribe`
+- `GET /sapi/v1/simple-earn/flexible/personalLeftQuota`
+- `GET /sapi/v1/simple-earn/locked/personalLeftQuota`
+- `GET /sapi/v1/simple-earn/flexible/subscriptionPreview`
+- `GET /sapi/v1/simple-earn/locked/subscriptionPreview`
+- `GET /sapi/v1/simple-earn/flexible/history/rateHistory`
+- `GET /sapi/v1/simple-earn/flexible/history/collateralRecord`
+
+### Removed
+- `GET /sapi/v1/sub-account/apiRestrictions/ipRestriction/thirdPartyList`
+
 ## 1.16.0 - 2023-09-02
 ### Added
 - `GET /sapi/v1/managed-subaccount/queryTransLogForInvestor`
