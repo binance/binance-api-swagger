@@ -14,8 +14,7 @@
 - `GET /sapi/v1/futures/histDataLink`
 
 ### Changed
-- Changes to `GET /sapi/v1/margin/isolated/transfer`
-  - Add field `type`
+- `GET /sapi/v1/margin/isolated/transfer` add field `type`
 - `GET /sapi/v1/loan/vip/loanable/data` add new response fields `_flexibleDailyInterestRate`, `_flexibleYearlyInterestRate`
 - `GET /sapi/v1/loan/vip/ongoing/orders`add new response fields `loanDate`，`loanRate`，`loanTerm`
 - `POST /sapi/v1/portfolio/repay` add paramater `from`

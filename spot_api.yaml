@@ -4136,7 +4136,6 @@ paths:
         - $ref: '#/components/parameters/symbol'
         - name: type
           in: query
-          required: true
           schema:
             type: string
             example: 'ROLL_IN'
@@ -8356,8 +8355,7 @@ paths:
                 type: object
                 properties:
                   total:
-                    type: number
-                    format: int64
+                    type: integer
                     example: 3316
                   rows:
                     type: array
@@ -13539,11 +13537,10 @@ paths:
           required: true
           schema:
             type: string
+            enum: ['T_DEPTH', 'S_DEPTH']
             example: "T_DEPTH"
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/current'
-        - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
