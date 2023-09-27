@@ -1135,7 +1135,7 @@ paths:
                         type: string
                         example: NONE
                       transactTime:
-                        type: number
+                        type: integer
                         format: int64
                         example: 1507725176595
                     required:
@@ -2119,19 +2119,19 @@ paths:
                       type: string
                       example: "BTCUSDT"
                     preventedMatchId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1
                     takerOrderId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 5
                     makerOrderId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 3
                     tradeGroupId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1
                     selfTradePreventionMode:
@@ -5371,14 +5371,14 @@ paths:
                           type: string
                           example: "ETH"
                         operateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1563368549307
                         serviceChargeAmount:
                           type: string
                           example: "0.00500000"
                         tranId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1563368549307
                         transferedAmount:
@@ -8323,14 +8323,14 @@ paths:
           in: query
           required: true
           schema:
-            type: number
+            type: integer
             format: int64
             example: 1695205406000
         - name: endTime
           in: query
           required: true
           schema:
-            type: number
+            type: integer
             format: int64
             example: 1695205396000
         - name: type
@@ -8375,7 +8375,7 @@ paths:
                           type: string
                           example: "1"
                         time:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1695205406000
                       required:
@@ -10371,22 +10371,22 @@ paths:
                       type: object
                       properties:
                         rootUserId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1000138475670
                         managersubUserId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1000137842513
                         bindParentUserId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1000138475669
                         email:
                           type: string
                           example: "test_0_virtual@kq3kno9imanagedsub.com"
                         insertTimeStamp:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1678435149000
                         bindParentEmail:
@@ -10556,18 +10556,18 @@ paths:
                           type: string
                           example: "0.01"
                         scheduledData:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1679416673000
                         createTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1679416673000
                         status:
                           type: string
                           example: "SUCCESS"
                         tranId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 91077779
                       required:
@@ -14093,7 +14093,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Adjust Cross-Collateral LTV History
+          description: Sub orders
           content:
             application/json:
               schema:
@@ -14192,7 +14192,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/algo/spot/newOrderTwap:
-    get:
+    post:
       summary: Time-Weighted Average Price (Twap) New Order
       description: |-
         Place a new spot TWAP order with Algo service.
@@ -14213,12 +14213,10 @@ paths:
             example: 300
         - name: clientAlgoId
           in: query
-          required: true
           schema:
             type: string
         - name: limitPrice
           in: query
-          required: true
           schema:
             type: number
             format: float
@@ -14288,7 +14286,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: twap order delete response
+          description: Cancelled twap order response
           content:
             application/json:
               schema:
@@ -14325,7 +14323,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/algo/spot/openOrders:
-    delete:
+    get:
       summary: Query Current Algo Open Orders
       description: |-
         Get all open SPOT TWAP orders
@@ -14381,11 +14379,11 @@ paths:
                           type: string
                           example: "d7096549481642f8a0bb69e9e2e31f2e"
                         bookTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649756817004
                         endTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649756817004
                         algoStatus:
@@ -14427,7 +14425,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/algo/spot/historicalOrders:
-    delete:
+    get:
       summary: Query Historical Algo Orders
       description: |-
         Get all historical SPOT TWAP orders
@@ -14489,11 +14487,11 @@ paths:
                           type: string
                           example: "d7096549481642f8a0bb69e9e2e31f2e"
                         bookTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649756817004
                         endTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649756817004
                         algoStatus:
@@ -14501,7 +14499,7 @@ paths:
                           example: "WORKING"
                         algoType:
                           type: string
-                          example: "TWAP"
+                          example: "VP"
                         urgency:
                           type: string
                           example: "LOW"
@@ -14535,7 +14533,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/algo/spot/subOrders:
-    delete:
+    get:
       summary: Query Sub Orders
       description: |-
         Get respective sub orders for a specified algoId
@@ -14584,7 +14582,7 @@ paths:
                           type: integer
                           example: 14517
                         orderId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 8389765519993908929
                         orderStatus:
@@ -14603,7 +14601,7 @@ paths:
                           type: string
                           example: "USDT"
                         bookTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649319001964
                         avgPrice:
@@ -14682,20 +14680,34 @@ paths:
                   uniMMR:
                     type: string
                     example: '1.87987800'
+                    description: Classic Portfolio margin account maintenance margin rate
                   accountEquity:
                     type: string
-                    example: '122607.35137903'
+                    example: "122607.35137903"
+                    description: Account equity, unit is USD
+                  actualEquity:
+                    type: string
+                    example: '142607.35137903'
+                    description: Actual equity, unit is USD
                   accountMaintMargin:
                     type: string
                     example: '23.72469206'
+                    description: Classic Portfolio margin account maintenance margin, unit is USD
                   accountStatus:
                     type: string
                     example: NORMAL
+                    description: Classic Portfolio margin account status:"NORMAL", "MARGIN_CALL", "SUPPLY_MARGIN", "REDUCE_ONLY", "ACTIVE_LIQUIDATION", "FORCE_LIQUIDATION", "BANKRUPTED"
+                  accountType:
+                    type: string
+                    example: "PM_1"
+                    description: PM_1 for classic PM, PM_2 for PM
                 required:
                   - uniMMR
                   - accountEquity
+                  - actualEquity
                   - accountMaintMargin
                   - accountStatus
+                  - accountType
         '400':
           description: Bad Request
           content:
@@ -14912,7 +14924,11 @@ paths:
       tags:
         - Portfolio Margin
       parameters:
-        - $ref: '#/components/parameters/asset'
+        - name: asset
+          in: query
+          schema:
+            type: string
+            example: "BTC"
       responses:
         '200':
           description: asset price index
@@ -14930,7 +14946,7 @@ paths:
                       type: string
                       example: "28251.9136906"
                     time:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1683518338121
                   required:
@@ -15015,7 +15031,7 @@ paths:
                   type: object
                   properties:
                     tranId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 100000001
                   required:
@@ -15325,8 +15341,8 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
-                    format: double
+                    type: integer
+                    format: int64
                     example: 123
                   status:
                     type: string
@@ -15399,8 +15415,8 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
-                    format: double
+                    type: integer
+                    format: int64
                     example: 1
                   tokenName:
                     type: string
@@ -15468,8 +15484,8 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
-                    format: double
+                    type: integer
+                    format: int64
                     example: 123
                   status:
                     type: string
@@ -15549,8 +15565,8 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: number
-                      format: double
+                      type: integer
+                      format: int64
                       example: 1
                     tokenName:
                       type: string
@@ -16934,6 +16950,9 @@ paths:
                         - collateralValue
                         - currentLTV
                         - expirationTime
+                        - loanDate
+                        - loanRate
+                        - loanTerm
                   total:
                     type: integer
                     format: int32
@@ -18639,7 +18658,8 @@ paths:
                 type: object
                 properties:
                   total:
-                    type: number
+                    type: integer
+                    format: int32
                     example: 1
                   rows:
                     type: array
@@ -18711,7 +18731,7 @@ paths:
                 type: object
                 properties:
                   total:
-                    type: number
+                    type: integer
                     example: 1
                   rows:
                     type: array
@@ -18731,7 +18751,7 @@ paths:
                           type: string
                           example: "49.27565492"
                         borrowTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1575018510000
                         status:
@@ -18890,7 +18910,7 @@ paths:
                           type: string
                           example: "Repaid"
                         repayTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1575018510000
                       required:
@@ -20949,7 +20969,7 @@ paths:
         - name: indexId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
             example: 1
         - name: usageType
@@ -21052,7 +21072,7 @@ paths:
         - name: IndexId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
         - name: subscriptionAmount
           in: query
@@ -21102,7 +21122,7 @@ paths:
                   type: string
                   example: "BTC"
                 percentage:
-                  type: number
+                  type: integer
                   format: int64
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
@@ -21121,7 +21141,7 @@ paths:
                     type: integer
                     example: 12345
                   nextExecutionDateTime:
-                    type: number
+                    type: integer
                     format: int64
                     example: 1648378800000
                 required:
@@ -21202,7 +21222,7 @@ paths:
                   type: string
                   example: "BTC"
                 percentage:
-                  type: number
+                  type: integer
                   format: int64
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
@@ -21221,7 +21241,7 @@ paths:
                     type: integer
                     example: 12345
                   nextExecutionDateTime:
-                    type: number
+                    type: integer
                     format: int64
                     example: 1648378800000
                 required:
@@ -21277,7 +21297,7 @@ paths:
                     type: integer
                     example: 12345
                   nextExecutionDateTime:
-                    type: number
+                    type: integer
                     format: int64
                     example: 1648378800000
                   status:
@@ -21354,22 +21374,22 @@ paths:
                           type: string
                           example: "true"
                         creationDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         firstExecutionDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         nextExecutionDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         status:
                           type: string
                           example: "ONGOING"
                         lastUpdatedDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         targetAsset:
@@ -21468,7 +21488,7 @@ paths:
         - name: planId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
         - name: requestId
           in: query
@@ -21517,15 +21537,15 @@ paths:
                           type: string
                           example: "false"
                         creationDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         firstExecutionDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         nextExecutionDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         status:
@@ -21640,7 +21660,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/lending/auto-invest/history/list:
-    post:
+    get:
       summary: Query subscription transaction history
       description: |-
         Query subscription transaction history of a plan
@@ -21652,7 +21672,7 @@ paths:
         - name: planId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
@@ -21685,7 +21705,7 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: number
+                      type: integer
                       format: int64
                       example: 12345
                     targetAsset:
@@ -21698,11 +21718,11 @@ paths:
                       type: string
                       example: "BTC"
                     planId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1234
                     transactionDateTime:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1648378800000
                     transactionStatus:
@@ -21738,6 +21758,9 @@ paths:
                     executionType:
                       type: string
                       example: "RECURRING"
+                    subscriptionCycle:
+                      type: string
+                      example: "WEEKLY"
                   required:
                     - id
                     - targetAsset
@@ -21756,6 +21779,7 @@ paths:
                     - transactionFeeUnit
                     - executionPrice
                     - executionType
+                    - subscriptionCycle
         '400':
           description: Bad Request
           content:
@@ -21782,7 +21806,7 @@ paths:
           in: query
           required: true
           schema:
-            type: number
+            type: integer
             format: int64
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
@@ -21798,7 +21822,7 @@ paths:
                 type: object
                 properties:
                   indexId:
-                    type: number
+                    type: integer
                     format: int64
                     example: 12345
                   indexName:
@@ -21852,7 +21876,7 @@ paths:
           in: query
           required: true
           schema:
-            type: number
+            type: integer
             format: int64
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
@@ -21868,7 +21892,7 @@ paths:
                 type: object
                 properties:
                   indexId:
-                    type: number
+                    type: integer
                     format: int64
                     example: 12345
                   totalInvestedInUSD:
@@ -22009,13 +22033,13 @@ paths:
         - name: planId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
             example: 12345
         - name: indexId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
             example: 1
         - name: details
@@ -22045,11 +22069,11 @@ paths:
                 type: object
                 properties:
                   transactionId:
-                    type: number
+                    type: integer
                     format: int64
                     example: 12345
                   waitSecond:
-                    type: number
+                    type: integer
                     format: int32
                     example: 2
                 required:
@@ -22081,7 +22105,7 @@ paths:
           in: query
           required: true
           schema:
-            type: number
+            type: integer
             format: int64
             example: 12345
         - name: requestId
@@ -22103,7 +22127,7 @@ paths:
                 type: object
                 properties:
                   transactionId:
-                    type: number
+                    type: integer
                     format: int64
                     example: 12345
                   status:
@@ -22138,7 +22162,7 @@ paths:
           in: query
           required: true
           schema:
-            type: number
+            type: integer
             format: int64
             example: 123456
         - name: requestId
@@ -22165,7 +22189,7 @@ paths:
                 type: object
                 properties:
                   redemptionId:
-                    type: number
+                    type: integer
                     format: int64
                     example: 12345
                 required:
@@ -22196,7 +22220,7 @@ paths:
           in: query
           required: true
           schema:
-            type: number
+            type: integer
             format: int64
             example: 12345
         - $ref: '#/components/parameters/startTime'
@@ -22220,14 +22244,14 @@ paths:
                   type: object
                   properties:
                     indexId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 12345
                     indexName:
                       type: string
                       example: "BINANCE TOP 10 EW"
                     redemptionId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 12345
                     status:
@@ -22240,7 +22264,7 @@ paths:
                       type: string
                       example: "0.005"
                     redemptionDateTime:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1648378800000
                     transactionFee:
@@ -22277,6 +22301,9 @@ paths:
       description: |-
         Get the history of Index Linked Plan Redemption transactions
 
+        Max 30 day difference between startTime and endTime
+        If no startTime and endTime, default to show past 30 day records
+
         Weight(IP): 1
       tags:
         - Auto-Invest
@@ -22301,14 +22328,14 @@ paths:
                   type: object
                   properties:
                     indexId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 12345
                     indexName:
                       type: string
                       example: "BINANCE TOP 10 EW"
                     rebalanceId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 12345
                     status:
@@ -22329,7 +22356,7 @@ paths:
                             type: string
                             example: "BTC"
                           transactionDateTime:
-                            type: number
+                            type: integer
                             format: int64
                             example: 1648378800000
                           rebalanceDirection:
@@ -25366,8 +25393,8 @@ components:
             type: string
             example: "SPOT"
         uid:
-          type: number
-          format: integer
+          type: integer
+          format: int64
           example: 354937868
       required:
         - makerCommission
@@ -25408,7 +25435,7 @@ components:
           type: string
           example: "6gCrw2kRUAF9CvJDGP16IP"
         transactTime:
-          type: number
+          type: integer
           format: int64
           example: 1507725176595
         price:
@@ -25541,7 +25568,7 @@ components:
               selfTradePreventionMode:
                 type: string
               transactTime:
-                type: number
+                type: integer
                 format: int64
             required:
               - symbol
