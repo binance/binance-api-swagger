@@ -1135,7 +1135,7 @@ paths:
                         type: string
                         example: NONE
                       transactTime:
-                        type: number
+                        type: integer
                         format: int64
                         example: 1507725176595
                     required:
@@ -2119,19 +2119,19 @@ paths:
                       type: string
                       example: "BTCUSDT"
                     preventedMatchId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1
                     takerOrderId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 5
                     makerOrderId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 3
                     tradeGroupId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1
                     selfTradePreventionMode:
@@ -4134,6 +4134,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/optionalAsset'
         - $ref: '#/components/parameters/symbol'
+        - name: type
+          in: query
+          schema:
+            type: string
+            example: 'ROLL_IN'
         - $ref: '#/components/parameters/optionalTransFrom'
         - $ref: '#/components/parameters/optionalTransTo'
         - $ref: '#/components/parameters/startTime'
@@ -5366,14 +5371,14 @@ paths:
                           type: string
                           example: "ETH"
                         operateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1563368549307
                         serviceChargeAmount:
                           type: string
                           example: "0.00500000"
                         tranId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1563368549307
                         transferedAmount:
@@ -8248,6 +8253,152 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/asset/wallet/balance:
+    get:
+      summary: Query User Wallet Balance (USER_DATA)
+      description: |-
+        Query User Wallet Balance
+
+        Weight(IP): 60
+      tags:
+        - Wallet
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: wallet balance
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    activate:
+                      type: boolean
+                      example: true
+                    balance:
+                      type: string
+                      example: "0"
+                    walletName:
+                      type: string
+                      example: "Spot"
+                  required:
+                    - activate
+                    - balance
+                    - walletName
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/asset/custody/transfer-history:
+    get:
+      summary: Query User Delegation History(For Master Account) (USER_DATA)
+      description: |-
+        Query User Delegation History
+
+        Weight(IP): 60
+      tags:
+        - Wallet
+      parameters:
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "alice@test.com"
+        - name: startTime
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1695205406000
+        - name: endTime
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1695205396000
+        - name: type
+          in: query
+          schema:
+            type: string
+            example: "Delegate"
+        - $ref: '#/components/parameters/asset'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Delegation History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    example: 3316
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        clientTranId:
+                          type: string
+                          example: "293915932290879488"
+                        transferType:
+                          type: string
+                          example: "Undelegate"
+                        asset:
+                          type: string
+                          example: "ETH"
+                        amount:
+                          type: string
+                          example: "1"
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1695205406000
+                      required:
+                        - clientTranId
+                        - transferType
+                        - asset
+                        - amount
+                        - time
+                required:
+                  - total
+                  - rows
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/sub-account/status:
     get:
       summary: Sub-account's Status on Margin/Futures (For Master Account)
@@ -10220,22 +10371,22 @@ paths:
                       type: object
                       properties:
                         rootUserId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1000138475670
                         managersubUserId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1000137842513
                         bindParentUserId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1000138475669
                         email:
                           type: string
                           example: "test_0_virtual@kq3kno9imanagedsub.com"
                         insertTimeStamp:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1678435149000
                         bindParentEmail:
@@ -10405,18 +10556,18 @@ paths:
                           type: string
                           example: "0.01"
                         scheduledData:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1679416673000
                         createTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1679416673000
                         status:
                           type: string
                           example: "SUCCESS"
                         tranId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 91077779
                       required:
@@ -13367,302 +13518,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/futures/loan/borrow/history:
+  /sapi/v1/futures/histDataLink:
     get:
-      summary: Cross-Collateral Borrow History (USER_DATA)
-      description: |-
-        Weight(IP): 10
-      tags:
-        - Futures
-      parameters:
-        - $ref: '#/components/parameters/optionalCoin'
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Cross-Collateral Borrow History
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  rows:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        confirmedTime:
-                          type: integer
-                          format: int64
-                          example: 1582540328433
-                        coin:
-                          type: string
-                          example: "USDT"
-                        collateralRate:
-                          type: string
-                          example: "0.89991001"
-                        leftTotal:
-                          type: string
-                          example: "4.5"
-                        leftPrincipal:
-                          type: string
-                          example: "4.5"
-                        deadline:
-                          type: integer
-                          format: int64
-                          example: 4736102399000
-                        collateralCoin:
-                          type: string
-                          example: "BUSD"
-                        collateralAmount:
-                          type: string
-                          example: "5.0"
-                        orderStatus:
-                          type: string
-                          example: "PENDING"
-                        borrowId:
-                          type: string
-                          example: "438648398970089472"
-                      required:
-                        - confirmedTime
-                        - coin
-                        - collateralRate
-                        - leftTotal
-                        - leftPrincipal
-                        - deadline
-                        - collateralCoin
-                        - collateralAmount
-                        - orderStatus
-                        - borrowId
-                  total:
-                    type: integer
-                    format: int32
-                    example: 1
-                required:
-                  - rows
-                  - total
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/futures/loan/repay/history:
-    get:
-      summary: Cross-Collateral Repayment History (USER_DATA)
-      description: |-
-        Weight(IP): 10
-      tags:
-        - Futures
-      parameters:
-        - $ref: '#/components/parameters/optionalCoin'
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Cross-Collateral Repayment History
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  rows:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        coin:
-                          type: string
-                          example: "USDT"
-                        amount:
-                          type: string
-                          example: "1.68"
-                        collateralCoin:
-                          type: string
-                          example: "BUSD"
-                        repayType:
-                          type: string
-                          example: "NORMAL"
-                        releasedCollateral:
-                          type: string
-                          example: "1.80288889"
-                        price:
-                          type: string
-                          example: "1.001"
-                        repayCollateral:
-                          type: string
-                          example: "10010"
-                        confirmedTime:
-                          type: integer
-                          format: int64
-                          example: 1582781327575
-                        updateTime:
-                          type: integer
-                          format: int64
-                          example: 1582794387516
-                        status:
-                          type: string
-                          example: "PENDING"
-                        repayId:
-                          type: string
-                          example: "439659223998894080"
-                      required:
-                        - coin
-                        - amount
-                        - collateralCoin
-                        - repayType
-                        - releasedCollateral
-                        - price
-                        - repayCollateral
-                        - confirmedTime
-                        - updateTime
-                        - status
-                        - repayId
-                  total:
-                    type: integer
-                    format: int32
-                    example: 1
-                required:
-                  - rows
-                  - total
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v2/futures/loan/wallet:
-    get:
-      summary: Cross-Collateral Wallet V2 (USER_DATA)
+      summary: Get Future TickLevel Orderbook Historical Data Download Link (USER_DATA)
       description: |-
         Weight(IP): 1
       tags:
         - Futures
       parameters:
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Cross-Collateral Wallet Information
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  totalCrossCollateral:
-                    type: string
-                    example: "5.8238577133"
-                  totalBorrowed:
-                    type: string
-                    example: "5.07000000"
-                  totalInterest:
-                    type: string
-                    example: "0.0"
-                  interestFreeLimit:
-                    type: string
-                    example: "100000"
-                  asset:
-                    type: string
-                    example: "USD"
-                  crossCollaterals:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        loanCoin:
-                          type: string
-                          example: "USDT"
-                        collateralCoin:
-                          type: string
-                          example: "BUSD"
-                        locked:
-                          type: string
-                          example: "5.82211108"
-                        loanAmount:
-                          type: string
-                          example: "5.07"
-                        currentCollateralRate:
-                          type: string
-                          example: "0.87168984"
-                        interestFreeLimitUsed:
-                          type: string
-                          example: "5.07"
-                        principalForInterest:
-                          type: string
-                          example: "0.0"
-                        interest:
-                          type: string
-                          example: "0.0"
-                      required:
-                        - loanCoin
-                        - collateralCoin
-                        - locked
-                        - loanAmount
-                        - currentCollateralRate
-                        - interestFreeLimitUsed
-                        - principalForInterest
-                        - interest
-                required:
-                  - totalCrossCollateral
-                  - totalBorrowed
-                  - totalInterest
-                  - interestFreeLimit
-                  - asset
-                  - crossCollaterals
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/futures/loan/adjustCollateral/history:
-    get:
-      summary: Adjust Cross-Collateral LTV History (USER_DATA)
-      description: |-
-        All data will be returned if loanCoin or collateralCoin is not sent
-
-        Weight(IP): 10
-      tags:
-        - Futures
-      parameters:
-        - $ref: '#/components/parameters/loanCoin'
-        - $ref: '#/components/parameters/collateralCoin'
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "BTCUSDT"
+        - name: dataType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: ['T_DEPTH', 'S_DEPTH']
+            example: "T_DEPTH"
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -13670,223 +13548,28 @@ paths:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Adjust Cross-Collateral LTV History
+          description: data link
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  rows:
+                  data:
                     type: array
                     items:
                       type: object
                       properties:
-                        amount:
+                        day:
                           type: string
-                          example: ".17398184"
-                        collateralCoin:
+                          example: "2023-06-30"
+                        url:
                           type: string
-                          example: "BUSD"
-                        coin:
-                          type: string
-                          example: "USDT"
-                        preCollateralRate:
-                          type: string
-                          example: "0.87054861"
-                        afterCollateralRate:
-                          type: string
-                          example: "0.89736451"
-                        direction:
-                          type: string
-                          example: "REDUCED"
-                        status:
-                          type: string
-                          example: "COMPLETED"
-                        adjustTime:
-                          type: integer
-                          format: int64
-                          example: 1583978243588
+                          example: "https://bin-prod-user-rebate-bucket.s3.ap-northeast-1.amazonaws.com/xxx"
                       required:
-                        - coin
-                        - amount
-                        - collateralCoin
-                        - repayType
-                        - releasedCollateral
-                        - price
-                        - repayCollateral
-                        - confirmedTime
-                        - updateTime
-                        - status
-                        - repayId
-                  total:
-                    type: integer
-                    format: int64
-                    example: 1
+                        - day
+                        - url
                 required:
-                  - rows
-                  - total
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/futures/loan/liquidationHistory:
-    get:
-      summary: Cross-Collateral Liquidation History (USER_DATA)
-      description: |-
-        All data will be returned if loanCoin or collateralCoin is not sent
-
-        Weight(IP): 10
-      tags:
-        - Futures
-      parameters:
-        - $ref: '#/components/parameters/loanCoin'
-        - $ref: '#/components/parameters/collateralCoin'
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Cross-Collateral Liquidation History
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  rows:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        collateralAmountForLiquidation:
-                          type: string
-                          example: "10.12345678"
-                        collateralCoin:
-                          type: string
-                          example: "BUSD"
-                        forceLiquidationStartTime:
-                          type: integer
-                          format: int64
-                          example: 1583978243588
-                        coin:
-                          type: string
-                          example: "USDT"
-                        restCollateralAmountAfterLiquidation:
-                          type: string
-                          example: "15.12345678"
-                        restLoanAmount:
-                          type: string
-                          example: "11.12345678"
-                        status:
-                          type: string
-                          example: "PENDING"
-                      required:
-                        - collateralAmountForLiquidation
-                        - collateralCoin
-                        - forceLiquidationStartTime
-                        - coin
-                        - restCollateralAmountAfterLiquidation
-                        - restLoanAmount
-                        - status
-                  total:
-                    type: integer
-                    format: int64
-                    example: 1
-                required:
-                  - rows
-                  - total
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/futures/loan/interestHistory:
-    get:
-      summary: Cross-Collateral Interest History (USER_DATA)
-      description: |-
-        Weight(IP): 1
-      tags:
-        - Futures
-      parameters:
-        - $ref: '#/components/parameters/collateralCoin'
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/current'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Cross-Collateral Interest History
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  rows:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        collateralCoin:
-                          type: string
-                          example: "BUSD"
-                        interestCoin:
-                          type: string
-                          example: "USDT"
-                        interest:
-                          type: string
-                          example: "2.354"
-                        interestFreeLimitUsed:
-                          type: string
-                          example: "0"
-                        principalForInterest:
-                          type: string
-                          example: "10000"
-                        interestRate:
-                          type: string
-                          example: "0.002"
-                        time:
-                          type: integer
-                          format: int64
-                          example: 1582794387516
-                      required:
-                        - collateralCoin
-                        - interestCoin
-                        - interest
-                        - interestFreeLimitUsed
-                        - principalForInterest
-                        - interestRate
-                        - time
-                  total:
-                    type: integer
-                    format: int64
-                    example: 1
-                required:
-                  - rows
-                  - total
+                  - data
         '400':
           description: Bad Request
           content:
@@ -14410,7 +14093,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Adjust Cross-Collateral LTV History
+          description: Sub orders
           content:
             application/json:
               schema:
@@ -14509,7 +14192,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/algo/spot/newOrderTwap:
-    get:
+    post:
       summary: Time-Weighted Average Price (Twap) New Order
       description: |-
         Place a new spot TWAP order with Algo service.
@@ -14530,12 +14213,10 @@ paths:
             example: 300
         - name: clientAlgoId
           in: query
-          required: true
           schema:
             type: string
         - name: limitPrice
           in: query
-          required: true
           schema:
             type: number
             format: float
@@ -14605,7 +14286,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: twap order delete response
+          description: Cancelled twap order response
           content:
             application/json:
               schema:
@@ -14642,7 +14323,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/algo/spot/openOrders:
-    delete:
+    get:
       summary: Query Current Algo Open Orders
       description: |-
         Get all open SPOT TWAP orders
@@ -14698,11 +14379,11 @@ paths:
                           type: string
                           example: "d7096549481642f8a0bb69e9e2e31f2e"
                         bookTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649756817004
                         endTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649756817004
                         algoStatus:
@@ -14744,7 +14425,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/algo/spot/historicalOrders:
-    delete:
+    get:
       summary: Query Historical Algo Orders
       description: |-
         Get all historical SPOT TWAP orders
@@ -14806,11 +14487,11 @@ paths:
                           type: string
                           example: "d7096549481642f8a0bb69e9e2e31f2e"
                         bookTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649756817004
                         endTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649756817004
                         algoStatus:
@@ -14818,7 +14499,7 @@ paths:
                           example: "WORKING"
                         algoType:
                           type: string
-                          example: "TWAP"
+                          example: "VP"
                         urgency:
                           type: string
                           example: "LOW"
@@ -14852,7 +14533,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/algo/spot/subOrders:
-    delete:
+    get:
       summary: Query Sub Orders
       description: |-
         Get respective sub orders for a specified algoId
@@ -14901,7 +14582,7 @@ paths:
                           type: integer
                           example: 14517
                         orderId:
-                          type: number
+                          type: integer
                           format: int64
                           example: 8389765519993908929
                         orderStatus:
@@ -14920,7 +14601,7 @@ paths:
                           type: string
                           example: "USDT"
                         bookTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1649319001964
                         avgPrice:
@@ -14999,20 +14680,34 @@ paths:
                   uniMMR:
                     type: string
                     example: '1.87987800'
+                    description: Classic Portfolio margin account maintenance margin rate
                   accountEquity:
                     type: string
-                    example: '122607.35137903'
+                    example: "122607.35137903"
+                    description: Account equity, unit is USD
+                  actualEquity:
+                    type: string
+                    example: '142607.35137903'
+                    description: Actual equity, unit is USD
                   accountMaintMargin:
                     type: string
                     example: '23.72469206'
+                    description: Classic Portfolio margin account maintenance margin, unit is USD
                   accountStatus:
                     type: string
                     example: NORMAL
+                    description: Classic Portfolio margin account status:"NORMAL", "MARGIN_CALL", "SUPPLY_MARGIN", "REDUCE_ONLY", "ACTIVE_LIQUIDATION", "FORCE_LIQUIDATION", "BANKRUPTED"
+                  accountType:
+                    type: string
+                    example: "PM_1"
+                    description: PM_1 for classic PM, PM_2 for PM
                 required:
                   - uniMMR
                   - accountEquity
+                  - actualEquity
                   - accountMaintMargin
                   - accountStatus
+                  - accountType
         '400':
           description: Bad Request
           content:
@@ -15115,6 +14810,11 @@ paths:
       tags:
         - Portfolio Margin
       parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            example: "SPOT"
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -15224,7 +14924,11 @@ paths:
       tags:
         - Portfolio Margin
       parameters:
-        - $ref: '#/components/parameters/asset'
+        - name: asset
+          in: query
+          schema:
+            type: string
+            example: "BTC"
       responses:
         '200':
           description: asset price index
@@ -15242,7 +14946,7 @@ paths:
                       type: string
                       example: "28251.9136906"
                     time:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1683518338121
                   required:
@@ -15327,7 +15031,7 @@ paths:
                   type: object
                   properties:
                     tranId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 100000001
                   required:
@@ -15637,8 +15341,8 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
-                    format: double
+                    type: integer
+                    format: int64
                     example: 123
                   status:
                     type: string
@@ -15711,8 +15415,8 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
-                    format: double
+                    type: integer
+                    format: int64
                     example: 1
                   tokenName:
                     type: string
@@ -15780,8 +15484,8 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
-                    format: double
+                    type: integer
+                    format: int64
                     example: 123
                   status:
                     type: string
@@ -15861,8 +15565,8 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: number
-                      format: double
+                      type: integer
+                      format: int64
                       example: 1
                     tokenName:
                       type: string
@@ -17227,6 +16931,15 @@ paths:
                           type: integer
                           format: int64
                           example: 1575018510000
+                        loanDate:
+                          type: string
+                          example: "1676851200000"
+                        loanRate:
+                          type: string
+                          example: "0.0123"
+                        loanTerm:
+                          type: string
+                          example: "30days"
                       required:
                         - orderId
                         - loanCoin
@@ -17237,6 +16950,9 @@ paths:
                         - collateralValue
                         - currentLTV
                         - expirationTime
+                        - loanDate
+                        - loanRate
+                        - loanTerm
                   total:
                     type: integer
                     format: int32
@@ -17613,6 +17329,12 @@ paths:
                         loanCoin:
                           type: string
                           example: "BUSD"
+                        _flexibleDailyInterestRate:
+                          type: string
+                          example: "0.001503"
+                        _flexibleYearlyInterestRate:
+                          type: string
+                          example: "0.548595"
                         _30dDailyInterestRate:
                           type: string
                           example: "0.000136"
@@ -17636,6 +17358,8 @@ paths:
                           example: 1
                       required:
                         - loanCoin
+                        - _flexibleDailyInterestRate
+                        - _flexibleYearlyInterestRate
                         - _30dDailyInterestRate
                         - _30dYearlyInterestRate
                         - _60dDailyInterestRate
@@ -18934,7 +18658,8 @@ paths:
                 type: object
                 properties:
                   total:
-                    type: number
+                    type: integer
+                    format: int32
                     example: 1
                   rows:
                     type: array
@@ -19006,7 +18731,7 @@ paths:
                 type: object
                 properties:
                   total:
-                    type: number
+                    type: integer
                     example: 1
                   rows:
                     type: array
@@ -19026,7 +18751,7 @@ paths:
                           type: string
                           example: "49.27565492"
                         borrowTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1575018510000
                         status:
@@ -19185,7 +18910,7 @@ paths:
                           type: string
                           example: "Repaid"
                         repayTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1575018510000
                       required:
@@ -21244,7 +20969,7 @@ paths:
         - name: indexId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
             example: 1
         - name: usageType
@@ -21347,7 +21072,7 @@ paths:
         - name: IndexId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
         - name: subscriptionAmount
           in: query
@@ -21397,7 +21122,7 @@ paths:
                   type: string
                   example: "BTC"
                 percentage:
-                  type: number
+                  type: integer
                   format: int64
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
@@ -21416,7 +21141,7 @@ paths:
                     type: integer
                     example: 12345
                   nextExecutionDateTime:
-                    type: number
+                    type: integer
                     format: int64
                     example: 1648378800000
                 required:
@@ -21497,7 +21222,7 @@ paths:
                   type: string
                   example: "BTC"
                 percentage:
-                  type: number
+                  type: integer
                   format: int64
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
@@ -21516,7 +21241,7 @@ paths:
                     type: integer
                     example: 12345
                   nextExecutionDateTime:
-                    type: number
+                    type: integer
                     format: int64
                     example: 1648378800000
                 required:
@@ -21572,7 +21297,7 @@ paths:
                     type: integer
                     example: 12345
                   nextExecutionDateTime:
-                    type: number
+                    type: integer
                     format: int64
                     example: 1648378800000
                   status:
@@ -21649,22 +21374,22 @@ paths:
                           type: string
                           example: "true"
                         creationDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         firstExecutionDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         nextExecutionDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         status:
                           type: string
                           example: "ONGOING"
                         lastUpdatedDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         targetAsset:
@@ -21763,7 +21488,7 @@ paths:
         - name: planId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
         - name: requestId
           in: query
@@ -21812,15 +21537,15 @@ paths:
                           type: string
                           example: "false"
                         creationDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         firstExecutionDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         nextExecutionDateTime:
-                          type: number
+                          type: integer
                           format: int64
                           example: 1648378800000
                         status:
@@ -21935,7 +21660,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/lending/auto-invest/history/list:
-    post:
+    get:
       summary: Query subscription transaction history
       description: |-
         Query subscription transaction history of a plan
@@ -21947,7 +21672,7 @@ paths:
         - name: planId
           in: query
           schema:
-            type: number
+            type: integer
             format: int64
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
@@ -21980,7 +21705,7 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: number
+                      type: integer
                       format: int64
                       example: 12345
                     targetAsset:
@@ -21993,11 +21718,11 @@ paths:
                       type: string
                       example: "BTC"
                     planId:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1234
                     transactionDateTime:
-                      type: number
+                      type: integer
                       format: int64
                       example: 1648378800000
                     transactionStatus:
@@ -22033,6 +21758,9 @@ paths:
                     executionType:
                       type: string
                       example: "RECURRING"
+                    subscriptionCycle:
+                      type: string
+                      example: "WEEKLY"
                   required:
                     - id
                     - targetAsset
@@ -22051,6 +21779,605 @@ paths:
                     - transactionFeeUnit
                     - executionPrice
                     - executionType
+                    - subscriptionCycle
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/lending/auto-invest/index/info:
+    get:
+      summary: Query Index Details(USER_DATA)
+      description: |-
+        Query index details
+
+        Weight(IP): 1
+      tags:
+        - Auto-Invest
+      parameters:
+        - name: indexId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Index result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  indexId:
+                    type: integer
+                    format: int64
+                    example: 12345
+                  indexName:
+                    type: string
+                    example: "BINANCE TOP 10 EW"
+                  status:
+                    type: string
+                    example: "RUNNING"
+                  assetAllocation:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        targetAsset:
+                          type: string
+                          example: "ADA"
+                        allocation:
+                          type: string
+                          example: "10"
+                      required:
+                        - targetAsset
+                        - allocation
+                required:
+                  - indexId
+                  - indexName
+                  - status
+                  - assetAllocation
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/lending/auto-invest/index/user-summary:
+    get:
+      summary: Query Index Linked Plan Position Details(USER_DATA)
+      description: |-
+        Details on users Index-Linked plan position details
+
+        Weight(IP): 1
+      tags:
+        - Auto-Invest
+      parameters:
+        - name: indexId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Position Details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  indexId:
+                    type: integer
+                    format: int64
+                    example: 12345
+                  totalInvestedInUSD:
+                    type: string
+                    example: "114.555"
+                  currentInvestedInUSD:
+                    type: string
+                    example: "101.2"
+                  pnlInUSD:
+                    type: string
+                    example: "101.2"
+                  roi:
+                    type: string
+                    example: "1.023"
+                  assetAllocation:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        targetAsset:
+                          type: string
+                          example: "ADA"
+                        allocation:
+                          type: string
+                          example: "10"
+                      required:
+                        - targetAsset
+                        - allocation
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        targetAsset:
+                          type: string
+                          example: "ADA"
+                        averagePriceInUSD:
+                          type: string
+                          example: "3.4"
+                        totalInvestedInUSD:
+                          type: string
+                          example: "222.21"
+                        currentInvestedInUSD:
+                          type: string
+                          example: "101.2"
+                        purchasedAmount:
+                          type: string
+                          example: "122.2"
+                        pnlInUSD:
+                          type: string
+                          example: "109.2"
+                        roi:
+                          type: string
+                          example: "0.2"
+                        percentage:
+                          type: string
+                          example: "10"
+                        availableAmount:
+                          type: string
+                          example: "122.12345678"
+                        redeemedAmount:
+                          type: string
+                          example: "122"
+                        assetValueInUSD:
+                          type: string
+                          example: "101"
+                      required:
+                        - targetAsset
+                        - averagePriceInUSD
+                        - totalInvestedInUSD
+                        - currentInvestedInUSD
+                        - purchasedAmount
+                        - pnlInUSD
+                        - roi
+                        - percentage
+                        - availableAmount
+                        - redeemedAmount
+                        - assetValueInUSD
+                required:
+                  - indexId
+                  - totalInvestedInUSD
+                  - currentInvestedInUSD
+                  - pnlInUSD
+                  - roi
+                  - assetAllocation
+                  - details
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/lending/auto-invest/one-off:
+    post:
+      summary: One Time Transaction(TRADE)
+      description: |-
+        One time transaction
+
+        Weight(IP): 1
+      tags:
+        - Auto-Invest
+      parameters:
+        - name: sourceType
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "MAIN_SITE"
+        - name: requestId
+          in: query
+          schema:
+            type: string
+            example: "TR12354859"
+        - name: subscriptionAmount
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+            example: 10.1
+        - name: sourceAsset
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "USDT"
+        - name: flexibleAllowedToUse
+          in: query
+          schema:
+            type: boolean
+            example: true
+        - name: planId
+          in: query
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+        - name: indexId
+          in: query
+          schema:
+            type: integer
+            format: int64
+            example: 1
+        - name: details
+          in: query
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                targetAsset:
+                  type: string
+                  example: "BTC"
+                percentage:
+                  type: integer
+                  example: 40
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: transaction result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: integer
+                    format: int64
+                    example: 12345
+                  waitSecond:
+                    type: integer
+                    format: int32
+                    example: 2
+                required:
+                  - targetAsset
+                  - allocation
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/lending/auto-invest/one-off/status:
+    get:
+      summary: Query One-Time Transaction Status (USER_DATA)
+      description: |-
+        Transaction status for one-time transaction
+
+        Weight(IP): 1
+      tags:
+        - Auto-Invest
+      parameters:
+        - name: transactionId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+        - name: requestId
+          in: query
+          schema:
+            type: string
+            example: "TR12354859"
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: transaction result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactionId:
+                    type: integer
+                    format: int64
+                    example: 12345
+                  status:
+                    type: string
+                    example: "SUCCESS"
+                required:
+                  - transactionId
+                  - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/lending/auto-invest/redeem:
+    post:
+      summary: Index Linked Plan Redemption (TRADE)
+      description: |-
+        To redeem index-Linked plan holdings
+
+        Weight(IP): 1
+      tags:
+        - Auto-Invest
+      parameters:
+        - name: indexId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 123456
+        - name: requestId
+          in: query
+          schema:
+            type: string
+            example: "TR12354859"
+        - name: redemptionPercentage
+          in: query
+          schema:
+            type: integer
+            example: 10
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Redemption result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  redemptionId:
+                    type: integer
+                    format: int64
+                    example: 12345
+                required:
+                  - redemptionId
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/lending/auto-invest/redeem/history:
+    get:
+      summary: Index Linked Plan Redemption (USER_DATA)
+      description: |-
+        Get the history of Index Linked Plan Redemption transactions
+
+        Weight(IP): 1
+      tags:
+        - Auto-Invest
+      parameters:
+        - name: requestId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 12345
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/asset'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Redemption history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    indexId:
+                      type: integer
+                      format: int64
+                      example: 12345
+                    indexName:
+                      type: string
+                      example: "BINANCE TOP 10 EW"
+                    redemptionId:
+                      type: integer
+                      format: int64
+                      example: 12345
+                    status:
+                      type: string
+                      example: "SUCCESS"
+                    asset:
+                      type: string
+                      example: "BTC"
+                    amount:
+                      type: string
+                      example: "0.005"
+                    redemptionDateTime:
+                      type: integer
+                      format: int64
+                      example: 1648378800000
+                    transactionFee:
+                      type: string
+                      example: "0"
+                    transactionFeeUnit:
+                      type: string
+                      example: "USDT"
+                  required:
+                    - indexId
+                    - indexName
+                    - redemptionId
+                    - status
+                    - asset
+                    - amount
+                    - redemptionDateTime
+                    - transactionFee
+                    - transactionFeeUnit
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/lending/auto-invest/rebalance/history:
+    get:
+      summary: Index Linked Plan Rebalance Details (USER_DATA)
+      description: |-
+        Get the history of Index Linked Plan Redemption transactions
+
+        Max 30 day difference between startTime and endTime
+        If no startTime and endTime, default to show past 30 day records
+
+        Weight(IP): 1
+      tags:
+        - Auto-Invest
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Rebalance Details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    indexId:
+                      type: integer
+                      format: int64
+                      example: 12345
+                    indexName:
+                      type: string
+                      example: "BINANCE TOP 10 EW"
+                    rebalanceId:
+                      type: integer
+                      format: int64
+                      example: 12345
+                    status:
+                      type: string
+                      example: "SUCCESS"
+                    rebalanceFee:
+                      type: string
+                      example: "10"
+                    rebalanceFeeUnit:
+                      type: string
+                      example: "USDT"
+                    transactionDetails:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          asset:
+                            type: string
+                            example: "BTC"
+                          transactionDateTime:
+                            type: integer
+                            format: int64
+                            example: 1648378800000
+                          rebalanceDirection:
+                            type: string
+                            example: "BUY"
+                          rebalanceAmount:
+                            type: string
+                            example: "0.005"
+                        required:
+                          - asset
+                          - transactionDateTime
+                          - rebalanceDirection
+                          - rebalanceAmount
+                  required:
+                    - indexId
+                    - indexName
+                    - rebalanceId
+                    - status
+                    - rebalanceFee
+                    - rebalanceFeeUnit
+                    - transactionDetails
         '400':
           description: Bad Request
           content:
@@ -25066,8 +25393,8 @@ components:
             type: string
             example: "SPOT"
         uid:
-          type: number
-          format: integer
+          type: integer
+          format: int64
           example: 354937868
       required:
         - makerCommission
@@ -25108,7 +25435,7 @@ components:
           type: string
           example: "6gCrw2kRUAF9CvJDGP16IP"
         transactTime:
-          type: number
+          type: integer
           format: int64
           example: 1507725176595
         price:
@@ -25241,7 +25568,7 @@ components:
               selfTradePreventionMode:
                 type: string
               transactTime:
-                type: number
+                type: integer
                 format: int64
             required:
               - symbol
@@ -26180,6 +26507,9 @@ components:
                 type: integer
                 format: int64
                 example: 5240372201
+              type:
+                type: string
+                example: "ROLL_IN"
               transFrom:
                 type: string
                 example: "SPOT"

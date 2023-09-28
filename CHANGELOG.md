@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.18.0 - 2023-09-27
+### Added
+- `GET /sapi/v1/lending/auto-invest/index/info`
+- `GET /sapi/v1/lending/auto-invest/index/user-summary`
+- `POST /sapi/v1/lending/auto-invest/one-off`
+- `GET /sapi/v1/lending/auto-invest/one-off/status`
+- `POST /sapi/v1/lending/auto-invest/redeem`
+- `GET /sapi/v1/lending/auto-invest/redeem/history`
+- `GET /sapi/v1/lending/auto-invest/rebalance/history`
+- `GET /sapi/v1/asset/wallet/balance`
+- `GET /sapi/v1/asset/custody/transfer-history`
+- `GET /sapi/v1/futures/histDataLink`
+
+### Changed
+- `GET /sapi/v1/margin/isolated/transfer` add field `type`
+- `GET /sapi/v1/loan/vip/loanable/data` add new response fields `_flexibleDailyInterestRate`, `_flexibleYearlyInterestRate`
+- `GET /sapi/v1/loan/vip/ongoing/orders`add new response fields `loanDate`，`loanRate`，`loanTerm`
+- `POST /sapi/v1/portfolio/repay` add paramater `from`
+
+### Deleted
+- `GET /sapi/v1/futures/loan/borrow/history`
+- `GET /sapi/v1/futures/loan/repay/history`
+- `GET /sapi/v2/futures/loan/wallet`
+- `GET /sapi/v1/futures/loan/adjustCollateral/history`
+- `GET /sapi/v1/futures/loan/liquidationHistory`
+- `GET /sapi/v1/futures/loan/interestHistory`
+
+
 ## 1.17.1 - 2023-09-19
 ### Changed
 - Fixing typo
