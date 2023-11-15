@@ -292,10 +292,10 @@ paths:
       description: |-
         | Limit               | Weight(IP)  |
         |---------------------|-------------|
-        | 1-100               | 1           |
-        | 101-500             | 5           |
-        | 501-1000            | 10          |
-        | 1001-5000           | 50          |
+        | 1-100               | 5           |
+        | 101-500             | 25          |
+        | 501-1000            | 50          |
+        | 1001-5000           | 250         |
       tags:
         - Market
       parameters:
@@ -362,7 +362,7 @@ paths:
       description: |-
         Get recent trades.
 
-        Weight(IP): 1
+        Weight(IP): 10
       tags:
         - Market
       parameters:
@@ -389,7 +389,7 @@ paths:
       description: |-
         Get older market trades.
 
-        Weight(IP): 5
+        Weight(IP): 10
       tags:
         - Market
       parameters:
@@ -421,7 +421,7 @@ paths:
 
           l = -1 // last_trade_id
 
-        Weight(IP): 1
+        Weight(IP): 2
       tags:
         - Market
       parameters:
@@ -454,7 +454,7 @@ paths:
 
         - If `startTime` and `endTime` are not sent, the most recent klines are returned.
 
-        Weight(IP): 1
+        Weight(IP): 2
       tags:
         - Market
       parameters:
@@ -513,7 +513,7 @@ paths:
 
         uiKlines return modified kline data, optimized for presentation of candlestick charts.
 
-        Weight(IP): 1
+        Weight(IP): 2
       tags:
         - Market
       parameters:
@@ -570,7 +570,7 @@ paths:
       description: |-
         Current average price for a symbol.
 
-        Weight(IP): 1
+        Weight(IP): 2
       tags:
         - Market
       parameters:
@@ -608,8 +608,8 @@ paths:
         - If the symbol is not sent, tickers for all symbols will be returned in an array.
 
         Weight(IP):
-        - `1` for a single symbol;
-        - `40` when the symbol parameter is omitted;
+        - `2` for a single symbol;
+        - `80` when the symbol parameter is omitted;
 
       tags:
         - Market
@@ -647,8 +647,8 @@ paths:
         - If the symbol is not sent, prices for all symbols will be returned in an array.
 
         Weight(IP):
-        - `1` for a single symbol;
-        - `2` when the symbol parameter is omitted;
+        - `2` for a single symbol;
+        - `4` when the symbol parameter is omitted;
       tags:
         - Market
       parameters:
@@ -678,8 +678,8 @@ paths:
         - If the symbol is not sent, bookTickers for all symbols will be returned in an array.
 
         Weight(IP):
-        - `1` for a single symbol;
-        - `2` when the symbol parameter is omitted;
+        - `2` for a single symbol;
+        - `4` when the symbol parameter is omitted;
       tags:
         - Market
       parameters:
@@ -710,9 +710,9 @@ paths:
 
         E.g. If the closeTime is 1641287867099 (January 04, 2022 09:17:47:099 UTC) , and the windowSize is 1d. the openTime will be: 1641201420000 (January 3, 2022, 09:17:00 UTC)
 
-        Weight(IP): 2 for each requested symbol regardless of windowSize.
+        Weight(IP): 4 for each requested symbol regardless of windowSize.
 
-        The weight for this request will cap at 100 once the number of symbols in the request is more than 50.
+        The weight for this request will cap at 200 once the number of symbols in the request is more than 50.
       tags:
         - Market
       parameters:
@@ -875,7 +875,7 @@ paths:
         - Either `orderId` or `origClientOrderId` must be sent.
         - For some historical orders `cummulativeQuoteQty` will be < 0, meaning the data is not available at this time.
 
-        Weight(IP): 2
+        Weight(IP): 4
       tags:
         - Trade
       parameters:
@@ -1251,8 +1251,8 @@ paths:
         Get all open orders on a symbol. Careful when accessing this with no symbol.
 
         Weight(IP):
-        - `3` for a single symbol;
-        - `40` when the symbol parameter is omitted;
+        - `6` for a single symbol;
+        - `80` when the symbol parameter is omitted;
       tags:
         - Trade
       parameters:
@@ -1332,7 +1332,7 @@ paths:
         - For some historical orders `cummulativeQuoteQty` will be < 0, meaning the data is not available at this time.
         - If `startTime` and/or `endTime` provided, `orderId` is not required
 
-        Weight(IP): 10
+        Weight(IP): 20
       tags:
         - Trade
       parameters:
@@ -1585,7 +1585,7 @@ paths:
       description: |-
         Retrieves a specific OCO based on provided optional parameters
 
-        Weight(IP): 2
+        Weight(IP): 4
       tags:
         - Trade
       parameters:
@@ -1716,7 +1716,7 @@ paths:
       description: |-
         Retrieves all OCO based on provided optional parameters
 
-        Weight(IP): 10
+        Weight(IP): 20
       tags:
         - Trade
       parameters:
@@ -1812,7 +1812,7 @@ paths:
   /api/v3/openOrderList:
     get:
       summary: Query Open OCO (USER_DATA)
-      description: 'Weight(IP): 3'
+      description: 'Weight(IP): 6'
       tags:
         - Trade
       parameters:
@@ -1898,13 +1898,222 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/error'
+  /api/v3/sor/order:
+    post:
+      summary: New order using SOR (TRADE)
+      description: 'Weight(IP): 6'
+      tags:
+        - Trade
+      parameters:
+        - $ref: '#/components/parameters/symbol'
+        - $ref: '#/components/parameters/side'
+        - $ref: '#/components/parameters/orderType'
+        - $ref: '#/components/parameters/timeInForce'
+        - $ref: '#/components/parameters/quantity'
+        - name: price
+          in: query
+          required: false
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/newClientOrderId'
+        - $ref: '#/components/parameters/strategyId'
+        - $ref: '#/components/parameters/strategyType'
+        - $ref: '#/components/parameters/icebergQty'
+        - $ref: '#/components/parameters/newOrderRespType'
+        - $ref: '#/components/parameters/selfTradePreventionMode'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: New order details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                    example: "BTCUSDT"
+                  orderId:
+                    type: integer
+                    format: int64
+                    example: 2
+                  orderListId:
+                    type: integer
+                    format: int64
+                    example: -1
+                  clientOrderId:
+                    type: string
+                    example: "sBI1KM6nNtOfj5tccZSKly"
+                  transactTime:
+                    type: integer
+                    format: int64
+                    example: 1689149087774
+                  price:
+                    type: string
+                    example: "31000.00000000"
+                  origQty:
+                    type: string
+                    example: "0.50000000"
+                  executedQty:
+                    type: string
+                    example: "0.50000000"
+                  cummulativeQuoteQty:
+                    type: string
+                    example: "14000.00000000"
+                  status:
+                    type: string
+                    example: "FILLED"
+                  timeInForce:
+                    type: string
+                    example: "GTC"
+                  type:
+                    type: string
+                    example: "LIMIT"
+                  side:
+                    type: string
+                    example: "BUY"
+                  workingTime:
+                    type: integer
+                    format: int64
+                    example: 1689149087774
+                  fills:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        matchType:
+                          type: string
+                          example: "ONE_PARTY_TRADE_REPORT"
+                        price:
+                          type: string
+                          example: "28000.00000000"
+                        qty:
+                          type: string
+                          example: "0.50000000"
+                        commission:
+                          type: string
+                          example: "0.00000000"
+                        commissionAsset:
+                          type: string
+                          example: "BTC"
+                        tradeId:
+                          type: integer
+                          format: int64
+                          example: -1
+                        allocId:
+                          type: integer
+                          format: int64
+                          example: 0
+                      required:
+                        - matchType
+                        - price
+                        - qty
+                        - commission
+                        - commissionAsset
+                        - tradeId
+                        - allocId
+                  workingFloor:
+                    type: string
+                    example: "SOR"
+                  selfTradePreventionMode:
+                    type: string
+                    example: "NONE"
+                  usedSor:
+                    type: boolean
+                    example: true
+                required:
+                  - symbol
+                  - orderId
+                  - orderListId
+                  - clientOrderId
+                  - transactTime
+                  - price
+                  - origQty
+                  - executedQty
+                  - cummulativeQuoteQty
+                  - status
+                  - timeInForce
+                  - type
+                  - side
+                  - workingTime
+                  - fills
+                  - workingFloor
+                  - selfTradePreventionMode
+                  - usedSor
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /api/v3/sor/order/test:
+    post:
+      summary: Test new order using SOR (TRADE)
+      description: |-
+        Test new order creation and signature/recvWindow using smart order routing (SOR).
+        Creates and validates a new order but does not send it into the matching engine.
+      tags:
+        - Trade
+      parameters:
+        - $ref: '#/components/parameters/symbol'
+        - $ref: '#/components/parameters/side'
+        - $ref: '#/components/parameters/orderType'
+        - $ref: '#/components/parameters/timeInForce'
+        - $ref: '#/components/parameters/quantity'
+        - name: price
+          in: query
+          required: false
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/newClientOrderId'
+        - $ref: '#/components/parameters/strategyId'
+        - $ref: '#/components/parameters/strategyType'
+        - $ref: '#/components/parameters/icebergQty'
+        - $ref: '#/components/parameters/newOrderRespType'
+        - $ref: '#/components/parameters/selfTradePreventionMode'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Test new order
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/account:
     get:
       summary: Account Information (USER_DATA)
       description: |-
         Get current account information.
 
-        Weight(IP): 10
+        Weight(IP): 20
       tags:
         - Trade
       parameters:
@@ -1957,7 +2166,7 @@ paths:
 
           symbol+ orderId + fromId
 
-        Weight(IP): 10
+        Weight(IP): 20
       tags:
         - Trade
       parameters:
@@ -2004,7 +2213,7 @@ paths:
       description: |-
         Displays the user's current order count usage for all intervals.
 
-        Weight(IP): 20
+        Weight(IP): 40
       tags:
         - Trade
       parameters:
@@ -2169,6 +2378,127 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/error'
+  /api/v3/myAllocations:
+    get:
+      summary: Query Allocations (USER_DATA)
+      description: |-
+        Retrieves allocations resulting from SOR order placement.
+
+        Weight: 20
+
+        Supported parameter combinations:
+        Parameters 	                          Response
+        symbol 	                              allocations from oldest to newest
+        symbol + startTime 	                  oldest allocations since startTime
+        symbol + endTime 	                    newest allocations until endTime
+        symbol + startTime + endTime 	        allocations within the time range
+        symbol + fromAllocationId 	          allocations by allocation ID
+        symbol + orderId 	                    allocations related to an order starting with oldest
+        symbol + orderId + fromAllocationId 	allocations related to an order by allocation ID
+
+        Note: The time between startTime and endTime can't be longer than 24 hours.
+      tags:
+        - Trade
+      parameters:
+        - $ref: '#/components/parameters/symbol'
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - name: fromAllocationId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/orderId'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Allocations resulting from SOR order placement
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    symbol:
+                      type: string
+                      example: "BTCUSDT"
+                    allocationId:
+                      type: integer
+                      format: int64
+                      example: 0
+                    allocationType:
+                      type: string
+                      example: "SOR"
+                    orderId:
+                      type: integer
+                      format: int64
+                      example: 1
+                    orderListId:
+                      type: integer
+                      format: int64
+                      example:  -1
+                    price:
+                      type: string
+                      example: "1.00000000"
+                    qty:
+                      type: string
+                      example: "5.00000000"
+                    quoteQty:
+                      type: string
+                      example: "5.00000000"
+                    commission:
+                      type: string
+                      example: "0.00000000"
+                    commissionAsset:
+                      type: string
+                      example: "BTC"
+                    time:
+                      type: integer
+                      format: int64
+                      example: 1687506878118
+                    isBuyer:
+                      type: boolean
+                      example: true
+                    isMaker:
+                      type: boolean
+                      example: false
+                    isAllocator:
+                      type: boolean
+                      example: false
+                  required:
+                    - symbol
+                    - allocationId
+                    - allocationType
+                    - orderId
+                    - orderListId
+                    - price
+                    - qty
+                    - quoteQty
+                    - commission
+                    - commissionAsset
+                    - time
+                    - isBuyer
+                    - isMaker
+                    - isAllocator
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+            description: Unauthorized Request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
 
   /sapi/v1/margin/transfer:
     post:
@@ -2229,12 +2559,7 @@ paths:
         - Margin
       parameters:
         - $ref: '#/components/parameters/optionalAsset'
-        - name: type
-          in: query
-          description: Transfer Type
-          schema:
-            type: string
-            enum: [ROLL_IN, ROLL_OUT]
+        - $ref: '#/components/parameters/getCrossMargingTransferHistoryType'
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/current'
@@ -4134,13 +4459,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/optionalAsset'
         - $ref: '#/components/parameters/symbol'
-        - name: type
-          in: query
-          schema:
-            type: string
-            example: 'ROLL_IN'
-        - $ref: '#/components/parameters/optionalTransFrom'
-        - $ref: '#/components/parameters/optionalTransTo'
+        - $ref: '#/components/parameters/getCrossMargingTransferHistoryType'
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/current'
@@ -5247,6 +5566,293 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/margin/capital-flow:
+    get:
+      summary: Get cross or isolated margin capital flow(USER_DATA)
+      description: |-
+        Get cross or isolated margin capital flow
+
+        Weight(IP): 100
+      tags:
+        - Margin
+      parameters:
+        - $ref: '#/components/parameters/optionalAsset'
+        - name: symbol
+          in: query
+          description: Required when querying isolated data
+          schema:
+            type: string
+            example: 'BTCUSDT'
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [TRANSFER, BORROW, REPAY, BUY_INCOME, BUY_EXPENSE, SELL_INCOME, SELL_EXPENSE, TRADING_COMMISSION, BUY_LIQUIDATION, SELL_LIQUIDATION, REPAY_LIQUIDATION, OTHER_LIQUIDATION, LIQUIDATION_FEE, SMALL_BALANCE_CONVERT, COMMISSION_RETURN, SMALL_CONVERT]
+        - name: startTime
+          in: query
+          description: Only supports querying the data of the last 90 days
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/endTime'
+        - name: fromId
+          in: query
+          description: If fromId is set, the data with id > fromId will be returned. Otherwise the latest data will be returned
+          schema:
+            type: integer
+            format: int64
+        - name: limit
+          in: query
+          description: The number of data items returned each time is limited. Default 500; Max 1000.
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Margin capital flow
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                      example: 123456
+                    tranId:
+                      type: integer
+                      format: int64
+                      example: 123123
+                    timestamp:
+                      type: integer
+                      format: int64
+                      example: 1691116657000
+                    asset:
+                      type: string
+                      example: "USDT"
+                    symbol:
+                      type: string
+                      example: "BTCUSDT"
+                    type:
+                      type: string
+                      example: "BORROW"
+                    amount:
+                      type: string
+                      example: "101"
+                  required:
+                    - id
+                    - tranId
+                    - timestamp
+                    - asset
+                    - symbol
+                    - type
+                    - amount
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/margin/delist-schedule:
+    get:
+      summary: Get tokens or symbols delist schedule for cross margin and isolated margin (MARKET_DATA)
+      description: |-
+        Get tokens or symbols delist schedule for cross margin and isolated margin
+
+        Weight(IP): 100
+      tags:
+        - Margin
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: tokens or symbols delist schedule
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    delistTime:
+                      type: integer
+                      format: int64
+                      example: 1686161202000
+                    crossMarginAssets:
+                      type: array
+                      items:
+                        type: string
+                        example: "BTC"
+                    isolatedMarginSymbols:
+                      type: array
+                      items:
+                        type: string
+                        example: "BNBUSDT"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/margin/available-inventory:
+    get:
+      summary: Query Margin Available Inventory (USER_DATA)
+      description: |-
+        Margin available Inventory query
+
+        Weight(UID): 50
+      tags:
+        - Margin
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [MARGIN, ISOLATED]
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Margin available Inventory
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  assets:
+                    type: object
+                    properties:
+                      MATIC:
+                        type: string
+                        example: "100000000"
+                      STPT:
+                        type: string
+                        example: "100000000"
+                      TVK:
+                        type: string
+                        example: "100000000"
+                      SHIB:
+                        type: string
+                        example: "97409653"
+                    required:
+                      - MATIC
+                      - STPT
+                      - TVK
+                      - SHIB
+                  updateTime:
+                    type: integer
+                    format: int64
+                    example: 1699272487
+                required:
+                  - assets
+                  - updateTime
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/margin/manual-liquidation:
+    post:
+      summary: Margin manual liquidation(MARGIN)
+      description: |-
+        Margin manual liquidation
+
+        Weight(UID): 3000
+      tags:
+        - Margin
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [MARGIN, ISOLATED]
+        - name: symbol
+          in: query
+          schema:
+            type: string
+            example: "BTCUSDT"
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Margin manual liquidation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    asset:
+                      type: string
+                      example: "ETH"
+                    interest:
+                      type: string
+                      example: "0.00083334"
+                    principal:
+                      type: string
+                      example: "0.001"
+                    liabilityAsset:
+                      type: string
+                      example: "USDT"
+                    liabilityQty:
+                      type: number
+                      format: float
+                      example: 0.3552
+                  required:
+                    - asset
+                    - interest
+                    - principal
+                    - liabilityAsset
+                    - liabilityQty
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/margin/dust:
     get:
       summary: Get Assets That Can Be Converted Into BNB (USER_DATA)
@@ -5413,7 +6019,7 @@ paths:
       description: |-
         Adjust cross margin max leverage
 
-        Weight(IP): 3000
+        Weight(UID): 3000
       tags:
         - Margin
       parameters:
@@ -5973,11 +6579,16 @@ paths:
       description: |-
         Fetch withdraw history.
 
+        This endpoint specifically uses per second UID rate limit, user's total second level IP rate limit is 180000/second. Response from the endpoint contains header key X-SAPI-USED-UID-WEIGHT-1S, which defines weight used by the current IP.
+
         - `network` may not be in the response for old withdraw.
         - Please notice the default `startTime` and `endTime` to make sure that time interval is within 0-90 days.
         - If both `startTime` and `endTime` are sent, time between `startTime` and `endTime` must be less than 90 days
+        - If withdrawOrderId is sent, time between startTime and endTime must be less than 7 days.
+        - If withdrawOrderId is sent, startTime and endTime are not sent, will return last 7 days records by default.
 
-        Weight(IP): 1
+        Weight(UID): 18000
+        Request Limit: 10 requests per second
       tags:
         - Wallet
       parameters:
@@ -7397,33 +8008,38 @@ paths:
                     type: integer
                     format: int64
                     example: 1623840271000
-                  enableWithdrawals:
-                    type: boolean
-                    example: false
-                    description: This option allows you to withdraw via API. You must apply the IP Access Restriction filter in order to enable withdrawals
                   enableInternalTransfer:
                     type: boolean
                     description: This option authorizes this key to transfer funds between your master account and your sub account instantly
-                  permitsUniversalTransfer:
-                    type: boolean
-                    description: Authorizes this key to be used for a dedicated universal transfer API to transfer multiple supported currencies. Each business's own transfer API rights are not affected by this authorization
-                  enableVanillaOptions:
-                    type: boolean
-                    example: false
-                    description: Authorizes this key to Vanilla options trading
-                  enableReading:
-                    type: boolean
                   enableFutures:
                     type: boolean
                     example: false
                     description: API Key created before your futures account opened does not support futures API service
+                  enablePortfolioMarginTrading:
+                    type: boolean
+                    example: false
+                    description: API Key created before your activate portfolio margin does not support portfolio margin API service
+                  enableVanillaOptions:
+                    type: boolean
+                    example: false
+                    description: Authorizes this key to Vanilla options trading
+                  permitsUniversalTransfer:
+                    type: boolean
+                    description: Authorizes this key to be used for a dedicated universal transfer API to transfer multiple supported currencies. Each business's own transfer API rights are not affected by this authorization
+                  enableReading:
+                    type: boolean
+                    example: true
+                  enableSpotAndMarginTrading:
+                    type: boolean
+                    example: false
+                  enableWithdrawals:
+                    type: boolean
+                    example: false
+                    description: This option allows you to withdraw via API. You must apply the IP Access Restriction filter in order to enable withdrawals
                   enableMargin:
                     type: boolean
                     example: false
                     description: This option can be adjusted after the Cross Margin account transfer is completed
-                  enableSpotAndMarginTrading:
-                    type: boolean
-                    example: false
                   tradingAuthorityExpirationTime:
                     type: integer
                     format: int64
@@ -10489,7 +11105,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/managed-subaccount/query-trans-log:
     get:
-      summary: Query Managed Sub Account Transfer Log (For Trading Team Sub Account)
+      summary: Query Managed Sub Account Transfer Log (For Trading Team Sub Account)(USER_DATA)
       description: |-
         Query Managed Sub Account Transfer Log (For Trading Team Sub Account)
 
@@ -10812,7 +11428,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/sub-account/eoptions/enable:
     post:
-      summary: Enable Options for Sub-account (For Master Account)
+      summary: Enable Options for Sub-account (For Master Account)(USER_DATA)
       description: |-
         Enable Options for Sub-account (For Master Account).
 
@@ -10986,7 +11602,7 @@ paths:
         Start a new user data stream.
         The stream will close after 60 minutes unless a keepalive is sent. If the account has an active `listenKey`, that `listenKey` will be returned and its validity will be extended for 60 minutes.
 
-        Weight: 1
+        Weight: 2
       tags:
         - Stream
       security:
@@ -11009,7 +11625,7 @@ paths:
       description: |-
         Keepalive a user data stream to prevent a time out. User data streams will close after 60 minutes. It's recommended to send a ping about every 30 minutes.
 
-        Weight: 1
+        Weight: 2
       tags:
         - Stream
       parameters:
@@ -11034,7 +11650,7 @@ paths:
       description: |-
         Close out a user data stream.
 
-        Weight: 1
+        Weight: 2
       tags:
         - Stream
       parameters:
@@ -15168,6 +15784,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/portfolio/margin-asset-leverage:
+    get:
+      summary: Get Portfolio Margin Asset Leverage (USER_DATA)
+      description: |-
+        Weight(IP): 50
+      tags:
+        - Portfolio Margin
+      responses:
+        '200':
+          description: Classic Portfolio Margin Collateral Rate
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    asset:
+                      type: string
+                      example: "USDC"
+                    collateralRate:
+                      type: string
+                      example: '1.0000'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
   /sapi/v1/portfolio/asset-collection:
     post:
       summary: Fund Collection by Asset (USER_DATA)
@@ -17382,13 +18034,99 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/vip/request/data:
+  /sapi/v1/loan/vip/collateral/data:
     get:
-      summary: Get Application Data
+      summary: Get Collateral Asset Data (USER_DATA)
       description: |-
-        Get Application Data
+        Get collateral asset data.
 
         Weight(IP): 400
+      tags:
+        - VIP Loans
+      parameters:
+        - $ref: '#/components/parameters/collateralCoin'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Collateral Asset Data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        collateralCoin:
+                          type: string
+                          example: "BUSD"
+                        _1stCollateralRatio:
+                          type: string
+                          example: "100%"
+                        _1stCollateralRange:
+                          type: string
+                          example: "1-10000000"
+                        _2ndCollateralRatio:
+                          type: string
+                          example: "80%"
+                        _2ndCollateralRange:
+                          type: string
+                          example: "10000000-100000000"
+                        _3rdCollateralRatio:
+                          type: string
+                          example: "60%"
+                        _3rdCollateralRange:
+                          type: string
+                          example: "100000000-1000000000"
+                        _4thCollateralRatio:
+                          type: string
+                          example: "0%"
+                        _4thCollateralRange:
+                          type: string
+                          example: ">10000000000"
+                      required:
+                        - collateralCoin
+                        - _1stCollateralRatio
+                        - _1stCollateralRange
+                        - _2ndCollateralRatio
+                        - _2ndCollateralRange
+                        - _3rdCollateralRatio
+                        - _3rdCollateralRange
+                        - _4thCollateralRatio
+                        - _4thCollateralRange
+                  total:
+                    type: integer
+                    format: int32
+                    example: 1
+                required:
+                  - rows
+                  - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /sapi/v1/loan/vip/request/data:
+    get:
+      summary: Query Application Status (USER_DATA)
+      description: |-
+        Get Application Status
+
+        Weight(UID): 400
       tags:
         - VIP Loans
       parameters:
@@ -17401,7 +18139,7 @@ paths:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Application Data
+          description: Application Status
           content:
             application/json:
               schema:
@@ -17455,6 +18193,67 @@ paths:
                 required:
                   - total
                   - rows
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/loan/vip/request/interestRate:
+    get:
+      summary: Get Borrow Interest Rate (USER_DATA)
+      description: |-
+        Get borrow interest rate.
+
+        Weight(UID): 400
+      tags:
+        - VIP Loans
+      parameters:
+        - name: loanCoin
+          in: query
+          description: 'Max 10 assets, Multiple split by ","'
+          schema:
+            type: string
+            example: "BUSD"
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Borrow interest rate
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    asset:
+                      type: string
+                      example: "BUSD"
+                    flexibleDailyInterestRate:
+                      type: string
+                      example: "0.001503"
+                    flexibleYearlyInterestRate:
+                      type: string
+                      example: "0.548595"
+                    time:
+                      type: integer
+                      format: int64
+                      example: 1577233578000
+                  required:
+                    - asset
+                    - flexibleDailyInterestRate
+                    - flexibleYearlyInterestRate
+                    - time
         '400':
           description: Bad Request
           content:
@@ -21824,7 +22623,7 @@ paths:
                   indexId:
                     type: integer
                     format: int64
-                    example: 12345
+                    example: 1
                   indexName:
                     type: string
                     example: "BINANCE TOP 10 EW"
@@ -21894,18 +22693,21 @@ paths:
                   indexId:
                     type: integer
                     format: int64
-                    example: 12345
+                    example: 1
                   totalInvestedInUSD:
                     type: string
                     example: "114.555"
                   currentInvestedInUSD:
                     type: string
+                    description: current invest
                     example: "101.2"
                   pnlInUSD:
                     type: string
+                    description: PNL of the plan in USD based on current amount
                     example: "101.2"
                   roi:
                     type: string
+                    description: ROI of the plan based on current amount
                     example: "1.023"
                   assetAllocation:
                     type: array
@@ -21914,6 +22716,7 @@ paths:
                       properties:
                         targetAsset:
                           type: string
+                          description: for pie chart
                           example: "ADA"
                         allocation:
                           type: string
@@ -21931,24 +22734,31 @@ paths:
                           example: "ADA"
                         averagePriceInUSD:
                           type: string
+                          description: average price of the asset in USD
                           example: "3.4"
                         totalInvestedInUSD:
                           type: string
+                          description: total source asset invested for this target asset in equivilent of USD
                           example: "222.21"
                         currentInvestedInUSD:
                           type: string
+                          description: current invest
                           example: "101.2"
                         purchasedAmount:
                           type: string
+                          description: purchased amount of target asset
                           example: "122.2"
                         pnlInUSD:
                           type: string
+                          description: PNL denominated in USD
                           example: "109.2"
                         roi:
                           type: string
+                          description: ROI calculated in decimal
                           example: "0.2"
                         percentage:
                           type: string
+                          description: asset allocation in the plan. If it's single plan, then it's 100
                           example: "10"
                         availableAmount:
                           type: string
@@ -22075,10 +22885,10 @@ paths:
                   waitSecond:
                     type: integer
                     format: int32
-                    example: 2
+                    example: 5
                 required:
-                  - targetAsset
-                  - allocation
+                  - transactionId
+                  - waitSecond
         '400':
           description: Bad Request
           content:
@@ -22160,6 +22970,7 @@ paths:
       parameters:
         - name: indexId
           in: query
+          description: PORTFOLIO plan's Id
           required: true
           schema:
             type: integer
@@ -22167,11 +22978,13 @@ paths:
             example: 123456
         - name: requestId
           in: query
+          description: sourceType + unique, transactionId and requestId cannot be empty at the same time
           schema:
             type: string
             example: "TR12354859"
         - name: redemptionPercentage
           in: query
+          description: user redeem percentage,10/20/100.
           schema:
             type: integer
             example: 10
@@ -22212,6 +23025,9 @@ paths:
       description: |-
         Get the history of Index Linked Plan Redemption transactions
 
+        Max 30 day difference between startTime and endTime
+        If no startTime and endTime, default to show past 30 day records
+
         Weight(IP): 1
       tags:
         - Auto-Invest
@@ -22246,14 +23062,14 @@ paths:
                     indexId:
                       type: integer
                       format: int64
-                      example: 12345
+                      example: 1
                     indexName:
                       type: string
                       example: "BINANCE TOP 10 EW"
                     redemptionId:
                       type: integer
                       format: int64
-                      example: 12345
+                      example: 11
                     status:
                       type: string
                       example: "SUCCESS"
@@ -22330,14 +23146,14 @@ paths:
                     indexId:
                       type: integer
                       format: int64
-                      example: 12345
+                      example: 1
                     indexName:
                       type: string
                       example: "BINANCE TOP 10 EW"
                     rebalanceId:
                       type: integer
                       format: int64
-                      example: 12345
+                      example: 11
                     status:
                       type: string
                       example: "SUCCESS"
