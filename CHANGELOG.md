@@ -1,5 +1,48 @@
 # Changelog
 
+## 1.19.0 - 2023-11-15
+### Added
+- `GET /sapi/v1/loan/vip/request/interestRate`
+- `GET /sapi/v1/margin/capital-flow`
+- `GET /sapi/v1/margin/delist-schedule`
+- `GET /sapi/v1/margin/available-inventory`
+- `POST /sapi/v1/margin/manual-liquidation`
+- `GET /sapi/v1/portfolio/margin-asset-leverage`
+- `GET /sapi/v1/loan/vip/collateral/data`
+- `GET /api/v3/myAllocations`
+- `POST /api/v3/sor/order`
+- `POST /api/v3/sor/order/test`
+
+### Changed
+- `GET /api/v3/trades`
+- `GET /api/v3/depth`
+- `GET /sapi/v1/account/apiRestrictions`
+- `GET /sapi/v1/loan/vip/request/data`
+- `POST /api/v3/userDataStream`
+- `PUT /api/v3/userDataStream`
+- `DELETE /api/v3/userDataStream`
+- `GET /sapi/v1/capital/withdraw/history`
+- `POST /sapi/v1/margin/max-leverage`
+- `GET /api/v3/openOrderList`
+- `GET /api/v3/rateLimit/order`
+- `GET /api/v3/myTrades`
+- `GET /api/v3/account`
+- `GET /api/v3/allOrderList`
+- `GET /api/v3/orderList`
+- `GET /api/v3/openOrders`
+- `GET /api/v3/order`
+- `GET /api/v3/ticker`
+- `GET /api/v3/ticker/bookTicker`
+- `GET /api/v3/ticker/price`
+- `GET /api/v3/ticker/24hr`
+- `GET /api/v3/avgPrice`
+- `GET /api/v3/uiKlines`
+- `GET /api/v3/klines`
+- `GET /api/v3/aggTrades`
+- `GET /api/v3/historicalTrades`
+- `GET /api/v3/allOrders`
+
+
 ## 1.18.0 - 2023-09-27
 ### Added
 - `GET /sapi/v1/lending/auto-invest/index/info`
@@ -102,7 +145,6 @@
 - `POST /sapi/v1/margin/dust`
 - `POST /sapi/v1/loan/vip/borrow`
 - `GET /sapi/v1/loan/vip/loanable/data`
-- `GET /sapi/v1/loan/vip/collateral/data`
 - `GET /sapi/v1/loan/vip/request/data`
 - `POST /sapi/v1/margin/max-leverage`
 - `POST /sapi/v1/portfolio/repay-futures-switch`
