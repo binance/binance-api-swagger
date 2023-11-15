@@ -15791,7 +15791,7 @@ paths:
         Weight(IP): 50
       tags:
         - Portfolio Margin
-      response:
+      responses:
         '200':
           description: Classic Portfolio Margin Collateral Rate
           content:
