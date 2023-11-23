@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.20.0 - 2023-11-23
+### Added
+- `GET /sapi/v1/capital/deposit/address/list`
+- `GET /sapi/v1/margin/leverageBracket`
+
 ## 1.19.0 - 2023-11-15
 ### Added
 - `GET /sapi/v1/loan/vip/request/interestRate`
