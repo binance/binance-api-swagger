@@ -6061,6 +6061,75 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/margin/leverageBracket:
+    get:
+      summary: Query Liability Coin Leverage Bracket in Cross Margin Pro Mode (MARKET_DATA)
+      description: |-
+        Liability Coin Leverage Bracket in Cross Margin Pro Mode
+
+        Weight(IP): 1
+      tags:
+        - Margin
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Leverage info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    assetNames:
+                      type: array
+                      items:
+                        type: string
+                        example: "BTC"
+                    rank:
+                      type: integer
+                      example: 1
+                    brackets:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          leverage:
+                            type: integer
+                            example: 10
+                          maxDebt:
+                            type: number
+                            format: double
+                            example: 1000000.00000000
+                          maintenanceMarginRate:
+                            type: number
+                            format: double
+                            example: 0.02000000
+                          initialMarginRate:
+                            type: number
+                            format: double
+                            example: 0.1112
+                          fastNum:
+                            type: number
+                            format: double
+                            example: 60000.000
+                      required:
+                        - leverage
+                        - maxDebt
+                        - maintenanceMarginRate
+                        - initialMarginRate
+                        - fastNum
+                  required:
+                    - assetNames
+                    - rank
+                    - brackets
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/system/status:
     get:
       summary: System Status (System)
@@ -9003,6 +9072,68 @@ paths:
                 required:
                   - total
                   - rows
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/capital/deposit/address/list:
+    get:
+      summary: Fetch deposit address list with network (USER_DATA)
+      description: |-
+        Fetch deposit address list with network.
+
+        Weight(IP): 10
+      tags:
+        - Wallet
+      parameters:
+        - name: coin
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "BTC"
+        - name: network
+          in: query
+          schema:
+            type: string
+            example: "BTC"
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Coin address
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    coin:
+                      type: string
+                      example: "ETH"
+                    address:
+                      type: string
+                      example: "0xD316E95Fd9E8E237Cb11f8200Babbc5D8D177BA4"
+                    isDefault:
+                      type: integer
+                      format: int32
+                      example: 1
+                  required:
+                    - coin
+                    - address
+                    - isDefault
         '400':
           description: Bad Request
           content:
