@@ -21720,7 +21720,10 @@ paths:
       tags:
         - Auto-Invest
       parameters:
-        - $ref: '#/components/parameters/targetAsset'
+        - name: targetAsset
+          in: query
+          schema:
+            type: string
         - $ref: '#/components/parameters/size'
         - $ref: '#/components/parameters/current'
         - $ref: '#/components/parameters/recvWindow'
@@ -22043,6 +22046,7 @@ paths:
             example: true
         - name: details
           in: query
+          required: true
           schema:
             type: array
             items:
@@ -22406,7 +22410,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
   /sapi/v1/lending/auto-invest/plan/id:
-    post:
+    get:
       summary: Query holding details of the plan
       description: |-
         Query holding details of the plan
@@ -22613,7 +22617,6 @@ paths:
             format: int64
         - name: planType
           in: query
-          required: true
           schema:
             type: string
             enum: [SINGLE, PORTFOLIO, INDEX, ALL]
@@ -23116,6 +23119,7 @@ paths:
         - name: redemptionPercentage
           in: query
           description: user redeem percentage,10/20/100.
+          required: true
           schema:
             type: integer
             example: 10
@@ -23152,7 +23156,7 @@ paths:
                 $ref: '#/components/schemas/error'
   /sapi/v1/lending/auto-invest/redeem/history:
     get:
-      summary: Index Linked Plan Redemption (USER_DATA)
+      summary: Index Linked Plan Redemption History (USER_DATA)
       description: |-
         Get the history of Index Linked Plan Redemption transactions
 
@@ -23173,7 +23177,11 @@ paths:
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/current'
-        - $ref: '#/components/parameters/asset'
+        - name: asset
+          in: query
+          schema:
+            type: string
+            example: "BTC"
         - $ref: '#/components/parameters/size'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.20.1 - 2023-12-07
+- Minor updates
+
 ## 1.20.0 - 2023-11-23
 ### Added
 - `GET /sapi/v1/capital/deposit/address/list`
