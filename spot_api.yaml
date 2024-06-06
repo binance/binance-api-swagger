@@ -32,8 +32,6 @@ tags:
     description: Isolated User Data Stream
   - name: Savings
     description: Savings Endpoints
-  - name: Staking
-    description: Staking Endpoints
   - name: Mining
     description: Mining Endpoints
   - name: Futures
@@ -46,8 +44,6 @@ tags:
     description: Portfolio Margin Endpoints
   - name: BLVT
     description: Binance Leveraged Tokens Endpoints
-  - name: BSwap
-    description: Binance Swap Endpoints
   - name: Fiat
     description: Fiat Endpoints
   - name: C2C
@@ -117,6 +113,15 @@ paths:
         Current exchange trading rules and symbol information
 
         - If any symbol provided in either symbol or symbols do not exist, the endpoint will throw an error.
+        - All parameters are optional.
+        - permissions can support single or multiple values (e.g. SPOT, ["MARGIN","LEVERAGED"])
+        - If permissions parameter not provided, the default values will be ["SPOT","MARGIN","LEVERAGED"].
+          - To display all permissions you need to specify them explicitly. (e.g. SPOT, MARGIN,...)
+
+        Examples of Symbol Permissions Interpretation from the Response:
+        - [["A","B"]] means you may place an order if your account has either permission "A" or permission "B". 
+        - [["A"],["B"]] means you can place an order if your account has permission "A" and permission "B".
+        - [["A"],["B","C"]] means you can place an order if your account has permission "A" and permission "B" or permission "C". (Inclusive or is applied here, not exclusive or, so your account may have both permission "B" and permission "C".)
 
         Weight(IP): 10
       tags:
@@ -208,17 +213,28 @@ paths:
                             example: "LIMIT"
                         icebergAllowed:
                           type: boolean
+                          example: true
                         ocoAllowed:
                           type: boolean
+                          example: true
+                        otoAllowed:
+                          type: boolean
+                          example: false
                         quoteOrderQtyMarketAllowed:
                           type: boolean
+                          example: true
                         allowTrailingStop:
                           type: boolean
                           example: false
+                        cancelReplaceAllowed:
+                          type: boolean
+                          example: true
                         isSpotTradingAllowed:
                           type: boolean
+                          example: true
                         isMarginTradingAllowed:
                           type: boolean
+                          example: true
                         filters:
                           type: array
                           items:
@@ -246,6 +262,15 @@ paths:
                           items:
                             type: string
                             example: "SPOT"
+                        permissionSets:
+                          type: array
+                          items:
+                            type: array
+                            items:
+                              type: string
+                              example: 
+                                - "SPOT"
+                                - "MARGIN"
                         defaultSelfTradePreventionMode:
                           type: string
                           example: "NONE"
@@ -266,12 +291,15 @@ paths:
                         - orderTypes
                         - icebergAllowed
                         - ocoAllowed
+                        - otoAllowed
                         - quoteOrderQtyMarketAllowed
                         - allowTrailingStop
+                        - cancelReplaceAllowed
                         - isSpotTradingAllowed
                         - isMarginTradingAllowed
                         - filters
                         - permissions
+                        - permissionSets
                         - defaultSelfTradePreventionMode
                         - allowedSelfTradePreventionModes
                 required:
@@ -469,6 +497,13 @@ paths:
             example: '"1m"'
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
+        - name: timeZone
+          in: query
+          required: false
+          description: |-
+            Default: 0 (UTC)
+          schema:
+            type: string
         - $ref: '#/components/parameters/limit'
       responses:
         '200':
@@ -528,6 +563,13 @@ paths:
             example: '"1m"'
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
+        - name: timeZone
+          in: query
+          required: false
+          description: |-
+            Default: 0 (UTC)
+          schema:
+            type: string
         - $ref: '#/components/parameters/limit'
       responses:
         '200':
@@ -587,12 +629,20 @@ paths:
                     type: integer
                     format: int64
                     example: 5
+                    description: Average price interval (in minutes)
                   price:
                     type: string
                     example: "9.35751834"
+                    description: Average price
+                  closeTime:
+                    type: integer
+                    format: int64
+                    example: 1694061154503
+                    description: Last trade time
                 required:
                   - mins
                   - price
+                  - closeTime
         '400':
           description: Bad Request
           content:
@@ -616,13 +666,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/optionalSymbol'
         - $ref: '#/components/parameters/arraySymbols'
-        - name: type
-          in: query
-          description: |-
-            Supported values: FULL or MINI.
-            If none provided, the default is FULL
-          schema:
-            type: string
+        - $ref: '#/components/parameters/tickerType'
       responses:
         '200':
           description: 24hr ticker
@@ -632,6 +676,48 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/ticker'
                   - $ref: '#/components/schemas/tickerList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /api/v3/ticker/tradingDay:
+    get:
+      summary: Trading Day Ticker
+      description: |-
+        Price change statistics for a trading day.
+
+        Notes:
+        - Supported values for timeZone:
+          - Hours and minutes (e.g. -1:00, 05:45)
+          - Only hours (e.g. 0, 8, 4)
+
+        Weight:
+        - `4` for each requested symbol. 
+        - The weight for this request will cap at `200` once the number of symbols in the request is more than `50`.
+      tags:
+        - Market
+      parameters:
+        - $ref: '#/components/parameters/optionalSymbol'
+        - $ref: '#/components/parameters/arraySymbols'
+        - name: timeZone
+          in: query
+          required: false
+          description: |-
+            Default: 0 (UTC)
+          schema:
+            type: string
+        - $ref: '#/components/parameters/tickerType'
+      responses:
+        '200':
+          description: Trading day ticker
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/dayTicker'
+                  - $ref: '#/components/schemas/dayTickerList'
         '400':
           description: Bad Request
           content:
@@ -824,7 +910,9 @@ paths:
         Test new order creation and signature/recvWindow long.
         Creates and validates a new order but does not send it into the matching engine.
 
-        Weight(IP): 1
+        Weight(IP): 
+          - Without computeCommissionRates: `1`
+          - With computeCommissionRates: `20`
       tags:
         - Trade
       parameters:
@@ -843,6 +931,14 @@ paths:
         - $ref: '#/components/parameters/icebergQty'
         - $ref: '#/components/parameters/newOrderRespType'
         - $ref: '#/components/parameters/recvWindow'
+        - name: computeCommissionRates
+          in: query
+          required: false
+          description: |-
+            Default: false
+          schema:
+            type: boolean
+            example: false
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
       security:
@@ -2063,6 +2159,10 @@ paths:
       description: |-
         Test new order creation and signature/recvWindow using smart order routing (SOR).
         Creates and validates a new order but does not send it into the matching engine.
+
+        Weight(IP): 
+          - Without computeCommissionRates: `1`
+          - With computeCommissionRates: `20`
       tags:
         - Trade
       parameters:
@@ -2083,6 +2183,14 @@ paths:
         - $ref: '#/components/parameters/icebergQty'
         - $ref: '#/components/parameters/newOrderRespType'
         - $ref: '#/components/parameters/selfTradePreventionMode'
+        - name: computeCommissionRates
+          in: query
+          required: false
+          description: |-
+            Default: false
+          schema:
+            type: boolean
+            example: false
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -2499,42 +2607,96 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/error'
-
-  /sapi/v1/margin/transfer:
-    post:
-      summary: Cross Margin Account Transfer (MARGIN)
+  /api/v3/account/commission:
+    get:
+      summary: Query Commission Rates (USER_DATA)
       description: |-
-        Execute transfer between spot account and cross margin account.
+        Get current account commission rates.
 
-        Weight(IP): 600
+        Weight: 20
       tags:
-        - Margin
+        - Trade
       parameters:
-        - $ref: '#/components/parameters/asset'
-        - $ref: '#/components/parameters/amount'
-        - name: type
-          in: query
-          required: true
-          description: |-
-            * `1` - transfer from main account to margin account
-            * `2` - transfer from margin account to main account
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-            maximum: 2
-        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/symbol'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
       security:
         - ApiKeyAuth: []
       responses:
         '200':
-          description: Transfer Id
+          description: Current account commission rates.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/transaction'
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                    example: "BTCUSDT"
+                  standardCommission:
+                    type: object
+                    description: Standard commission rates on trades from the order.
+                    properties:
+                      maker:
+                        type: string
+                        example: "0.00000010"
+                      taker:
+                        type: string
+                        example: "0.00000020"
+                      buyer:
+                        type: string
+                        example: "0.00000030"
+                      seller:
+                        type: string
+                        example: "0.00000040"
+                    required:
+                      - maker
+                      - taker
+                      - buyer
+                      - seller
+                  taxCommission:
+                    type: object
+                    description: Tax commission rates for trades from the order.
+                    properties:
+                      maker:
+                        type: string
+                        example: "0.00000112"
+                      taker:
+                        type: string
+                        example: "0.00000114"
+                      buyer:
+                        type: string
+                        example: "0.00000118"
+                      seller:
+                        type: string
+                        example: "0.00000116"
+                    required:
+                      - maker
+                      - taker
+                      - buyer
+                      - seller
+                  discount:
+                    type: object
+                    description: Discount commission when paying in BNB.
+                    properties:
+                      enabledForAccount:
+                        type: boolean
+                        example: true
+                      enabledForSymbol:
+                        type: boolean
+                        example: true
+                      discountAsset:
+                        type: string
+                        example: "BNB"
+                      discount:
+                        type: string
+                        description: Standard commission is reduced by this rate when paying commission in BNB.
+                        example: "0.25000000"
+                required:
+                  - symbol
+                  - standardCommission
+                  - taxCommission
+                  - discount
         '400':
           description: Bad Request
           content:
@@ -2547,6 +2709,162 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/error'
+
+  /sapi/v1/margin/borrow-repay:
+    post:
+      summary: Margin account borrow/repay(MARGIN)
+      description: |-
+        Margin account borrow/repay(MARGIN)
+
+        Weight(UID): 3000
+      tags:
+        - Margin
+      parameters:
+        - $ref: '#/components/parameters/asset'
+        - name: isIsolated
+          in: query
+          required: true
+          description: "TRUE for isolated margin, FALSE for crossed margin"
+          schema:
+            type: string
+        - $ref: '#/components/parameters/symbol'
+        - $ref: '#/components/parameters/amount'
+        - name: type
+          in: query
+          required: true
+          description: BORROW or REPAY
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Margin account borrow/repay
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tranId:
+                    type: integer
+                    format: int64
+                    example: 100000001
+                required:
+                  - tranId
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    get:
+      summary: Query borrow/repay records in Margin account(USER_DATA)
+      description: |-
+        Query borrow/repay records in Margin account
+
+        - txId or startTime must be sent. txId takes precedence. Response in descending order
+        - If an asset is sent, data within 30 days before endTime; If an asset is not sent, data within 7 days before endTime
+        - If neither startTime nor endTime is sent, the recent 7-day data will be returned.
+        - startTime set as endTime - 7 days by default, endTime set as current time by default
+
+        Weight(IP): 10
+      tags:
+        - Margin
+      parameters:
+        - $ref: '#/components/parameters/asset'
+        - $ref: '#/components/parameters/isolatedSymbol'
+        - name: txId
+          in: query
+          required: false
+          description: tranId in POST /sapi/v1/margin/loan
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - name: type
+          in: query
+          required: true
+          description: BORROW or REPAY
+          schema:
+            type: string
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Margin account borrow/repay
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        isolatedSymbol:
+                          type: string
+                          description: Isolated symbol, will not be returned for crossed margin
+                        amount:
+                          type: string
+                          description: Total amount borrowed/repaid
+                        asset:
+                          type: string
+                        interest:
+                          type: string
+                          description: Interest repaid
+                        principal:
+                          type: string
+                          description: Principal repaid
+                        status:
+                          type: string
+                          description: one of PENDING (pending execution), CONFIRMED (successfully execution), FAILED (execution failed, nothing happened to your account)
+                        timestamp:
+                          type: integer
+                          format: int64
+                        txId:
+                          type: integer
+                          format: int64
+                      required:
+                        - asset
+                        - principal
+                        - status
+                        - timestamp
+                        - txId
+                  total:
+                    type: integer
+                    format: int32
+                required:
+                  - rows
+                  - total
+                example:
+                  rows:
+                    -
+                      isolatedSymbol: "BNBUSDT"
+                      amount: "14.00000000"
+                      asset: "BNB"
+                      interest: "0.01866667"
+                      principal: "13.98133333"
+                      status: "CONFIRMED"
+                      timestamp: 1563438204000
+                      txId: 2970933056
+                  total: 1
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/margin/transfer:
     get:
       summary: Get Cross Margin Transfer History (USER_DATA)
       description: |-
@@ -2564,7 +2882,7 @@ paths:
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/current'
         - $ref: '#/components/parameters/size'
-        - $ref: '#/components/parameters/archived'
+        - $ref: '#/components/parameters/isolatedSymbol'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -2628,394 +2946,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/margin/loan:
-    post:
-      summary: Margin Account Borrow (MARGIN)
-      description: |-
-        Apply for a loan.
-
-        - If "isIsolated" = "TRUE", "symbol" must be sent
-        - "isIsolated" = "FALSE" for crossed margin loan
-
-        Weight(UID): 3000
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/asset'
-        - $ref: '#/components/parameters/isIsolatedMargin'
-        - $ref: '#/components/parameters/optionalSymbol'
-        - $ref: '#/components/parameters/amount'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Transaction id
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/transaction'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
             description: Unauthorized Request
             content:
               application/json:
                 schema:
                   $ref: '#/components/schemas/error'
-    get:
-      summary: Query Loan Record (USER_DATA)
-      description: |-
-        - `txId` or `startTime` must be sent. `txId` takes precedence.
-        - Response in descending order
-        - If `isolatedSymbol` is not sent, crossed margin data will be returned
-        - Set `archived` to `true` to query data from 6 months ago
-
-        Weight(IP): 10
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/asset'
-        - $ref: '#/components/parameters/isolatedSymbol'
-        - name: txId
-          in: query
-          description: the tranId in  `POST /sapi/v1/margin/loan`
-          schema:
-            type: integer
-            format: int64
-            example: 123456789
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/current'
-        - $ref: '#/components/parameters/size'
-        - $ref: '#/components/parameters/archived'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Loan records
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  rows:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        isolatedSymbol:
-                          type: string
-                        txId:
-                          type: integer
-                          format: int64
-                        asset:
-                          type: string
-                        principal:
-                          type: string
-                        timestamp:
-                          type: integer
-                          format: int64
-                        status:
-                          type: string
-                      required:
-                        - isolatedSymbol
-                        - txId
-                        - asset
-                        - principal
-                        - timestamp
-                        - status
-                  total:
-                    type: integer
-                    format: int32
-                required:
-                  - rows
-                  - total
-                example:
-                  rows:
-                    -
-                      isolatedSymbol: "BNBUSDT"
-                      txId: 12807067523
-                      asset: "BNB"
-                      principal: "0.84624403"
-                      timestamp: 1555056425000
-                      status: "CONFIRMED"
-                  total: 1
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
-  /sapi/v1/margin/repay:
-    post:
-      summary: Margin Account Repay (MARGIN)
-      description: |-
-        Repay loan for margin account.
-
-        - If "isIsolated" = "TRUE", "symbol" must be sent
-        - "isIsolated" = "FALSE" for crossed margin repay
-
-        Weight(IP): 3000
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/asset'
-        - $ref: '#/components/parameters/isIsolatedMargin'
-        - $ref: '#/components/parameters/optionalSymbol'
-        - $ref: '#/components/parameters/amount'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Transaction id
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/transaction'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
-    get:
-      summary: Query Repay Record (USER_DATA)
-      description: |-
-        - `txId` or `startTime` must be sent. `txId` takes precedence.
-        - Response in descending order
-        - If `isolatedSymbol` is not sent, crossed margin data will be returned
-        - Set `archived` to `true` to query data from 6 months ago
-
-        Weight(IP): 10
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/asset'
-        - $ref: '#/components/parameters/isolatedSymbol'
-        - name: txId
-          in: query
-          description: the tranId in  `POST /sapi/v1/margin/repay`
-          schema:
-            type: integer
-            format: int64
-            example: 2970933056
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/current'
-        - $ref: '#/components/parameters/size'
-        - $ref: '#/components/parameters/archived'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Load records
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  rows:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        isolatedSymbol:
-                          type: string
-                          example: "BNBUSDT"
-                          description: Isolated symbol, will not be returned for crossed margin
-                        amount:
-                          type: string
-                          example: "14.00000000"
-                          description: Total amount repaid
-                        asset:
-                          type: string
-                          example: "BNB"
-                        interest:
-                          type: string
-                          example: "0.01866667"
-                          description: Interest repaid
-                        principal:
-                          type: string
-                          example: "13.98133333"
-                          description: Principal repaid
-                        status:
-                          type: string
-                          example: "CONFIRMED"
-                          description: One of PENDING (pending execution), CONFIRMED (successfully execution), FAILED (execution failed, nothing happened to your account)
-                        timestamp:
-                          type: integer
-                          format: int64
-                          example: 1563438204000
-                        txId:
-                          type: integer
-                          format: int64
-                          example: 2970933056
-                      required:
-                        - isolatedSymbol
-                        - amount
-                        - asset
-                        - interest
-                        - principal
-                        - status
-                        - timestamp
-                        - txId
-                  total:
-                    type: integer
-                    format: int32
-                    example: 1
-                required:
-                  - rows
-                  - total
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
-  /sapi/v1/margin/asset:
-    get:
-      summary: Query Margin Asset (MARKET_DATA)
-      description: 'Weight(IP): 10'
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/asset'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Asset details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  assetFullName:
-                    type: string
-                    example: "Binance Coin"
-                  assetName:
-                    type: string
-                    example: "BNB"
-                  isBorrowable:
-                    type: boolean
-                    example: false
-                  isMortgageable:
-                    type: boolean
-                  userMinBorrow:
-                    type: string
-                    example: "0.00000000"
-                  userMinRepay:
-                    type: string
-                    example: "0.00000000"
-                required:
-                  - assetFullName
-                  - assetName
-                  - isBorrowable
-                  - isMortgageable
-                  - userMinBorrow
-                  - userMinRepay
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/margin/pair:
-    get:
-      summary: Query Cross Margin Pair (MARKET_DATA)
-      description: 'Weight(IP): 10'
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/symbol'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Margin pair details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                    format: int64
-                    example: 323355778339572400
-                  symbol:
-                    type: string
-                    example: "BNBUSDT"
-                  base:
-                    type: string
-                    example: "BTC"
-                  quote:
-                    type: string
-                    example: "USDT"
-                  isMarginTrade:
-                    type: boolean
-                  isBuyAllowed:
-                    type: boolean
-                  isSellAllowed:
-                    type: boolean
-                required:
-                  - id
-                  - symbol
-                  - base
-                  - quote
-                  - isMarginTrade
-                  - isBuyAllowed
-                  - isSellAllowed
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
   /sapi/v1/margin/allAssets:
     get:
       summary: Get All Margin Assets (MARKET_DATA)
       description: 'Weight(IP): 1'
       tags:
         - Margin
+      parameters:
+        - $ref: '#/components/parameters/asset'
       security:
         - ApiKeyAuth: []
       responses:
@@ -3063,6 +3006,8 @@ paths:
       description: 'Weight(IP): 1'
       tags:
         - Margin
+      parameters:
+        - $ref: '#/components/parameters/symbol'
       security:
         - ApiKeyAuth: []
       responses:
@@ -4450,81 +4395,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/margin/isolated/transfer:
-    get:
-      summary: Get Isolated Margin Transfer History (USER_DATA)
-      description: 'Weight(IP): 1'
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/optionalAsset'
-        - $ref: '#/components/parameters/symbol'
-        - $ref: '#/components/parameters/getCrossMargingTransferHistoryType'
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/current'
-        - $ref: '#/components/parameters/size'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Isolated Margin Transfer History
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/marginTransferDetails'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-    post:
-      summary: Isolated Margin Account Transfer (MARGIN)
-      description: 'Weight(UID): 600'
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/asset'
-        - $ref: '#/components/parameters/symbol'
-        - $ref: '#/components/parameters/transFrom'
-        - $ref: '#/components/parameters/transTo'
-        - $ref: '#/components/parameters/amount'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Transaction Id
-          content:
-            application/json:
-              schema:
-                type: object
-                example:
-                  tranId: 100000001
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
   /sapi/v1/margin/isolated/account:
     get:
       summary: Query Isolated Margin Account Info (USER_DATA)
@@ -4693,61 +4563,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/margin/isolated/pair:
-    get:
-      summary: Query Isolated Margin Symbol (USER_DATA)
-      description: 'Weight(IP): 10'
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/symbol'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Isolated Margin Symbol
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  symbol:
-                    type: string
-                    example: 'BTCUSDT'
-                  base:
-                    type: string
-                    example: 'BTC'
-                  quote:
-                    type: string
-                    example: 'USDT'
-                  isMarginTrade:
-                    type: boolean
-                  isBuyAllowed:
-                    type: boolean
-                  isSellAllowed:
-                    type: boolean
-                required:
-                  - symbol
-                  - base
-                  - quote
-                  - isMarginTrade
-                  - isBuyAllowed
-                  - isSellAllowed
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
   /sapi/v1/margin/isolated/allPairs:
     get:
       summary: Get All Isolated Margin Symbol(USER_DATA)
@@ -4755,6 +4570,7 @@ paths:
       tags:
         - Margin
       parameters:
+        - $ref: '#/components/parameters/symbol'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -5207,107 +5023,6 @@ paths:
                     - intervalNum
                     - limit
                     - count
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/margin/dribblet:
-    get:
-      summary: Margin Dustlog (USER_DATA)
-      description: |-
-        Query the historical information of user margin account small-value asset conversion BNB.
-
-        Weight(IP): 1
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Dust Log
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  total:
-                    type: integer
-                    format: int64
-                    example: 8
-                  userAssetDribblets:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        operateTime:
-                          type: integer
-                          format: int64
-                          example: 1615985535000
-                        totalTransferedAmount:
-                          type: string
-                          example: '0.00132256'
-                        totalServiceChargeAmount:
-                          type: string
-                          example: '0.00002699'
-                        transId:
-                          type: integer
-                          format: int64
-                          example: 45178372831
-                        userAssetDribbletDetails:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              transId:
-                                type: integer
-                                format: int64
-                                example: 4359321
-                              serviceChargeAmount:
-                                type: string
-                                example: '0.000009'
-                              amount:
-                                type: string
-                                example: '0.0009'
-                              operateTime:
-                                type: integer
-                                format: int64
-                                example: 1615985535000
-                              transferedAmount:
-                                type: string
-                                example: '0.000441'
-                              fromAsset:
-                                type: string
-                                example: USDT
-                            required:
-                              - transId
-                              - serviceChargeAmount
-                              - amount
-                              - operateTime
-                              - transferedAmount
-                              - fromAsset
-                      required:
-                        - operateTime
-                        - totalTransferedAmount
-                        - totalServiceChargeAmount
-                        - transId
-                        - userAssetDribbletDetails
-                required:
-                  - total
-                  - userAssetDribblets
         '400':
           description: Bad Request
           content:
@@ -5853,166 +5568,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/margin/dust:
-    get:
-      summary: Get Assets That Can Be Converted Into BNB (USER_DATA)
-      description: |-
-        Get assets that can be converted into BNB.
-
-        Weight(IP): 100
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Asset list
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  details:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        asset:
-                          type: string
-                          example: "BTC"
-                        assetFullName:
-                          type: string
-                          example: "ADA"
-                        amountFree:
-                          type: string
-                          example: "6.21"
-                        toBTC:
-                          type: string
-                          example: "0.00016848"
-                        toBNB:
-                          type: string
-                          example: "0.01777302"
-                        toBNBOffExchange:
-                          type: string
-                          example: "0.01741756"
-                        exchange:
-                          type: string
-                          example: "0.00035546"
-                      required:
-                        - asset
-                        - assetFullName
-                        - amountFree
-                        - toBTC
-                        - toBNB
-                        - toBNBOffExchange
-                        - exchange
-                  totalTransferBtc:
-                    type: string
-                    example: "0.00016848"
-                  totalTransferBNB:
-                    type: string
-                    example: "0.01777302"
-                  dribbletPercentage:
-                    type: string
-                    example: "0.02"
-                required:
-                  - details
-                  - totalTransferBtc
-                  - totalTransferBNB
-                  - dribbletPercentage
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-    post:
-      summary: Dust Transfer (TRADE)
-      description: |-
-        Convert dust assets to BNB
-
-        Weight(UID): 3000
-      tags:
-        - Margin
-      parameters:
-        - $ref: '#/components/parameters/asset'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: convert dust result
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  totalServiceCharge:
-                    type: string
-                    example: "0.02102542"
-                  totalTransfered:
-                    type: string
-                    example: "1.05127099"
-                  transferResult:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        amount:
-                          type: string
-                          example: "0.03000000"
-                        fromAsset:
-                          type: string
-                          example: "ETH"
-                        operateTime:
-                          type: integer
-                          format: int64
-                          example: 1563368549307
-                        serviceChargeAmount:
-                          type: string
-                          example: "0.00500000"
-                        tranId:
-                          type: integer
-                          format: int64
-                          example: 1563368549307
-                        transferedAmount:
-                          type: string
-                          example: "0.25000000"
-                      required:
-                        - amount
-                        - fromAsset
-                        - operateTime
-                        - serviceChargeAmount
-                        - tranId
-                        - transferedAmount
-                required:
-                  - totalServiceCharge
-                  - totalTransfered
-                  - transferResult
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
   /sapi/v1/margin/max-leverage:
     post:
       summary: Adjust cross margin max leverage (USER_DATA)
@@ -6245,9 +5800,6 @@ paths:
                           network:
                             type: string
                             example: "ETH"
-                          resetAddressStatus:
-                            type: boolean
-                            example: false
                           specialTips:
                             type: string
                             example: "Both a MEMO and an Address are required to successfully deposit your BEP2-BTCB tokens to Binance."
@@ -6287,7 +5839,6 @@ paths:
                           - minConfirm
                           - name
                           - network
-                          - resetAddressStatus
                           - specialTips
                           - unLockConfirm
                           - withdrawDesc
@@ -6989,6 +6540,13 @@ paths:
       tags:
         - Wallet
       parameters:
+        - name: accountType
+          in: query
+          required: false
+          description: SPOT or MARGIN, default SPOT
+          schema:
+            type: string
+            enum: [SPOT, MARGIN]
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/recvWindow'
@@ -7090,6 +6648,13 @@ paths:
       tags:
         - Wallet
       parameters:
+        - name: accountType
+          in: query
+          required: false
+          description: SPOT or MARGIN, default SPOT
+          schema:
+            type: string
+            enum: [SPOT, MARGIN]
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -7187,6 +6752,13 @@ paths:
             type: array
             items:
               type: string
+        - name: accountType
+          in: query
+          required: false
+          description: SPOT or MARGIN, default SPOT
+          schema:
+            type: string
+            enum: [SPOT, MARGIN]
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -9134,6 +8706,174 @@ paths:
                     - coin
                     - address
                     - isDefault
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/spot/delist-schedule:
+    get:
+      summary: Get symbols delist schedule for spot (MARKET_DATA)
+      description: |-
+        Get symbols delist schedule for spot
+
+        Weight(IP): 100
+      tags:
+        - Wallet
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Symbols delist schedule
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    delistTime:
+                      type: integer
+                      format: int64
+                      example: 1686161202000
+                    symbol:
+                      type: array
+                      items:
+                        type: string
+                      example: 
+                        - "ADAUSDT"
+                        - "BNBUSDT"
+                  required:
+                    - delistTime
+                    - symbol
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/capital/withdraw/address/list:
+    get:
+      summary: Fetch withdraw address list (USER_DATA)
+      description: |-
+        Fetch withdraw address list
+
+        Weight(IP): 10
+      tags:
+        - Wallet
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Withdraw address list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    address:
+                      type: string
+                      example: "0xD316E95Fd9E8E237Cb11f8200Babbc5D8D177BA4"
+                    addressTag:
+                      type: string
+                      example: "101764890"
+                    coin:
+                      type: string
+                      example: "BNB"
+                    name:
+                      type: string
+                      example: ""
+                    network:
+                      type: string
+                      example: "BNB"
+                    origin:
+                      type: string
+                      example: ""
+                    originType:
+                      type: string
+                      example: ""
+                    whiteStatus:
+                      type: boolean
+                      example: true
+                  required:
+                    - address
+                    - addressTag
+                    - coin
+                    - name
+                    - network
+                    - origin
+                    - originType
+                    - whiteStatus
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/account/info:
+    get:
+      summary: Account info (USER_DATA)
+      description: |-
+        Fetch account info detail.
+
+        Weight(IP): 1
+      tags:
+        - Wallet
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Account info detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vipLevel:
+                    type: integer
+                    format: int32
+                    example: 0
+                  isMarginEnabled:
+                    type: boolean
+                    description: true or false for margin.
+                    example: true
+                  isFutureEnabled:
+                    type: boolean
+                    description: true or false for futures.
+                    example: true
+                required:
+                  - vipLevel
+                  - isMarginEnabled
+                  - isFutureEnabled
         '400':
           description: Bad Request
           content:
@@ -12480,524 +12220,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/staking/productList:
-    get:
-      summary: Get Staking Product List (USER_DATA)
-      description: |-
-        Get available Staking product list.
-
-        Weight(IP): 1
-      tags:
-        - Staking
-      parameters:
-        - $ref: '#/components/parameters/product'
-        - $ref: '#/components/parameters/optionalAsset'
-        - $ref: '#/components/parameters/current'
-        - $ref: '#/components/parameters/size'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Product list.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    projectId:
-                      type: string
-                      example: Axs*90
-                    detail:
-                      type: object
-                      properties:
-                        asset:
-                          type: string
-                          example: AXS
-                        rewardAsset:
-                          type: string
-                          example: AXS
-                        duration:
-                          type: integer
-                          format: int64
-                          example: 90
-                        renewable:
-                          type: boolean
-                          example: true
-                        apy:
-                          type: string
-                          example: '1.2069'
-                      required:
-                        - asset
-                        - rewardAsset
-                        - duration
-                        - renewable
-                        - apy
-                    quota:
-                      type: object
-                      properties:
-                        totalPersonalQuota:
-                          type: string
-                          example: '2'
-                        minimum:
-                          type: string
-                          example: '0.001'
-                      required:
-                        - totalPersonalQuota
-                        - minimum
-                  required:
-                    - projectId
-                    - detail
-                    - quota
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/staking/purchase:
-    post:
-      summary: Purchase Staking Product (USER_DATA)
-      description: 'Weight(IP): 1'
-      tags:
-        - Staking
-      parameters:
-        - $ref: '#/components/parameters/product'
-        - $ref: '#/components/parameters/productId'
-        - $ref: '#/components/parameters/amount'
-        - name: renewable
-          in: query
-          description: true or false, default false. Active if product is `STAKING` or `L_DEFI`
-          schema:
-            type: string
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Position Id.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  positionId:
-                    type: string
-                    example: '12345'
-                  success:
-                    type: boolean
-                    example: true
-                required:
-                  - positionId
-                  - success
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/staking/redeem:
-    post:
-      summary: Redeem Staking Product (USER_DATA)
-      description: |-
-        Redeem Staking product. Locked staking and Locked DeFI staking belong to early redemption, redeeming in advance will result in loss of interest that you have earned.
-
-        Weight(IP): 1
-      tags:
-        - Staking
-      parameters:
-        - $ref: '#/components/parameters/product'
-        - name: positionId
-          in: query
-          description: Mandatory if product is `STAKING` or `L_DEFI`
-          schema:
-            type: string
-        - $ref: '#/components/parameters/productId'
-        - name: amount
-          in: query
-          description: Mandatory if product is `F_DEFI`
-          schema:
-            type: number
-            format: double
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                required:
-                  - success
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/staking/position:
-    get:
-      summary: Get Staking Product Position (USER_DATA)
-      description: 'Weight(IP): 1'
-      tags:
-        - Staking
-      parameters:
-        - $ref: '#/components/parameters/product'
-        - name: productId
-          in: query
-          schema:
-            type: string
-        - $ref: '#/components/parameters/optionalAsset'
-        - $ref: '#/components/parameters/current'
-        - $ref: '#/components/parameters/size'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Position.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    positionId:
-                      type: string
-                      example: '123123'
-                    projectId:
-                      type: string
-                      example: Axs*90
-                    asset:
-                      type: string
-                      example: AXS
-                    amount:
-                      type: string
-                      example: '122.09202928'
-                    purchaseTime:
-                      type: string
-                      example: '1646182276000'
-                    duration:
-                      type: string
-                      example: '60'
-                    accrualDays:
-                      type: string
-                      example: '4'
-                    rewardAsset:
-                      type: string
-                      example: AXS
-                    APY:
-                      type: string
-                      example: '0.2032'
-                    rewardAmt:
-                      type: string
-                      example: '5.17181528'
-                    extraRewardAsset:
-                      type: string
-                      example: BNB
-                    extraRewardAPY:
-                      type: string
-                      example: '0.0203'
-                    estExtraRewardAmt:
-                      type: string
-                      example: '5.17181528'
-                    nextInterestPay:
-                      type: string
-                      example: '1.29295383'
-                    nextInterestPayDate:
-                      type: string
-                      example: '1646697600000'
-                    payInterestPeriod:
-                      type: string
-                      example: '1'
-                    redeemAmountEarly:
-                      type: string
-                      example: '2802.24068892'
-                    interestEndDate:
-                      type: string
-                      example: '1651449600000'
-                    deliverDate:
-                      type: string
-                      example: '1651536000000'
-                    redeemPeriod:
-                      type: string
-                      example: '1'
-                    redeemingAmt:
-                      type: string
-                      example: '232.2323'
-                    partialAmtDeliverDate:
-                      type: string
-                      example: '1651536000000'
-                    canRedeemEarly:
-                      type: boolean
-                      example: true
-                    renewable:
-                      type: boolean
-                      example: true
-                    type:
-                      type: string
-                      example: AUTO
-                    status:
-                      type: string
-                      example: HOLDING
-                  required:
-                    - positionId
-                    - projectId
-                    - asset
-                    - amount
-                    - purchaseTime
-                    - duration
-                    - accrualDays
-                    - rewardAsset
-                    - APY
-                    - rewardAmt
-                    - extraRewardAsset
-                    - extraRewardAPY
-                    - estExtraRewardAmt
-                    - nextInterestPay
-                    - nextInterestPayDate
-                    - payInterestPeriod
-                    - redeemAmountEarly
-                    - interestEndDate
-                    - deliverDate
-                    - redeemPeriod
-                    - redeemingAmt
-                    - partialAmtDeliverDate
-                    - canRedeemEarly
-                    - renewable
-                    - type
-                    - status
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/staking/stakingRecord:
-    get:
-      summary: Get Staking History (USER_DATA)
-      description: 'Weight(IP): 1'
-      tags:
-        - Staking
-      parameters:
-        - $ref: '#/components/parameters/product'
-        - name: txnType
-          in: query
-          required: true
-          description: '`SUBSCRIPTION`, `REDEMPTION`, `INTEREST`'
-          schema:
-            type: string
-        - $ref: '#/components/parameters/optionalAsset'
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/current'
-        - $ref: '#/components/parameters/size'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Staking History.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    positionId:
-                      type: string
-                      example: '123123'
-                    time:
-                      type: integer
-                      format: int64
-                      example: 1575018510000
-                    asset:
-                      type: string
-                      example: BNB
-                    project:
-                      type: string
-                      example: BSC
-                    amount:
-                      type: string
-                      example: '21312.23223'
-                    lockPeriod:
-                      type: string
-                      example: '30'
-                    deliverDate:
-                      type: string
-                      example: '1575018510000'
-                    type:
-                      type: string
-                      example: AUTO
-                    status:
-                      type: string
-                      example: success
-                  required:
-                    - positionId
-                    - time
-                    - asset
-                    - project
-                    - amount
-                    - lockPeriod
-                    - deliverDate
-                    - type
-                    - status
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/staking/setAutoStaking:
-    post:
-      summary: Set Auto Staking (USER_DATA)
-      description: |-
-        Set auto staking on Locked Staking or Locked DeFi Staking
-
-        Weight(IP): 1
-      tags:
-        - Staking
-      parameters:
-        - name: product
-          in: query
-          required: true
-          description: |-
-            * `STAKING` - for Locked Staking
-            * `L_DEFI` - for locked DeFi Staking
-          schema:
-            type: string
-        - name: positionId
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: renewable
-          in: query
-          required: true
-          description: true or false
-          schema:
-            type: string
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                required:
-                  - success
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/staking/personalLeftQuota:
-    get:
-      summary: Get Personal Left Quota of Staking Product (USER_DATA)
-      description: 'Weight(IP): 1'
-      tags:
-        - Staking
-      parameters:
-        - $ref: '#/components/parameters/product'
-        - $ref: '#/components/parameters/productId'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Quota.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    leftPersonalQuota:
-                      type: string
-                      example: '1000'
-                  required:
-                    - leftPersonalQuota
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
   /sapi/v1/mining/pub/algoList:
     get:
       summary: Acquiring Algorithm (MARKET_DATA)
@@ -14708,11 +13930,7 @@ paths:
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/page'
-        - name: pageSize
-          in: query
-          description: Page size, minimum 1, maximum 100, default 100
-          schema:
-            type: string
+        - $ref: '#/components/parameters/smallPageSize'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -14828,11 +14046,7 @@ paths:
             type: integer
             format: int64
         - $ref: '#/components/parameters/page'
-        - name: pageSize
-          in: query
-          description: Page size, minimum 1, maximum 100, default 100
-          schema:
-            type: string
+        - $ref: '#/components/parameters/smallPageSize'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -15186,7 +14400,7 @@ paths:
         - $ref: '#/components/parameters/startTime'
         - $ref: '#/components/parameters/endTime'
         - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/smallPageSize'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -15296,7 +14510,7 @@ paths:
             type: integer
             format: int64
         - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/smallPageSize'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -16432,1049 +15646,6 @@ paths:
                     - tokenName
                     - userDailyTotalPurchaseLimit
                     - userDailyTotalRedeemLimit
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/pools:
-    get:
-      summary: List All Swap Pools (MARKET_DATA)
-      description: |-
-        Get metadata about all swap pools.
-
-        Weight(IP): 1
-      tags:
-        - BSwap
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: List of Swap Pools
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    poolId:
-                      type: integer
-                      format: int64
-                      example: 2
-                    poolName:
-                      type: string
-                      example: "BUSD/USDT"
-                    assets:
-                      type: array
-                      items:
-                        type: string
-                        minItems: 2
-                        maxItems: 2
-                      example:
-                        - BUSD
-                        - USDT
-                  required:
-                    - poolId
-                    - poolName
-                    - assets
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/liquidity:
-    get:
-      summary: Liquidity information of a pool (USER_DATA)
-      description: |-
-        Get liquidity information and user share of a pool.
-
-        Weight(IP):
-        - `1` for one pool;
-        - `10` when the poolId parameter is omitted;
-      tags:
-        - BSwap
-      parameters:
-        - $ref: '#/components/parameters/optionalPoolId'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Pool Liquidation information
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    poolId:
-                      type: integer
-                      format: int64
-                      example: 2
-                    poolNmae:
-                      type: string
-                      example: "BUSD/USDT"
-                    updateTime:
-                      type: integer
-                      format: int64
-                      example: 1565769342148
-                    liquidity:
-                      type: object
-                      properties:
-                        BUSD:
-                          type: number
-                          format: double
-                          example: 100000315.79
-                        USDT:
-                          type: number
-                          format: double
-                          example: 99999245.54
-                      required:
-                        - BUSD
-                        - USDT
-                    share:
-                      type: object
-                      properties:
-                        shareAmount:
-                          type: number
-                          format: double
-                          example: 12415
-                        sharePercentage:
-                          type: number
-                          format: double
-                          example: 0.00006207
-                        asset:
-                          type: object
-                          properties:
-                            BUSD:
-                              type: number
-                              format: double
-                              example: 6207.02
-                            USDT:
-                              type: number
-                              format: double
-                              example: 6206.95
-                          required:
-                            - BUSD
-                            - USDT
-                      required:
-                        - shareAmount
-                        - sharePercentage
-                        - asset
-                  required:
-                    - poolId
-                    - poolNmae
-                    - updateTime
-                    - liquidity
-                    - share
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/liquidityAdd:
-    post:
-      summary: Add Liquidity (TRADE)
-      description: |-
-        Add liquidity to a pool.
-
-        Weight(UID): 1000 (Additional: 3 times one second)
-      tags:
-        - BSwap
-      parameters:
-        - $ref: '#/components/parameters/poolId'
-        - name: type
-          in: query
-          description: |-
-            * `Single` - to add a single token
-            * `Combination` - to add dual tokens
-          schema:
-            type: string
-            enum: [Single, Combination]
-            example: 'Single'
-        - $ref: '#/components/parameters/asset'
-        - $ref: '#/components/parameters/quantity'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Operation Id
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  operationId:
-                    type: integer
-                    format: int64
-                    example: 12341
-                required:
-                  - operationId
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/liquidityRemove:
-    post:
-      summary: Remove Liquidity (TRADE)
-      description: |-
-        Remove liquidity from a pool, `type` include `SINGLE` and `COMBINATION`, asset is mandatory for single asset removal
-
-        Weight(UID): 1000 (Additional: 3 times one second)
-      tags:
-        - BSwap
-      parameters:
-        - $ref: '#/components/parameters/poolId'
-        - name: type
-          in: query
-          description: |-
-            * `SINGLE` - for single asset removal
-            * `COMBINATION` - for combination of all coins removal
-          required: true
-          schema:
-            type: string
-            enum: [SINGLE, COMBINATION]
-            example: 'SINGLE'
-        - name: asset
-          in: query
-          description: Mandatory for single asset removal
-          schema:
-            type: string
-            example: BNB
-        - name: shareAmount
-          in: query
-          required: true
-          schema:
-            type: number
-            format: double
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Operation Id
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  operationId:
-                    type: integer
-                    format: int64
-                    example: 12341
-                required:
-                  - operationId
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/liquidityOps:
-    get:
-      summary: Liquidity Operation Record (USER_DATA)
-      description: |-
-        Get liquidity operation (add/remove) records.
-
-        Weight(UID): 3000
-      tags:
-        - BSwap
-      parameters:
-        - name: operationId
-          in: query
-          schema:
-            type: integer
-            format: int64
-        - $ref: '#/components/parameters/optionalPoolId'
-        - name: operation
-          in: query
-          schema:
-            type: string
-            enum: [ADD, REMOVE]
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description:  Liquidity Operation Record
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    operationId:
-                      type: integer
-                      format: int64
-                      example: 12341
-                    poolId:
-                      type: integer
-                      format: int64
-                      example: 2
-                    poolName:
-                      type: string
-                      example: "BUSD/USDT"
-                    operation:
-                      type: string
-                      example: "ADD"
-                      description: '"ADD" or "REMOVE"'
-                    status:
-                      type: integer
-                      format: int32
-                      example: 1
-                      description: "0: pending, 1: success, 2: failed"
-                    updateTime:
-                      type: integer
-                      format: int64
-                      example: 1565769342148
-                    shareAmount:
-                      type: string
-                      example: "10.1"
-                  required:
-                    - operationId
-                    - poolId
-                    - poolName
-                    - operation
-                    - status
-                    - updateTime
-                    - shareAmount
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/quote:
-    get:
-      summary: Request Quote (USER_DATA)
-      description: |-
-        Request a quote for swap quote asset (selling asset) for base asset (buying asset), essentially price/exchange rates.
-
-        quoteQty is quantity of quote asset (to sell).
-
-        Please be noted the quote is for reference only, the actual price will change as the liquidity changes, it's recommended to swap immediate after request a quote for slippage prevention.
-
-        Weight(UID): 150
-      tags:
-        - BSwap
-      parameters:
-        - $ref: '#/components/parameters/quoteAsset'
-        - $ref: '#/components/parameters/baseAsset'
-        - $ref: '#/components/parameters/quoteQty'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Quote Info
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  quoteAsset:
-                    type: string
-                    example: "USDT"
-                  baseAsset:
-                    type: string
-                    example: "BUSD"
-                  quoteQty:
-                    type: number
-                    format: double
-                    example: 300000
-                  baseQty:
-                    type: number
-                    format: double
-                    example: 299975
-                  price:
-                    type: number
-                    format: double
-                    example: 1.00008334
-                  slippage:
-                    type: number
-                    format: double
-                    example: 0.00007245
-                  fee:
-                    type: number
-                    format: double
-                    example: 120
-                required:
-                  - quoteAsset
-                  - baseAsset
-                  - quoteQty
-                  - baseQty
-                  - price
-                  - slippage
-                  - fee
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/swap:
-    post:
-      summary: Swap (TRADE)
-      description: |-
-        Swap `quoteAsset` for `baseAsset`.
-
-        Weight(UID): 1000 (Additional: 3 times one second)
-      tags:
-        - BSwap
-      parameters:
-        - $ref: '#/components/parameters/quoteAsset'
-        - $ref: '#/components/parameters/baseAsset'
-        - $ref: '#/components/parameters/quoteQty'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Swap Id
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  swapId:
-                    type: integer
-                    format: int64
-                    example: 2314
-                required:
-                  - swapId
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-    get:
-      summary: Swap History (USER_DATA)
-      description: |-
-        Get swap history.
-
-        Weight(UID): 3000
-      tags:
-        - BSwap
-      parameters:
-        - name: swapId
-          in: query
-          schema:
-            type: integer
-            format: int64
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - name: status
-          in: query
-          description: |-
-            * `0` - pending for swap
-            * `1` - success
-            * `2` - failed
-          schema:
-            type: integer
-            format: int32
-            example: 1
-        - name: quoteAsset
-          in: query
-          schema:
-            type: string
-            example: 'USDT'
-        - name: baseAsset
-          in: query
-          schema:
-            type: string
-            example: 'BUSD'
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            format: int32
-          description: 'default 3, max 100'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Swap History
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    swapId:
-                      type: integer
-                      format: int64
-                      example: 2314
-                    swapTime:
-                      type: integer
-                      format: int64
-                      example: 1565770342148
-                    status:
-                      type: integer
-                      format: int32
-                      example: 0
-                      description: "0: pending, 1: success, 2: failed"
-                    quoteAsset:
-                      type: string
-                      example: "USDT"
-                    baseAsset:
-                      type: string
-                      example: "BUSD"
-                    quoteQty:
-                      type: number
-                      format: double
-                      example: 300000
-                    baseQty:
-                      type: number
-                      format: double
-                      example: 299975
-                    price:
-                      type: number
-                      format: double
-                      example: 1.00008334
-                    fee:
-                      type: number
-                      format: double
-                      example: 120
-                  required:
-                    - swapId
-                    - swapTime
-                    - status
-                    - quoteAsset
-                    - baseAsset
-                    - quoteQty
-                    - baseQty
-                    - price
-                    - fee
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/poolConfigure:
-    get:
-      summary: Pool Configure (USER_DATA)
-      description: 'Weight(IP): 150'
-      tags:
-        - BSwap
-      parameters:
-        - name: poolId
-          in: query
-          schema:
-            type: integer
-            format: int64
-            example: 2
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Pool Information
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    poolId:
-                      type: integer
-                      format: int64
-                      example: 2
-                    poolNmae:
-                      type: string
-                      example: "BUSD/USDT"
-                    updateTime:
-                      type: integer
-                      format: int64
-                      example: 1565769342148
-                    liquidity:
-                      type: object
-                      properties:
-                        constantA:
-                          type: integer
-                          format: int64
-                          example: 2000
-                          description: '"NA" if pool is an innovation pool'
-                        minRedeemShare:
-                          type: number
-                          format: double
-                          example: 0.1
-                        slippageTolerance:
-                          type: number
-                          example: 0.2
-                          format: double
-                          description: The swap proceeds only when the slippage is within the set range
-                      required:
-                        - constantA
-                        - minRedeemShare
-                        - slippageTolerance
-                    assetConfigure:
-                      type: object
-                      properties:
-                        BUSD:
-                          type: object
-                          properties:
-                            minAdd:
-                              type: integer
-                              format: int64
-                              example: 10
-                            maxAdd:
-                              type: integer
-                              format: int64
-                              example: 20
-                            minSwap:
-                              type: integer
-                              format: int64
-                              example: 10
-                            maxSwap:
-                              type: integer
-                              format: int64
-                              example: 30
-                          required:
-                              - minAdd
-                              - maxAdd
-                              - minSwap
-                              - maxSwap
-                        USDT:
-                          type: object
-                          properties:
-                            minAdd:
-                              type: integer
-                              format: int64
-                              example: 10
-                            maxAdd:
-                              type: integer
-                              format: int64
-                              example: 20
-                            minSwap:
-                              type: integer
-                              format: int64
-                              example: 10
-                            maxSwap:
-                              type: integer
-                              format: int64
-                              example: 30
-                          required:
-                            - minAdd
-                            - maxAdd
-                            - minSwap
-                            - maxSwap
-                      required:
-                        - BUSD
-                        - USDT
-                  required:
-                    - poolId
-                    - poolNmae
-                    - updateTime
-                    - liquidity
-                    - assetConfigure
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/addLiquidityPreview:
-    get:
-      summary: Add Liquidity Preview (USER_DATA)
-      description: |-
-        Calculate expected share amount for adding liquidity in single or dual token.
-
-        Weight(IP): 150
-      tags:
-        - BSwap
-      parameters:
-        - name: poolId
-          in: query
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 2
-        - name: type
-          in: query
-          description: |-
-            * `SINGLE` - for adding a single token
-            * `COMBINATION` - for adding dual tokens
-          required: true
-          schema:
-            type: string
-            enum: [SINGLE, COMBINATION]
-            example: 'SINGLE'
-        - $ref: '#/components/parameters/quoteAsset'
-        - $ref: '#/components/parameters/quoteQty'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Add Liquidity Preview
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/schemas/bswapAddLiquidityPreviewCombination'
-                  - $ref: '#/components/schemas/bswapAddLiquidityPreviewSingle'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/removeLiquidityPreview:
-    get:
-      summary: Remove Liquidity Preview (USER_DATA)
-      description: |-
-        Calculate the expected asset amount of single token redemption or dual token redemption.
-
-        Weight(IP): 150
-      tags:
-        - BSwap
-      parameters:
-        - name: poolId
-          in: query
-          required: true
-          schema:
-            type: integer
-            format: int64
-            example: 2
-        - name: type
-          in: query
-          description: |-
-            * `SINGLE` - remove and obtain a single token
-            * `COMBINATION` - remove and obtain dual token
-          required: true
-          schema:
-            type: string
-            enum: [SINGLE, COMBINATION]
-            example: 'SINGLE'
-        - $ref: '#/components/parameters/quoteAsset'
-        - name: shareAmount
-          in: query
-          required: true
-          schema:
-            type: number
-            format: double
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Remove Liquidity Preview
-          content:
-            application/json:
-              schema:
-                oneOf:
-                  - $ref: '#/components/schemas/bswapRmvLiquidityPreviewCombination'
-                  - $ref: '#/components/schemas/bswapRmvLiquidityPreviewSingle'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/unclaimedRewards:
-    get:
-      summary: Get Unclaimed Rewards Record (USER_DATA)
-      description: |-
-       Get unclaimed rewards record.
-
-       Weight(UID): 1000
-      tags:
-        - BSwap
-      parameters:
-        - $ref: '#/components/parameters/bswapClaimType'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Unclaimed rewards record
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  totalUnclaimedRewards:
-                    type: object
-                    properties:
-                      BUSD:
-                        type: number
-                        format: float
-                        example: 100000315.79
-                      BNB:
-                        type: number
-                        format: double
-                        example: 0.00000001
-                      USDT:
-                        type: number
-                        format: double
-                        example: 0.00000002
-                    required:
-                      - BUSD
-                      - BNB
-                      - USDT
-                  details:
-                    type: object
-                    properties:
-                      BNB/USDT:
-                        type: object
-                        properties:
-                          BUSD:
-                            type: number
-                            format: float
-                            example: 100000315.79
-                          USDT:
-                            type: number
-                            format: double
-                            example: 0.00000002
-                        required:
-                          - BUSD
-                          - USDT
-                      BNB/BTC:
-                        type: object
-                        properties:
-                          BNB:
-                            type: number
-                            format: double
-                            example: 0.00000001
-                        required:
-                          - BNB
-                    required:
-                      - BNB/USDT
-                      - BNB/BTC
-                required:
-                   - totalUnclaimedRewards
-                   - details
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/claimRewards:
-    post:
-      summary: Claim rewards (TRADE)
-      description: |-
-       Claim swap rewards or liquidity rewards
-
-       Weight(UID): 1000
-      tags:
-        - BSwap
-      parameters:
-        - $ref: '#/components/parameters/bswapClaimType'
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Result of claim
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                required:
-                   - success
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-        '401':
-          description: Unauthorized Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/error'
-  /sapi/v1/bswap/claimedHistory:
-    get:
-      summary: Get Claimed History (USER_DATA)
-      description: |-
-       Get history of claimed rewards.
-
-       Weight(UID): 1000
-      tags:
-        - BSwap
-      parameters:
-        - name: poolId
-          in: query
-          schema:
-            type: integer
-            format: int64
-        - name: assetRewards
-          in: query
-          schema:
-            type: string
-        - $ref: '#/components/parameters/bswapClaimType'
-        - $ref: '#/components/parameters/startTime'
-        - $ref: '#/components/parameters/endTime'
-        - name: limit
-          in: query
-          description: Default 3, max 100
-          schema:
-            type: integer
-            format: int32
-        - $ref: '#/components/parameters/recvWindow'
-        - $ref: '#/components/parameters/timestamp'
-        - $ref: '#/components/parameters/signature'
-      security:
-        - ApiKeyAuth: []
-      responses:
-        '200':
-          description: Claimed History
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                    type: object
-                    properties:
-                      poolId:
-                        type: integer
-                        format: int32
-                        example: 52
-                      poolName:
-                        type: string
-                        example: "BNB/USDT"
-                      assetRewards:
-                        type: string
-                        example: "BNB"
-                      claimTime:
-                        type: integer
-                        format: int64
-                        example: 1565769342148
-                      claimAmount:
-                        type: number
-                        format: float
-                        example: 0.00000023
-                      status:
-                        type: integer
-                        format: int32
-                        example: 1
-                        description: "0: pending, 1: success"
-                    required:
-                      - poolId
-                      - poolName
-                      - assetRewards
-                      - claimTime
-                      - claimAmount
-                      - status
         '400':
           description: Bad Request
           content:
@@ -19503,10 +17674,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/borrow:
+  /sapi/v2/loan/flexible/borrow:
     post:
       summary: Borrow - Flexible Loan Borrow (TRADE)
       description: |-
+        - Only available for master account
 
         Weight(UID): 6000
       tags:
@@ -19561,7 +17733,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/ongoing/orders:
+  /sapi/v2/loan/flexible/ongoing/orders:
     get:
       summary: Borrow - Get Flexible Loan Ongoing Orders (USER_DATA)
       description: |-
@@ -19632,10 +17804,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/borrow/history:
+  /sapi/v2/loan/flexible/borrow/history:
     get:
       summary: Borrow - Get Flexible Loan Borrow History (USER_DATA)
       description: |-
+        - If startTime and endTime are not sent, the recent 90-day data will be returned.
+        - The max interval between startTime and endTime is 180 days.
 
         Weight(IP): 400
       tags:
@@ -19709,10 +17883,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/repay:
+  /sapi/v2/loan/flexible/repay:
     post:
       summary: Repay - Flexible Loan Repay (TRADE)
       description: |-
+        - repayAmount is mandatory even fullRepayment = FALSE
 
         Weight(IP): 6000
       tags:
@@ -19729,11 +17904,19 @@ paths:
             format: float
         - name: collateralReturn
           in: query
+          description: |-
+            Default: TRUE. 
+            TRUE: Return extra collateral to earn account; 
+            FALSE: Keep extra collateral in the order, and lower LTV.
           schema:
             type: boolean
             example: TRUE
         - name: fullRepayment
           in: query
+          description: |-
+            Default: FALSE.
+            TRUE: Full repayment;
+            FALSE: Partial repayment, based on loanAmount
           schema:
             type: boolean
             example: TRUE
@@ -19770,6 +17953,7 @@ paths:
                     example: "50.5"
                   repayStatus:
                     type: string
+                    description: Repaid, Repaying, Failed
                     example: "Repaid"
                 required:
                   - loanCoin
@@ -19791,10 +17975,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/repay/history:
+  /sapi/v2/loan/flexible/repay/history:
     get:
       summary: Repay - Get Flexible Loan Repayment History (USER_DATA)
       description: |-
+        - If startTime and endTime are not sent, the recent 90-day data will be returned.
+        - The max interval between startTime and endTime is 180 days.
 
         Weight(IP): 400
       tags:
@@ -19869,10 +18055,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/adjust/ltv:
+  /sapi/v2/loan/flexible/adjust/ltv:
     post:
       summary: Adjust LTV - Flexible Loan Adjust LTV (TRADE)
       description: |-
+        - API Key needs Spot & Margin Trading permission for this endpoint
 
         Weight(UID): 6000
       tags:
@@ -19920,16 +18107,12 @@ paths:
                   currentLTV:
                     type: string
                     example: "0.235"
-                  status:
-                    type: string
-                    example: "Succeeds"
                 required:
                   - loanCoin
                   - collateralCoin
                   - direction
                   - adjustmentAmount
                   - currentLTV
-                  - status
         '400':
           description: Bad Request
           content:
@@ -19942,10 +18125,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/ltv/adjustment/history:
+  /sapi/v2/loan/flexible/ltv/adjustment/history:
     get:
       summary: Adjust LTV - Get Flexible Loan LTV Adjustment History (USER_DATA)
       description: |-
+        - If startTime and endTime are not sent, the recent 90-day data will be returned.
+        - The max interval between startTime and endTime is 180 days.
 
         Weight(IP): 400
       tags:
@@ -20024,7 +18209,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/loanable/data:
+  /sapi/v2/loan/flexible/loanable/data:
     get:
       summary: Get Flexible Loan Assets Data (USER_DATA)
       description: |-
@@ -20089,7 +18274,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  /sapi/v1/loan/flexible/collateral/data:
+  /sapi/v2/loan/flexible/collateral/data:
     get:
       summary: Get Flexible Loan Collateral Assets Data (USER_DATA)
       description: |-
@@ -20696,6 +18881,237 @@ paths:
                   - ratio
                   - inverseRatio
                   - createTime
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/convert/limit/placeOrder:
+    post:
+      summary: Place limit order (USER_DATA)
+      description: |-
+        Enable users to place a limit order
+        
+        - baseAsset or quoteAsset can be determined via exchangeInfo endpoint.
+        - Limit price is defined from baseAsset to quoteAsset.
+        - Either baseAmount or quoteAmount is used.
+
+        Weight(UID): 500
+      tags:
+        - Convert
+      parameters:
+        - $ref: '#/components/parameters/baseAsset'
+        - $ref: '#/components/parameters/quoteAsset'
+        - name: limitPrice
+          in: query
+          required: true
+          description: Symbol limit price (from baseAsset to quoteAsset)
+          schema:
+            type: number
+            format: double
+        - name: baseAmount
+          in: query
+          required: false
+          description: Base asset amount. (One of baseAmount or quoteAmount is required)
+          schema:
+            type: number
+            format: double
+        - name: quoteAmount
+          in: query
+          required: false
+          description: Quote asset amount. (One of baseAmount or quoteAmount is required)
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/side'
+        - name: walletType
+          in: query
+          required: false
+          description: SPOT or FUNDING or SPOT_FUNDING. It is to use which type of assets. Default is SPOT.
+          schema:
+            type: string
+            enum: ['SPOT', 'FUNDING', 'SPOT_FUNDING']
+            example: 'SPOT'
+        - name: expiredType
+          in: query
+          required: false
+          description: 1_D, 3_D, 7_D, 30_D (D means day)
+          schema:
+            type: string
+            enum: ['1_D', '3_D', '7_D', '30_D']
+            example: '1_D'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                    format: int64
+                    example: "1603680255057330400"
+                  status:
+                    type: string
+                    example: "PROCESS"
+                required:
+                  - orderId
+                  - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/convert/limit/cancelOrder:
+    post:
+      summary: Cancel limit order (USER_DATA)
+      description: |-
+        Enable users to cancel a limit order
+
+        Weight(UID): 200
+      tags:
+        - Convert
+      parameters:
+        - name: orderId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1603680255057330400
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Cancel Order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderId:
+                    type: integer
+                    format: int64
+                    example: 1603680255057330400
+                  status:
+                    type: string
+                    example: "CANCELED"
+                required:
+                  - orderId
+                  - status
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/convert/limit/queryOpenOrders:
+    get:
+      summary: Query limit open orders (USER_DATA)
+      description: |-
+        Enable users to query for all existing limit orders
+
+        Weight(UID): 3000
+      tags:
+        - Convert
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: All existing limit orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        quoteId:
+                          type: string
+                          example: "18sdf87kh9df"
+                        orderId:
+                          type: integer
+                          format: int64
+                          example: "1603680255057330400"
+                        orderStatus:
+                          type: string
+                          example: "SUCCESS"
+                        fromAsset:
+                          type: string
+                          example: "BNB"
+                        fromAmount:
+                          type: string
+                          example: "10"
+                        toAsset:
+                          type: string
+                          example: "USDT"
+                        toAmount:
+                          type: string
+                          example: "2317.89"
+                        ratio:
+                          type: string
+                          example: "231.789"
+                        inverseRatio:
+                          type: string
+                          example: "0.00431427"
+                        createTime:
+                          type: integer
+                          format: int64
+                          example: 1614089498000
+                        expiredTimestamp:
+                          type: integer
+                          format: int64
+                          example: 1614099498000
+                      required:
+                        - quoteId
+                        - orderId
+                        - orderStatus
+                        - fromAsset
+                        - fromAmount
+                        - toAsset
+                        - toAmount
+                        - ratio
+                        - inverseRatio
+                        - createTime
+                        - expiredTimestamp
+                required:
+                  - list
         '400':
           description: Bad Request
           content:
@@ -21325,9 +19741,14 @@ paths:
                       code:
                         type: string
                         example: "AOGANK3NB4GIT3C6"
+                      expiredTime:
+                        type: integer
+                        format: int64
+                        example: 1727417154000
                     required:
                       - referenceNo
                       - code
+                      - expiredTime
                   success:
                     type: boolean
                 required:
@@ -21621,9 +20042,14 @@ paths:
                       code:
                         type: string
                         example: "AOGANK3NB4GIT3C6"
+                      expiredTime:
+                        type: integer
+                        format: int64
+                        example: 1727417154000
                     required:
                       - referenceNo
                       - code
+                      - expiredTime
                   success:
                     type: boolean
                 required:
@@ -23333,6 +21759,877 @@ paths:
                     - rebalanceFee
                     - rebalanceFeeUnit
                     - transactionDetails
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v2/eth-staking/eth/stake:
+    post:
+      summary: Subscribe ETH Staking V2(TRADE)
+      description: |-
+        Stake ETH to get WBETH
+
+        - You need to open Enable Spot & Margin Trading permission for the API Key which requests this endpoint.
+
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - name: amount
+          in: query
+          required: true
+          description: Amount in ETH, limit 4 decimals
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Subscribed WBETH
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  wbethAmount:
+                    type: string
+                    example: "0.23092091"
+                  conversionRatio:
+                    type: string
+                    example: "1.001212342342"
+                    description: ETH amount per 1 WBETH
+                required:
+                  - success
+                  - wbethAmount
+                  - conversionRatio
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/eth/redeem:
+    post:
+      summary: Redeem ETH (TRADE)
+      description: |-
+        Redeem WBETH or BETH and get ETH
+
+        - You need to open Enable Spot & Margin Trading permission for the API Key which requests this endpoint.
+
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - name: asset
+          in: query
+          required: false
+          description: WBETH or BETH, default to BETH
+          schema:
+            type: string
+        - name: amount
+          in: query
+          required: true
+          description: Amount in BETH, limit 8 decimals
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Returned ETH
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  arrivalTime:
+                    type: integer
+                    format: int64
+                    example: 1575018510000
+                  ethAmount:
+                    type: string
+                    example: "0.23092091"
+                  conversionRatio:
+                    type: string
+                    example: "1.00121234"
+                required:
+                  - success
+                  - arrivalTime
+                  - ethAmount
+                  - conversionRatio
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/eth/history/stakingHistory:
+    get:
+      summary: Get ETH staking history (USER_DATA)
+      description: |-
+        - The time between startTime and endTime cannot be longer than 3 months.
+        - If startTime and endTime are both not sent, then the last 30 days' data will be returned.
+        - If startTime is sent but endTime is not sent, the next 30 days' data beginning from startTime will be returned.
+        - If endTime is sent but startTime is not sent, the 30 days' data before endTime will be returned.
+
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: ETH staking history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        asset:
+                          type: string
+                          example: "ETH"
+                        amount:
+                          type: string
+                          example: "21312.23223"
+                        status:
+                          type: string
+                          example: "SUCCESS"
+                          description: PENDING, SUCCESS, FAILED
+                        distributeAmount:
+                          type: string
+                          example: "21286.42584"
+                        conversionRatio:
+                          type: string
+                          example: "1.00121234"
+                      required:
+                        - time
+                        - asset
+                        - amount
+                        - status
+                        - distributeAmount
+                        - conversionRatio
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                  - rows
+                  - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/eth/history/redemptionHistory:
+    get:
+      summary: Get ETH redemption history (USER_DATA)
+      description: |-
+        - The time between startTime and endTime cannot be longer than 3 months.
+        - If startTime and endTime are both not sent, then the last 30 days' data will be returned.
+        - If startTime is sent but endTime is not sent, the next 30 days' data beginning from startTime will be returned.
+        - If endTime is sent but startTime is not sent, the 30 days' data before endTime will be returned.
+
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: ETH redemption history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        arrivalTime:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        asset:
+                          type: string
+                          example: "BETH"
+                        amount:
+                          type: string
+                          example: "21312.23223"
+                        status:
+                          type: string
+                          example: "SUCCESS"
+                          description: PENDING, SUCCESS, FAILED
+                        distributeAsset:
+                          type: string
+                          example: "ETH"
+                        distributeAmount:
+                          type: string
+                          example: "21338.0699"
+                        conversionRatio:
+                          type: string
+                          example: "1.00121234"
+                      required:
+                        - time
+                        - arrivalTime
+                        - asset
+                        - amount
+                        - status
+                        - distributeAsset
+                        - distributeAmount
+                        - conversionRatio
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                  - rows
+                  - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/eth/history/rewardsHistory:
+    get:
+      summary: Get BETH rewards distribution history(USER_DATA)
+      description: |-
+        - The time between startTime and endTime cannot be longer than 3 months.
+        - If startTime and endTime are both not sent, then the last 30 days' data will be returned.
+        - If startTime is sent but endTime is not sent, the next 30 days' data beginning from startTime will be returned.
+        - If endTime is sent but startTime is not sent, the 30 days' data before endTime will be returned.
+
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: BETH rewards distribution history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        asset:
+                          type: string
+                          example: "ETH"
+                        holding:
+                          type: string
+                          example: "2.3223"
+                          description: BETH holding balance
+                        amount:
+                          type: string
+                          example: "0.23223"
+                          description: Distributed rewards
+                        annualPercentageRate:
+                          type: string
+                          example: "0.5"
+                          description: 0.5 means 50% here
+                        status:
+                          type: string
+                          example: "SUCCESS"
+                      required:
+                        - time
+                        - asset
+                        - holding
+                        - amount
+                        - annualPercentageRate
+                        - status
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                  - rows
+                  - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/eth/quota:
+    get:
+      summary: Get current ETH staking quota (USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Eth staking quota
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  leftStakingPersonalQuota:
+                    type: string
+                    example: "1000"
+                    description: Show min(Daily available limit, total personal staking quota)
+                  leftRedemptionPersonalQuota:
+                    type: string
+                    example: "1000"
+                    description: Show min(Daily personal redeem quota, total redemption limit)
+                required:
+                  - leftStakingPersonalQuota
+                  - leftRedemptionPersonalQuota
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/eth/history/rateHistory:
+    get:
+      summary: Get WBETH Rate History (USER_DATA)
+      description: |-
+        - The time between startTime and endTime cannot be longer than 3 months.
+        - If startTime and endTime are both not sent, then the last 30 days' data will be returned.
+        - If startTime is sent but endTime is not sent, the next 30 days' data beginning from startTime will be returned.
+        - If endTime is sent but startTime is not sent, the 30 days' data before endTime will be returned.
+
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: WBETH Rate History
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        annualPercentageRate:
+                          type: string
+                          example: "0.5"
+                          description: BETH APR
+                        exchangeRate:
+                          type: string
+                          example: "1.00121234"
+                          description: BETH value per 1 WBETH
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                      required:
+                        - annualPercentageRate
+                        - exchangeRate
+                        - time
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                  - rows
+                  - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v2/eth-staking/account:
+    get:
+      summary: ETH Staking account V2(USER_DATA)
+      description: |-
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: ETH Staking account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  holdingInETH:
+                    type: string
+                    example: "1.22330928"
+                  holdings:
+                    type: object
+                    properties:
+                      wbethAmount:
+                        type: string
+                        example: "1.10928781"
+                      bethAmount:
+                        type: string
+                        example: "1.90002112"
+                    required:
+                      - wbethAmount
+                      - bethAmount
+                  thirtyDaysProfitInETH:
+                    type: string
+                    example: "0.22330928"
+                  profit:
+                    type: object
+                    properties:
+                      amountFromWBETH:
+                        type: string
+                        example: "0.12330928"
+                      amountFromBETH:
+                        type: string
+                        example: "0.1"
+                    required:
+                      - amountFromWBETH
+                      - amountFromBETH
+                required:
+                  - holdingInETH
+                  - holdings
+                  - thirtyDaysProfitInETH
+                  - profit
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/wbeth/wrap:
+    post:
+      summary: Wrap BETH(TRADE)
+      description: |-
+        - You need to open Enable Spot & Margin Trading permission for the API Key which requests this endpoint.
+      
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - name: amount
+          in: query
+          required: true
+          description: Amount in BETH, limit 4 decimals
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Wrap BETH
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  wbethAmount:
+                    type: string
+                    example: "0.22330928"
+                  exchangeRate:
+                    type: string
+                    example: "1.001212343432"
+                required:
+                  - success
+                  - wbethAmount
+                  - exchangeRate
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/wbeth/history/wrapHistory:
+    get:
+      summary: Get WBETH wrap history (USER_DATA)
+      description: |-
+        - The time between startTime and endTime cannot be longer than 3 months.
+        - If startTime and endTime are both not sent, then the last 30 days' data will be returned.
+        - If startTime is sent but endTime is not sent, the next 30 days' data beginning from startTime will be returned.
+        - If endTime is sent but startTime is not sent, the 30 days' data before endTime will be returned.
+
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: WBETH wrap history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        fromAsset:
+                          type: string
+                          example: "BETH"
+                        fromAmount:
+                          type: string
+                          example: "21312.23223"
+                        toAsset:
+                          type: string
+                          example: "WBETH"
+                        toAmount:
+                          type: string
+                          example: "21312.23223"
+                        exchangeRate:
+                          type: string
+                          example: "1.01243253"
+                          description: BETH amount per 1 WBETH
+                        status:
+                          type: string
+                          example: "SUCCESS"
+                          description: PENDING, SUCCESS, FAILED
+                      required:
+                        - time
+                        - fromAsset
+                        - fromAmount
+                        - toAsset
+                        - toAmount
+                        - exchangeRate
+                        - status
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                  - rows
+                  - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/wbeth/history/unwrapHistory:
+    get:
+      summary: Get WBETH unwrap history (USER_DATA)
+      description: |-
+        - The time between startTime and endTime cannot be longer than 3 months.
+        - If startTime and endTime are both not sent, then the last 30 days' data will be returned.
+        - If startTime is sent but endTime is not sent, the next 30 days' data beginning from startTime will be returned.
+        - If endTime is sent but startTime is not sent, the 30 days' data before endTime will be returned.
+
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: WBETH unwrap history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        fromAsset:
+                          type: string
+                          example: "WBETH"
+                        fromAmount:
+                          type: string
+                          example: "21312.23223"
+                        toAsset:
+                          type: string
+                          example: "BETH"
+                        toAmount:
+                          type: string
+                          example: "21312.23223"
+                        exchangeRate:
+                          type: string
+                          example: "1.01243253"
+                          description: BETH amount per 1 WBETH
+                        status:
+                          type: string
+                          example: "SUCCESS"
+                          description: PENDING, SUCCESS, FAILED
+                      required:
+                        - time
+                        - fromAsset
+                        - fromAmount
+                        - toAsset
+                        - toAmount
+                        - exchangeRate
+                        - status
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                  - rows
+                  - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/eth-staking/eth/history/wbethRewardsHistory:
+    get:
+      summary: Get WBETH rewards history(USER_DATA)
+      description: |-
+        - The time between startTime and endTime cannot be longer than 3 months.
+        - If startTime and endTime are both not sent, then the last 30 days' data will be returned.
+        - If startTime is sent but endTime is not sent, the next 30 days' data beginning from startTime will be returned.
+        - If endTime is sent but startTime is not sent, the 30 days' data before endTime will be returned.
+
+        Weight(IP): 150
+      tags:
+        - Staking
+      parameters:
+        - $ref: '#/components/parameters/startTime'
+        - $ref: '#/components/parameters/endTime'
+        - $ref: '#/components/parameters/current'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: WBETH rewards history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  estRewardsInETH:
+                    type: string
+                    example: "1.23230920"
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        time:
+                          type: integer
+                          format: int64
+                          example: 1575018510000
+                        amountInETH:
+                          type: string
+                          example: "0.23223"
+                          description: Estimated rewards accrued within WBETH
+                        holding:
+                          type: string
+                          example: "2.3223"
+                          description: WBETH holding balance
+                        holdingInETH:
+                          type: string
+                          example: "2.4231"
+                        annualPercentageRate:
+                          type: string
+                          example: "0.5"
+                      required:
+                        - time
+                        - amountInETH
+                        - holding
+                        - holdingInETH
+                        - annualPercentageRate
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                required:
+                  - estRewardsInETH
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -25181,6 +24478,513 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  
+  /sapi/v1/dci/product/list:
+    get:
+      summary: Get Dual Investment product list(USER_DATA)
+      description: |-
+        Get Dual Investment product list
+
+        Weight(IP): 1
+      tags:
+        - Dual Investment
+      parameters:
+        - name: optionType
+          in: query
+          required: true
+          description: Input CALL or PUT
+          schema:
+            type: string
+            enum: ['CALL', 'PUT']
+        - name: exercisedCoin
+          in: query
+          required: true
+          description: |-
+            Target exercised asset, e.g.: 
+            if you subscribe to a high sell product (call option), you should input: 
+              - optionType: CALL,
+              - exercisedCoin: USDT,
+              - investCoin: BNB; 
+            
+            if you subscribe to a low buy product (put option), you should input:
+              - optionType: PUT,
+              - exercisedCoin: BNB,
+              - investCoin: USDT;
+          schema:
+            type: string
+        - name: investCoin
+          in: query
+          required: true
+          description: |-
+            Asset used for subscribing, e.g.: 
+            if you subscribe to a high sell product (call option), you should input: 
+              - optionType: CALL,
+              - exercisedCoin: USDT,
+              - investCoin: BNB; 
+            
+            if you subscribe to a low buy product (put option), you should input:
+              - optionType: PUT,
+              - exercisedCoin: BNB,
+              - investCoin: USDT;
+          schema:
+            type: string
+        - $ref: '#/components/parameters/smallPageSize'
+        - $ref: '#/components/parameters/pageIndex'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Dual Investment product list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "741590"
+                        investCoin:
+                          type: string
+                          example: "USDT"
+                        exercisedCoin:
+                          type: string
+                          example: "BNB"
+                        strikePrice:
+                          type: string
+                          example: "380"
+                        duration:
+                          type: integer
+                          format: int32
+                          example: 4
+                        settleDate:
+                          type: integer
+                          format: int64
+                          example: 1709020800000
+                        purchaseDecimal:
+                          type: integer
+                          format: int32
+                          example: 8
+                        purchaseEndTime:
+                          type: integer
+                          format: int64
+                          example:  1708934400000
+                        canPurchase:
+                          type: boolean
+                          example: true
+                        apr:
+                          type: string
+                          example: "0.6076"
+                        orderId:
+                          type: integer
+                          format: int64
+                          example: 8257205859
+                        minAmount:
+                          type: string
+                          example: "0.1"
+                        maxAmount:
+                          type: string
+                          example: "25265.7"
+                        createTimestamp:
+                          type: integer
+                          format: int64
+                          example: 1708560084000
+                        optionType:
+                          type: string
+                          example: "PUT"
+                        isAutoCompoundEnable:
+                          type: boolean
+                          example: true
+                        autoCompoundPlanList:
+                          type: array
+                          items:
+                            type: string
+                          example:
+                            - "STANDARD"
+                            - "ADVANCE"
+                      required:
+                        - id
+                        - investCoin
+                        - exercisedCoin
+                        - strikePrice
+                        - duration
+                        - settleDate
+                        - purchaseDecimal
+                        - purchaseEndTime
+                        - canPurchase
+                        - apr
+                        - orderId
+                        - minAmount
+                        - maxAmount
+                        - createTimestamp
+                        - optionType
+                        - isAutoCompoundEnable
+                        - autoCompoundPlanList
+                required:
+                 - total
+                 - list
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/dci/product/subscribe:
+    post:
+      summary: Subscribe Dual Investment products(USER_DATA)
+      description: |-
+        Subscribe Dual Investment products
+
+        - `Products are not available.` means that the APR changes to lower value, or the orders are not available.
+        - `Failed` is a system or network errors.
+
+        Weight(IP): 1
+      tags:
+        - Dual Investment
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: get id from /sapi/v1/dci/product/list
+          schema:
+            type: string
+        - name: orderId
+          in: query
+          required: true
+          description: get orderId from /sapi/v1/dci/product/list
+          schema:
+            type: string
+        - name: depositAmount
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+        - $ref: '#/components/parameters/autoCompoundPlan'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Dual Investment product subscription response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  positionId:
+                    type: integer
+                    format: int64
+                    example: 10208824
+                  investCoin:
+                    type: string
+                    example: "BNB"
+                  exercisedCoin:
+                    type: string
+                    example: "USDT"
+                  subscriptionAmount:
+                    type: string
+                    example: "0.002"
+                  duration:
+                    type: integer
+                    format: int32
+                    example: 4
+                  autoCompoundPlan:
+                    type: string
+                    description: STANDARD, ADVANCED, this field won't display when autocompound is set to None
+                    example: "STANDARD"
+                  strikePrice:
+                    type: string
+                    example: "380"
+                  settleDate:
+                    type: integer
+                    format: int64
+                    example: 1709020800000
+                  purchaseStatus:
+                    type: string
+                    example: "PURCHASE_SUCCESS"
+                  apr:
+                    type: string
+                    example: "0.7397"
+                  orderId:
+                    type: integer
+                    format: int64
+                    example: 8259117597
+                  purchaseTime:
+                    type: integer
+                    format: int64
+                    example: 1708677583874
+                  optionType":
+                    type: string
+                    example: "CALL"
+                required:
+                  - positionId
+                  - investCoin
+                  - exercisedCoin
+                  - subscriptionAmount
+                  - duration
+                  - autoCompoundPlan
+                  - strikePrice
+                  - settleDate
+                  - purchaseStatus
+                  - apr
+                  - orderId
+                  - purchaseTime
+                  - optionType
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/dci/product/positions:
+    get:
+      summary: Get Dual Investment positions(USER_DATA)
+      description: |-
+        Get Dual Investment positions (batch)
+
+        Weight(IP): 1
+      tags:
+        - Dual Investment
+      parameters:
+        - name: status
+          in: query
+          description: |-
+            - PENDING: Products are purchasing, will give results later;
+            - PURCHASE_SUCCESS: purchase successfully;
+            - SETTLED: Products are finish settling;
+            - PURCHASE_FAIL: fail to purchase;
+            - REFUNDING: refund ongoing;
+            - REFUND_SUCCESS: refund to spot account successfully;
+            - SETTLING: Products are settling. 
+            If don't fill this field, will response all the position status.
+          schema:
+            type: string
+            enum: ['PENDING', 'PURCHASE_SUCCESS', 'SETTLED', 'PURCHASE_FAIL', 'REFUNDING', 'REFUND_SUCCESS', 'SETTLING']
+        - $ref: '#/components/parameters/smallPageSize'
+        - $ref: '#/components/parameters/pageIndex'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Dual Investment product list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    format: int64
+                    example: 1
+                  list:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "741590"
+                        investCoin:
+                          type: string
+                          example: "USDT"
+                        exercisedCoin:
+                          type: string
+                          example: "BNB"
+                        subscriptionAmount:
+                          type: string
+                          example: "0.5"
+                        strikePrice:
+                          type: string
+                          example: "380"
+                        duration:
+                          type: integer
+                          format: int32
+                          example: 4
+                        settleDate:
+                          type: integer
+                          format: int64
+                          example: 1709020800000
+                        purchaseStatus:
+                          type: string
+                          example: "PURCHASE_SUCCESS"
+                        apr:
+                          type: string
+                          example: "0.0365"
+                        orderId:
+                          type: integer
+                          format: int64
+                          example: 7973677530
+                        purchaseEndTime:
+                          type: integer
+                          format: int64
+                          example: 1708329600000
+                        optionType:
+                          type: string
+                          example: "PUT"
+                        autoCompoundPlan:
+                          type: string
+                          example: "STANDARD"
+                      required:
+                        - id
+                        - investCoin
+                        - exercisedCoin
+                        - subscriptionAmount
+                        - strikePrice
+                        - duration
+                        - settleDate
+                        - purchaseStatus
+                        - apr
+                        - orderId
+                        - purchaseEndTime
+                        - optionType
+                        - autoCompoundPlan
+                required:
+                 - total
+                 - list
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/dci/product/accounts:
+    get:
+      summary: Check Dual Investment accounts(USER_DATA)
+      description: |-
+        Check Dual Investment accounts
+
+        Weight(IP): 1
+      tags:
+        - Dual Investment
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Dual Investment accounts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalAmountInBTC:
+                    type: string
+                    description: Total BTC amounts in Dual Investment
+                    example: "0.01067982"
+                  totalAmountInUSDT:
+                    type: string
+                    description: Total USDT equivalents in BTC in Dual Investment
+                    example: "77.13289230"
+                required:
+                  - totalAmountInBTC
+                  - totalAmountInUSDT
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/dci/product/auto_compound/edit-status:
+    post:
+      summary: Change Auto-Compound status(USER_DATA)
+      description: |-
+        Change Auto-Compound status
+
+        - 15:31 ~ 16:00 UTC+8 This function is disabled
+
+        Weight(IP): 1
+
+        Rate Limit: Maximum 1 time/s per account
+      tags:
+        - Dual Investment
+      parameters:
+        - name: positionId
+          in: query
+          required: true
+          description: Get positionId from /sapi/v1/dci/product/positions
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/autoCompoundPlan'
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Change Auto-Compound status response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  positionId:
+                    type: string
+                    example: 123456789
+                  autoCompoundPlan:
+                    type: string
+                    description: NONE, STANDARD, ADVANCED
+                    example: "ADVANCED"
+                required:
+                  - positionId
+                  - autoCompoundPlan
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'  
 components:
   parameters:
     getCrossMargingTransferHistoryType:
@@ -25661,6 +25465,16 @@ components:
       schema:
         type: string
         example: '["BTCUSDT","BNBBTC"]'
+    tickerType: 
+      name: type
+      in: query
+      description: |-
+        Supported values: FULL or MINI.
+        If none provided, the default is FULL
+      schema:
+        type: string
+        enum: ['FULL', 'MINI']
+        example: 'FULL'
     permissions:
       name: permissions
       in: query
@@ -25888,6 +25702,12 @@ components:
       name: pageSize
       in: query
       description: Number of pages, minimum 10, maximum 200
+      schema:
+        type: string
+    smallPageSize:
+      name: pageSize
+      in: query
+      description: MIN 1, MAX 100; Default 100
       schema:
         type: string
     configId:
@@ -26180,14 +26000,6 @@ components:
       in: query
       schema:
         type: string
-    bswapClaimType:
-      name: type
-      in: query
-      description: '0: Swap rewards, 1: Liquidity rewards, default to 0'
-      schema:
-        type: integer
-        format: int32
-        example: 0
     optionalTrailingDelta:
       name: trailingDelta
       in: query
@@ -26195,16 +26007,6 @@ components:
       schema:
         type: number
         format: double
-    product:
-      name: product
-      in: query
-      required: true
-      description: |-
-        * `STAKING` - for Locked Staking
-        * `F_DEFI` - for flexible DeFi Staking
-        * `L_DEFI` - for locked DeFi Staking
-      schema:
-        type: string
     productId:
       name: productId
       in: query
@@ -26262,6 +26064,17 @@ components:
       schema:
         type: boolean
         example: true
+    autoCompoundPlan:
+      name: autoCompoundPlan
+      in: query
+      description: |-
+        NONE: switch off the plan,
+        STANDARD: standard plan,
+        ADVANCED: advanced plan;
+      required: true
+      schema:
+        type: string
+        enum: ['NONE', 'STANDARD', 'ADVANCE']
   schemas:
     account:
       type: object
@@ -27815,6 +27628,87 @@ components:
         - firstId
         - lastId
         - count
+    dayTickerList:
+      type: array
+      items:
+        $ref: '#/components/schemas/dayTicker'
+    dayTicker:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: BTCUSDT
+        priceChange:
+          type: string
+          example: '-83.13000000'
+          description: Absolute price change
+        priceChangePercent:
+          type: string
+          example: '-0.317'
+          description: Relative price change in percent
+        weightedAvgPrice:
+          type: string
+          example: '26234.58803036'
+          description: quoteVolume / volume
+        openPrice:
+          type: string
+          example: '26304.80000000'
+        highPrice:
+          type: string
+          example: '26397.46000000'
+        lowPrice:
+          type: string
+          example: '26088.34000000'
+        lastPrice:
+          type: string
+          example: '26221.67000000'
+        volume:
+          type: string
+          description: Volume in base asset
+          example: '18495.35066000'
+        quoteVolume:
+          type: string
+          example: '485217905.04210480'
+          description: Volume in quote asset
+        openTime:
+          type: integer
+          format: int64
+          example: 1695686400000
+        closeTime:
+          type: integer
+          format: int64
+          example: 1695772799999
+        firstId:
+          type: integer
+          format: int64
+          example: 3220151555
+          description: Trade ID of the first trade in the interval
+        lastId:
+          type: integer
+          format: int64
+          example: 3220849281
+          description: Trade ID of the last trade in the interval
+        count:
+          type: integer
+          format: int64
+          example: 697727
+          description: Number of trades in the interval
+      required:
+        - symbol
+        - priceChange
+        - priceChangePercent
+        - weightedAvgPrice
+        - openPrice
+        - highPrice
+        - lowPrice
+        - lastPrice
+        - volume
+        - quoteVolume
+        - openTime
+        - closeTime
+        - firstId
+        - lastId
+        - count
     myTrade:
       type: object
       properties:
@@ -28615,126 +28509,6 @@ components:
               - unrealizedProfit
       required:
         - deliveryPositionRiskVos
-    bswapAddLiquidityPreviewCombination:
-      type: object
-      properties:
-        quoteAsset:
-          type: string
-          example: "USDT"
-        baseAsset:
-          type: string
-          example: "BUSD"
-        quoteAmt:
-          type: integer
-          format: int64
-          example: 300000
-        baseAmt:
-          type: integer
-          format: int64
-          example: 299975
-        price:
-          type: number
-          format: double
-          example: 1.00008334
-        share:
-          type: number
-          format: double
-          example: 1.23
-      required:
-        - quoteAsset
-        - baseAsset
-        - quoteAmt
-        - baseAmt
-        - price
-        - share
-    bswapAddLiquidityPreviewSingle:
-      type: object
-      properties:
-        quoteAsset:
-          type: string
-          example: "USDT"
-        quoteAmt:
-          type: integer
-          format: int64
-          example: 300000
-        price:
-          type: number
-          format: double
-          example: 1.00008334
-        share:
-          type: number
-          format: double
-          example: 1.23
-        slippage:
-          type: number
-          format: double
-          example: 0.00007245
-        fee:
-          type: number
-          format: double
-          example: 120
-      required:
-        - quoteAsset
-        - quoteAmt
-        - price
-        - share
-        - slippage
-        - fee
-    bswapRmvLiquidityPreviewCombination:
-      type: object
-      properties:
-        quoteAsset:
-          type: string
-          example: "USDT"
-        baseAsset:
-          type: string
-          example: "BUSD"
-        quoteAmt:
-          type: integer
-          format: int64
-          example: 300000
-        baseAmt:
-          type: integer
-          format: int64
-          example: 299975
-        price:
-          type: number
-          format: double
-          example: 1.00008334
-      required:
-        - quoteAsset
-        - baseAsset
-        - quoteAmt
-        - baseAmt
-        - price
-    bswapRmvLiquidityPreviewSingle:
-      type: object
-      properties:
-        quoteAsset:
-          type: string
-          example: "USDT"
-        quoteAmt:
-          type: integer
-          format: int64
-          example: 300000
-        price:
-          type: number
-          format: double
-          example: 1.00008334
-        slippage:
-          type: number
-          format: double
-          example: 0.00007245
-        fee:
-          type: number
-          format: double
-          example: 120
-      required:
-        - quoteAsset
-        - quoteAmt
-        - price
-        - slippage
-        - fee
     error:
       type: object
       properties:

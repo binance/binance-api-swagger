@@ -1,5 +1,122 @@
 # Changelog
 
+## 1.21.0 - 2024-06-06
+### Added
+- `GET /api/v3/account/commission`
+- `GET /api/v3/ticker/tradingDay`
+
+**Convert**
+- `POST /sapi/v1/convert/limit/placeOrder`
+- `POST /sapi/v1/convert/limit/cancelOrder`
+- `GET /sapi/v1/convert/limit/queryOpenOrders`
+
+**Dual Investment**
+- `GET /sapi/v1/dci/product/list`
+- `POST /sapi/v1/dci/product/subscribe`
+- `GET /sapi/v1/dci/product/positions`
+- `GET /sapi/v1/dci/product/accounts`
+- `POST /sapi/v1/dci/product/auto_compound/edit-status`
+
+**Margin**
+- `POST /sapi/v1/margin/borrow-repay`
+- `GET /sapi/v1/margin/borrow-repay`
+- `GET /sapi/v1/spot/delist-schedule`
+
+**Staking**
+- `POST /sapi/v2/eth-staking/eth/stake`
+- `POST /sapi/v1/eth-staking/eth/redeem`
+- `GET /sapi/v1/eth-staking/eth/history/stakingHistory`
+- `GET /sapi/v1/eth-staking/eth/history/redemptionHistory`
+- `GET /sapi/v1/eth-staking/eth/history/rewardsHistory`
+- `GET /sapi/v1/eth-staking/eth/quota`
+- `GET /sapi/v1/eth-staking/eth/history/rateHistory`
+- `GET /sapi/v2/eth-staking/account`
+- `POST /sapi/v1/eth-staking/wbeth/wrap`
+- `GET /sapi/v1/eth-staking/wbeth/history/wrapHistory`
+- `GET /sapi/v1/eth-staking/wbeth/history/unwrapHistory`
+- `GET /sapi/v1/eth-staking/eth/history/wbethRewardsHistory`
+
+**Wallet**
+- `GET /sapi/v1/capital/withdraw/address/list`
+- `GET /sapi/v1/account/info`
+
+### Changed
+**Gift Card**
+- `POST /sapi/v1/giftcard/createCode`: add response field `expiredTime`
+- `POST /sapi/v1/giftcard/buyCode`: add response field `expiredTime`
+
+**Loan**
+- Updated `POST /sapi/v1/loan/flexible/borrow` to `POST /sapi/v2/loan/flexible/borrow`
+- Updated `GET /sapi/v1/loan/flexible/loanable/data` to `GET /sapi/v2/loan/flexible/loanable/data`
+- Updated `GET /sapi/v1/loan/flexible/collateral/data` to `GET /sapi/v2/loan/flexible/collateral/data`
+- Updated `GET /sapi/v1/loan/flexible/ongoing/orders` to `GET /sapi/v2/loan/flexible/ongoing/orders`
+- Updated `POST /sapi/v1/loan/flexible/repay` to `POST /sapi/v2/loan/flexible/repay`
+- Updated `POST /sapi/v1/loan/flexible/adjust/ltv` to `POST /sapi/v2/loan/flexible/adjust/ltv`
+- Updated `GET /sapi/v1/loan/flexible/borrow/history` to `GET /sapi/v2/loan/flexible/borrow/history`
+- Updated `GET /sapi/v1/loan/flexible/repay/history` to `GET /sapi/v2/loan/flexible/repay/history`
+- Updated `GET /sapi/v1/loan/flexible/ltv/adjustment/history` to `GET /sapi/v2/loan/flexible/ltv/adjustment/history`
+
+**Market**
+- `GET /api/v3/avgPrice`: response has a new field `closeTime`
+- `GET /api/v3/klines` and `GET /api/v3/uiKlines` have a new optional parameter `timeZone`
+- `GET /api/v3/exchangeInfo`: add `otoAllowed`, `cancelReplaceAllowed` and `permissionSets` in response
+
+**Margin**
+- `GET /sapi/v1/margin/transfer`: add parameter `isolatedSymbol`
+- `GET /sapi/v1/margin/allAssets`: add parameter `asset`
+- `GET /sapi/v1/margin/allPairs`: add parameter `symbol`
+- `GET /sapi/v1/margin/isolated/allPairs`: add parameter `symbol`
+
+**Trade**
+- `POST /api/v3/order/test` and POST `/api/v3/sor/order/test` have a new optional parameter `computeCommissionRates`
+
+**Wallet**
+- `GET /sapi/v1/asset/dribblet`: add parameter `accountType`
+- `POST /sapi/v1/asset/dust-btc`: add parameter `accountType`
+- `POST /sapi/v1/asset/dust`: add parameter `accountType`
+- `GET /sapi/v1/capital/config/getall`: remove response field `resetAddressStatus`
+
+### Deleted
+**Bswap**
+- `GET /sapi/v1/bswap/pools`
+- `GET /sapi/v1/bswap/liquidity`
+- `POST /sapi/v1/bswap/liquidityAdd`
+- `POST /sapi/v1/bswap/liquidityRemove`
+- `GET /sapi/v1/bswap/liquidityOps`
+- `GET /sapi/v1/bswap/quote`
+- `POST /sapi/v1/bswap/swap`
+- `GET /sapi/v1/bswap/swap`
+- `GET /sapi/v1/bswap/poolConfigure`
+- `GET /sapi/v1/bswap/addLiquidityPreview`
+- `GET /sapi/v1/bswap/removeLiquidityPreview`
+- `GET /sapi/v1/bswap/unclaimedRewards`
+- `POST /sapi/v1/bswap/claimRewards`
+- `GET /sapi/v1/bswap/claimedHistory`
+
+**Margin**
+- `POST /sapi/v1/margin/transfer`
+- `POST /sapi/v1/margin/isolated/transfer`
+- `POST /sapi/v1/margin/loan`
+- `POST /sapi/v1/margin/repay`
+- `GET /sapi/v1/margin/isolated/transfer`
+- `GET /sapi/v1/margin/asset`
+- `GET /sapi/v1/margin/pair`
+- `GET /sapi/v1/margin/isolated/pair`
+- `GET /sapi/v1/margin/loan`
+- `GET /sapi/v1/margin/repay`
+- `GET /sapi/v1/margin/dribblet`
+- `GET /sapi/v1/margin/dust`
+- `POST /sapi/v1/margin/dust`
+
+**Staking**
+- `GET /sapi/v1/staking/productList`
+- `POST /sapi/v1/staking/purchase`
+- `POST /sapi/v1/staking/redeem`
+- `GET /sapi/v1/staking/position`
+- `GET /sapi/v1/staking/stakingRecord`
+- `POST /sapi/v1/staking/setAutoStaking`
+- `GET /sapi/v1/staking/personalLeftQuota`
+
 ## 1.20.1 - 2023-12-07
 - Minor updates
 
