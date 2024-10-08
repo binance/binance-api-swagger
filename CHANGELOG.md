@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.22.0 - 2024-10-08
+### Added
+**Trade**
+- `POST /api/v3/orderList/oto`
+- `POST /api/v3/orderList/otoco`
+
+**Margin Trading**
+- `POST /sapi/v1/margin/order/oto`
+- `POST /sapi/v1/margin/order/otoco`
+
+**Simple Earn**
+- `POST /sapi/v1/simple-earn/locked/setRedeemOption`
+
+**Copy Trading**
+- `GET /sapi/v1/copyTrading/futures/userStatus`
+- `GET /sapi/v1/copyTrading/futures/leadSymbol`
+
+**Portfolio Margin**
+- `GET /sapi/v2/portfolio/collateralRate`
+
+### Updated
+**Trade**
+- `POST /api/v3/order/oco` is deprecated. Update to the new `POST /api/v3/orderList/oco` endpoint.
+
+**Margin Trading**
+- New parameters added into response body to replace the parameter of 'transferEnabled' in the endpoint of `GET /sapi/v1/margin/account`: `created`, `collateralMarginLevel`, `TotalCollateralValueInUSDT`, `transferInEnabled`, `transferOutEnabled`, `accountType`
+
+**Simple Earn**
+- `POST /sapi/v1/simple-earn/locked/subscribe` new parameter: `redeemTo`
+- `GET /sapi/v1/simple-earn/locked/position` new fields in response: `redeemTo`, `parentPositionId`, `rewardAmt`, `extraRewardAsset`, `extraRewardAPR`, `estExtraRewardAmt`, `nextPay`, `nextPayDate`, `payPeriod`, `redeemAmountEarly`, `rewardsEndDate`, `deliverDate`, `redeemPeriod`, `redeemingAmt`, `redeemTo`, `partialAmtDeliverDate`, `canRedeemEarly`, `canFastRedemption`, `autoSubscribe`, `type`, `status`, `canReStake`
+- `GET /sapi/v1/simple-earn/flexible/history/subscriptionRecord` new fields in response: `productId`
+- `GET /sapi/v1/simple-earn/locked/history/subscriptionRecord` new fields in response: `projectId`
+- `GET /sapi/v1/simple-earn/locked/history/redemptionRecord` new fields in response: `originalAmount`, `lossAmount`, `isComplete`, `rewardAsset`, `rewardAmt`, `extraRewardAsset`, `estExtraRewardAm`
+
 ## 1.21.0 - 2024-06-06
 ### Added
 - `GET /api/v3/account/commission`
