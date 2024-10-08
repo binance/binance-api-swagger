@@ -64,6 +64,8 @@ tags:
     description: Gift Card Endpoints
   - name: Auto-Invest
     description: Auto-Invest Endpoints
+  - name: Copy Trading
+    description: Copy Trading Endpoints
   - name: Simple Earn
     description: Simple Earn Endpoints
 paths:
@@ -119,7 +121,7 @@ paths:
           - To display all permissions you need to specify them explicitly. (e.g. SPOT, MARGIN,...)
 
         Examples of Symbol Permissions Interpretation from the Response:
-        - [["A","B"]] means you may place an order if your account has either permission "A" or permission "B". 
+        - [["A","B"]] means you may place an order if your account has either permission "A" or permission "B".
         - [["A"],["B"]] means you can place an order if your account has permission "A" and permission "B".
         - [["A"],["B","C"]] means you can place an order if your account has permission "A" and permission "B" or permission "C". (Inclusive or is applied here, not exclusive or, so your account may have both permission "B" and permission "C".)
 
@@ -268,7 +270,7 @@ paths:
                             type: array
                             items:
                               type: string
-                              example: 
+                              example:
                                 - "SPOT"
                                 - "MARGIN"
                         defaultSelfTradePreventionMode:
@@ -694,7 +696,7 @@ paths:
           - Only hours (e.g. 0, 8, 4)
 
         Weight:
-        - `4` for each requested symbol. 
+        - `4` for each requested symbol.
         - The weight for this request will cap at `200` once the number of symbols in the request is more than `50`.
       tags:
         - Market
@@ -910,7 +912,7 @@ paths:
         Test new order creation and signature/recvWindow long.
         Creates and validates a new order but does not send it into the matching engine.
 
-        Weight(IP): 
+        Weight(IP):
           - Without computeCommissionRates: `1`
           - With computeCommissionRates: `20`
       tags:
@@ -1463,47 +1465,159 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/error'
-  /api/v3/order/oco:
+  /api/v3/orderList/oco:
     post:
-      summary: New OCO (TRADE)
+      summary: New Order list - OCO (TRADE)
       description: |-
-        Send in a new OCO
+        Send in an one-cancels-the-other (OCO) pair, where activation of one order immediately cancels the other.
 
-        - Price Restrictions:
-          - `SELL`: Limit Price > Last Price > Stop Price
-          - `BUY`: Limit Price < Last Price < Stop Price
-        - Quantity Restrictions:
-            - Both legs must have the same quantity
-            - `ICEBERG` quantities however do not have to be the same
-        - Order Rate Limit
-            - `OCO` counts as 2 orders against the order rate limit.
+        - An `OCO` has 2 orders called the above order and below order.
+        - One of the orders must be a `LIMIT_MAKER` order and the other must be `STOP_LOSS` or`STOP_LOSS_LIMIT` order.
+        - Price restrictions:
+            - If the `OCO` is on the `SELL` side: `LIMIT_MAKER` price > Last Traded Price > stopPrice
+            - If the `OCO` is on the `BUY` side: `LIMIT_MAKER` price < Last Traded Price < stopPrice
+        - OCOs add 2 orders to the unfilled order count, `EXCHANGE_MAX_ORDERS` filter, and the `MAX_NUM_ORDERS` filter.
 
         Weight(IP): 1
       tags:
         - Trade
       parameters:
         - $ref: '#/components/parameters/symbol'
-        - $ref: '#/components/parameters/listClientOrderId'
+        - name: listClientOrderId
+          in: query
+          description: |-
+            Arbitrary unique ID among open order lists. Automatically generated if not sent.
+            A new order list with the same `listClientOrderId` is accepted only when the previous one is filled or completely expired.
+            `listClientOrderId` is distinct from the `aboveClientOrderId` and the `belowCLientOrderId`.
+          schema:
+            type: string
         - $ref: '#/components/parameters/side'
         - $ref: '#/components/parameters/quantity'
-        - $ref: '#/components/parameters/limitClientOrderId'
-        - $ref: '#/components/parameters/limitStrategyId'
-        - $ref: '#/components/parameters/limitStrategyType'
-        - $ref: '#/components/parameters/price'
-        - $ref: '#/components/parameters/limitIcebergQty'
-        - name: trailingDelta
+        - name: aboveType
+          in: query
+          required: true
+          description: |-
+            Supported values : `STOP_LOSS_LIMIT`, `STOP_LOSS`, `LIMIT_MAKER`
+          schema:
+            type: string
+        - name: aboveClientOrderId
+          in: query
+          description: |-
+            Arbitrary unique ID among open orders for the above order. Automatically generated if not sent
+          schema:
+            type: string
+        - name: aboveIcebergQty
+          in: query
+          description: |-
+            Note that this can only be used if `aboveTimeInForce` is `GTC`.
+          schema:
+            type: number
+            format: double
+        - name: abovePrice
           in: query
           schema:
             type: number
             format: double
-        - $ref: '#/components/parameters/stopClientOrderId'
-        - $ref: '#/components/parameters/ocoStopPrice'
-        - $ref: '#/components/parameters/stopStrategyId'
-        - $ref: '#/components/parameters/stopStrategyType'
-        - $ref: '#/components/parameters/stopLimitPrice'
-        - $ref: '#/components/parameters/stopIcebergQty'
-        - $ref: '#/components/parameters/stopLimitTimeInForce'
-        - $ref: '#/components/parameters/ocoNewOrderRespType'
+        - name: aboveStopPrice
+          in: query
+          description: |-
+            Can be used if `aboveType` is `STOP_LOSS` or `STOP_LOSS_LIMIT`.
+            Either `aboveStopPrice` or `aboveTrailingDelta` or both, must be specified.
+          schema:
+            type: number
+            format: double
+        - name: aboveTrailingDelta
+          in: query
+          schema:
+            type: number
+            format: double
+        - name: aboveTimeInForce
+          in: query
+          description: |-
+            Required if the `aboveType` is `STOP_LOSS_LIMIT`.
+          schema:
+            type: string
+            enum: [GTC,IOC,FOK]
+            example: 'GTC'
+        - name: aboveStrategyId
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the above order within an order strategy.
+          schema:
+            type: number
+            format: double
+        - name: aboveStrategyType
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the above order strategy.
+            Values smaller than 1000000 are reserved and cannot be used.
+          schema:
+            type: integer
+            format: int64
+        - name: belowType
+          in: query
+          required: true
+          description: |-
+            Supported values : `STOP_LOSS_LIMIT`, `STOP_LOSS`, `LIMIT_MAKER`
+          schema:
+            type: string
+        - name: belowClientOrderId
+          in: query
+          description: |-
+            Arbitrary unique ID among open orders for the below order. Automatically generated if not sent
+          schema:
+            type: string
+        - name: belowIcebergQty
+          in: query
+          description: |-
+            Note that this can only be used if `belowTimeInForce` is `GTC`.
+          schema:
+            type: number
+            format: double
+        - name: belowPrice
+          in: query
+          description: |-
+            Can be used if `belowType` is `STOP_LOSS_LIMIT` or `LIMIT_MAKER` to specify the limit price.
+          schema:
+            type: number
+            format: double
+        - name: belowStopPrice
+          in: query
+          description: |-
+            Can be used if `belowType` is `STOP_LOSS` or `STOP_LOSS_LIMIT`.
+            Either `belowStopPrice` or `belowTrailingDelta` or both, must be specified.
+          schema:
+            type: number
+            format: double
+        - name: belowTrailingDelta
+          in: query
+          schema:
+            type: number
+            format: double
+        - name: belowTimeInForce
+          in: query
+          description: |-
+            Required if the `belowType` is `STOP_LOSS_LIMIT`.
+          schema:
+            type: string
+            enum: [GTC,IOC,FOK]
+            example: 'GTC'
+        - name: belowStrategyId
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the below order within an order strategy.
+          schema:
+            type: number
+            format: double
+        - name: belowStrategyType
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the below order strategy.
+            Values smaller than 1000000 are reserved and cannot be used.
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/newOrderRespType'
         - $ref: '#/components/parameters/selfTradePreventionMode'
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
@@ -1521,7 +1635,7 @@ paths:
                   orderListId:
                     type: integer
                     format: int64
-                    example: 0
+                    example: 1
                   contingencyType:
                     type: string
                     example: "OCO"
@@ -1533,11 +1647,11 @@ paths:
                     example: "EXECUTING"
                   listClientOrderId:
                     type: string
-                    example: "JYVpp3F0f5CAG15DhtrqLp"
+                    example: "lH1YDkuQKWiXVXHPSKYEIp"
                   transactionTime:
                     type: integer
                     format: int64
-                    example: 1563417480525
+                    example: 1710485608839
                   symbol:
                     type: string
                     example: "LTCBTC"
@@ -1559,11 +1673,11 @@ paths:
                         - clientOrderId
                       example:
                         - symbol: "LTCBTC"
-                          orderId: 2
-                          clientOrderId: "Kk7sqHb9J6mJWTMDVW7Vos"
+                          orderId: 10
+                          clientOrderId: "44nZvqpemY7sVYgPYbvPih"
                         - symbol: "LTCBTC"
-                          orderId: 3
-                          clientOrderId: "xTXKaGYd4bluPVp78IVRvl"
+                          orderId: 11
+                          clientOrderId: "NuMp0nVYnciDiFmVqfpBqK"
                   orderReports:
                     type: array
                     items:
@@ -1601,7 +1715,8 @@ paths:
                         stopPrice:
                           type: string
                         workingTime:
-                          type: string
+                          type: integer
+                          format: int64
                         selfTradePreventionMode:
                           type: string
                       required:
@@ -1623,36 +1738,557 @@ paths:
                         - selfTradePreventionMode
                     example:
                       - symbol: "LTCBTC"
-                        orderId: 2
-                        orderListId: 0
-                        clientOrderId: "Kk7sqHb9J6mJWTMDVW7Vos"
-                        transactTime: 1563417480525
-                        price: "0.000000"
-                        origQty: "0.624363"
+                        orderId: 10
+                        orderListId: 1
+                        clientOrderId: "44nZvqpemY7sVYgPYbvPih"
+                        transactTime: 1710485608839
+                        price: "1.000000"
+                        origQty: "5.00000000"
                         executedQty: "0.000000"
                         cummulativeQuoteQty: "0.000000"
                         status: "NEW"
                         timeInForce: "GTC"
-                        type: "STOP_LOSS"
-                        side: "BUY"
-                        stopPrice: "0.960664"
+                        type: "STOP_LOSS_LIMIT"
+                        side: "SELL"
+                        stopPrice: "1.00000000"
                         workingTime: -1
+                        icebergQty: "1.00000000"
                         selfTradePreventionMode: "NONE"
                       - symbol: "LTCBTC"
-                        orderId: 3
-                        orderListId: 0
-                        clientOrderId: "xTXKaGYd4bluPVp78IVRvl"
-                        transactTime: 1563417480525
-                        price: "0.036435"
-                        origQty: "0.624363"
+                        orderId: 11
+                        orderListId: 1
+                        clientOrderId: "NuMp0nVYnciDiFmVqfpBqK"
+                        transactTime: 1710485608839
+                        price: "3.00000000"
+                        origQty: "5.00000000"
                         executedQty: "0.000000"
                         cummulativeQuoteQty: "0.000000"
                         status: "NEW"
                         timeInForce: "GTC"
                         type: "LIMIT_MAKER"
-                        side: "BUY"
-                        workingTime: 1563417480525
+                        side: "SELL"
+                        workingTime: 1710485608839
                         selfTradePreventionMode: "NONE"
+                required:
+                  - orderListId
+                  - contingencyType
+                  - listStatusType
+                  - listOrderStatus
+                  - listClientOrderId
+                  - transactionTime
+                  - symbol
+                  - orders
+                  - orderReports
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+            description: Unauthorized Request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
+  /api/v3/orderList/oto:
+    post:
+      summary: New Order List - OTO (TRADE)
+      description: |-
+        Places an `OTO`.
+        - An `OTO` (One-Triggers-the-Other) is an order list comprised of 2 orders.
+        - The first order is called the working order and must be `LIMIT` or `LIMIT_MAKER`. Initially, only the working order goes on the order book.
+        - The second order is called the pending order. It can be any order type except for `MARKET` orders using parameter `quoteOrderQty`. The pending order is only placed on the order book when the working order gets fully filled.
+        - If either the working order or the pending order is cancelled individually, the other order in the order list will also be canceled or expired.
+        - When the order list is placed, if the working order gets immediately fully filled, the placement response will show the working order as `FILLED` but the pending order will still appear as `PENDING_NEW`. You need to query the status of the pending order again to see its updated status.
+        - OTOs add 2 orders to the unfilled order count, `EXCHANGE_MAX_NUM_ORDERS` filter and `MAX_NUM_ORDERS` filter.
+
+        Weight: 1
+      tags:
+        - Trade
+      parameters:
+        - $ref: '#/components/parameters/symbol'
+        - name: listClientOrderId
+          in: query
+          description: |-
+            Arbitrary unique ID among open order lists. Automatically generated if not sent.
+            A new order list with the same `listClientOrderId` is accepted only when the previous one is filled or completely expired.
+            `listClientOrderId` is distinct from the `workingClientOrderId` and the `pendingClientOrderId`.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/ocoNewOrderRespType'
+        - $ref: '#/components/parameters/selfTradePreventionMode'
+        - $ref: '#/components/parameters/workingType'
+        - $ref: '#/components/parameters/workingSide'
+        - $ref: '#/components/parameters/workingClientOrderId'
+        - $ref: '#/components/parameters/workingPrice'
+        - $ref: '#/components/parameters/workingQuantity'
+        - $ref: '#/components/parameters/workingIcebergQty'
+        - $ref: '#/components/parameters/workingTimeInForce'
+        - name: workingStrategyId
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the working order within an order strategy.
+          schema:
+            type: number
+            format: double
+        - name: workingStrategyType
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the working order strategy.
+            Values smaller than 1000000 are reserved and cannot be used.
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/pendingType'
+        - $ref: '#/components/parameters/pendingSide'
+        - $ref: '#/components/parameters/pendingClientOrderId'
+        - $ref: '#/components/parameters/pendingPrice'
+        - $ref: '#/components/parameters/pendingStopPrice'
+        - $ref: '#/components/parameters/pendingTrailingDelta'
+        - $ref: '#/components/parameters/pendingQuantity'
+        - $ref: '#/components/parameters/pendingIcebergQty'
+        - $ref: '#/components/parameters/pendingTimeInForce'
+        - name: pendingStrategyId
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the pending order within an order strategy.
+          schema:
+            type: number
+            format: double
+        - name: pendingStrategyType
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the pending order strategy.
+            Values smaller than 1000000 are reserved and cannot be used.
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: New OTO details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderListId:
+                    type: integer
+                    format: int64
+                    example: 0
+                  contingencyType:
+                    type: string
+                    example: "OTO"
+                  listStatusType:
+                    type: string
+                    example: "EXEC_STARTED"
+                  listOrderStatus:
+                    type: string
+                    example: "EXECUTING"
+                  listClientOrderId:
+                    type: string
+                    example: "yl2ERtcar1o25zcWtqVBTC"
+                  transactionTime:
+                    type: integer
+                    format: int64
+                    example: 1712289389158
+                  symbol:
+                    type: string
+                    example: "LTCBTC"
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        orderId:
+                          type: integer
+                          format: int64
+                        clientOrderId:
+                          type: string
+                      required:
+                        - symbol
+                        - orderId
+                        - clientOrderId
+                      example:
+                        - symbol: "LTCBTC"
+                          orderId: 4
+                          clientOrderId: "Bq17mn9fP6vyCn75Jw1xya"
+                        - symbol: "LTCBTC"
+                          orderId: 5
+                          clientOrderId: "arLFo0zGJVDE69cvGBaU0d"
+                  orderReports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        orderId:
+                          type: integer
+                          format: int64
+                        orderListId:
+                          type: integer
+                          format: int64
+                        clientOrderId:
+                          type: string
+                        transactTime:
+                          type: integer
+                          format: int64
+                        price:
+                          type: string
+                        origQty:
+                          type: string
+                        executedQty:
+                          type: string
+                        cummulativeQuoteQty:
+                          type: string
+                        status:
+                          type: string
+                        timeInForce:
+                          type: string
+                        type:
+                          type: string
+                        side:
+                          type: string
+                        workingTime:
+                          type: integer
+                          format: int64
+                        selfTradePreventionMode:
+                          type: string
+                      required:
+                        - symbol
+                        - orderId
+                        - orderListId
+                        - clientOrderId
+                        - transactTime
+                        - price
+                        - origQty
+                        - executedQty
+                        - cummulativeQuoteQty
+                        - status
+                        - timeInForce
+                        - type
+                        - side
+                        - workingTime
+                        - selfTradePreventionMode
+                      example:
+                        - symbol: "LTCBTC"
+                          orderId: 4
+                          orderListId: 0
+                          clientOrderId: "Bq17mn9fP6vyCn75Jw1xya"
+                          transactTime: 1712289389158
+                          price: "1.000000"
+                          origQty: "1.00000000"
+                          executedQty: "0.00000000"
+                          cummulativeQuoteQty: "0.00000000"
+                          status: "NEW"
+                          timeInForce: "GTC"
+                          type: "LIMIT"
+                          side: "SELL"
+                          workingTime: 1712289389158
+                          selfTradePreventionMode: "NONE"
+                        - symbol: "LTCBTC"
+                          orderId: 5
+                          orderListId: 0
+                          clientOrderId: "arLFo0zGJVDE69cvGBaU0d"
+                          transactTime: 1712289389158
+                          price: "0.00000000"
+                          origQty: "5.00000000"
+                          executedQty: "0.00000000"
+                          cummulativeQuoteQty: "0.00000000"
+                          status: "PENDING_NEW"
+                          timeInForce: "GTC"
+                          type: "MARKET"
+                          side: "BUY"
+                          workingTime: -1
+                          selfTradePreventionMode: "NONE"
+                required:
+                  - orderListId
+                  - contingencyType
+                  - listStatusType
+                  - listOrderStatus
+                  - listClientOrderId
+                  - transactionTime
+                  - symbol
+                  - orders
+                  - orderReports
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+            description: Unauthorized Request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
+  /api/v3/orderList/otoco:
+    post:
+      summary: New Order List - OTOCO (TRADE)
+      description: |-
+        Place an `OTOCO`.
+        - An `OTOCO` (One-Triggers-One-Cancels-the-Other) is an order list comprised of 3 orders.
+        - The first order is called the working order and must be `LIMIT` or `LIMIT_MAKER`. Initially, only the working order goes on the order book.
+          - The behavior of the working order is the same as the `OTO`.
+        - `OTOCO` has 2 pending orders (pending above and pending below), forming an `OCO` pair. The pending orders are only placed on the order book when the working order gets fully filled.
+          - The rules of the pending above and pending below follow the same rules as the Order List `OCO`.
+        - OTOCOs add 3 orders against the unfilled order count, `EXCHANGE_MAX_NUM_ORDERS` filter, and `MAX_NUM_ORDERS` filter.
+
+        Weight: 1
+      tags:
+        - Trade
+      parameters:
+        - $ref: '#/components/parameters/symbol'
+        - name: listClientOrderId
+          in: query
+          description: |-
+            Arbitrary unique ID among open order lists. Automatically generated if not sent.
+            A new order list with the same `listClientOrderId` is accepted only when the previous one is filled or completely expired.
+            `listClientOrderId` is distinct from the `workingClientOrderId` and the `pendingClientOrderId`.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/ocoNewOrderRespType'
+        - $ref: '#/components/parameters/selfTradePreventionMode'
+        - $ref: '#/components/parameters/workingType'
+        - $ref: '#/components/parameters/workingSide'
+        - $ref: '#/components/parameters/workingClientOrderId'
+        - $ref: '#/components/parameters/workingPrice'
+        - $ref: '#/components/parameters/workingQuantity'
+        - $ref: '#/components/parameters/workingIcebergQty'
+        - $ref: '#/components/parameters/workingTimeInForce'
+        - name: workingStrategyId
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the working order within an order strategy.
+          schema:
+            type: number
+            format: double
+        - name: workingStrategyType
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the working order strategy.
+            Values smaller than 1000000 are reserved and cannot be used.
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/pendingSide'
+        - $ref: '#/components/parameters/pendingQuantity'
+        - $ref: '#/components/parameters/pendingAboveType'
+        - $ref: '#/components/parameters/pendingAboveClientOrderId'
+        - $ref: '#/components/parameters/pendingAbovePrice'
+        - $ref: '#/components/parameters/pendingAboveStopPrice'
+        - $ref: '#/components/parameters/pendingAboveTrailingDelta'
+        - $ref: '#/components/parameters/pendingAboveIcebergQty'
+        - $ref: '#/components/parameters/pendingAboveTimeInForce'
+        - name: pendingAboveStrategyId
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the pending above order within an order strategy.
+          schema:
+            type: number
+            format: double
+        - name: pendingAboveStrategyType
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the pending above order strategy.
+            Values smaller than 1000000 are reserved and cannot be used.
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/pendingBelowType'
+        - $ref: '#/components/parameters/pendingBelowClientOrderId'
+        - $ref: '#/components/parameters/pendingBelowPrice'
+        - $ref: '#/components/parameters/pendingBelowStopPrice'
+        - $ref: '#/components/parameters/pendingBelowTrailingDelta'
+        - $ref: '#/components/parameters/pendingBelowIcebergQty'
+        - $ref: '#/components/parameters/pendingBelowTimeInForce'
+        - name: pendingBelowStrategyId
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the pending below order within an order strategy.
+          schema:
+            type: number
+            format: double
+        - name: pendingBelowStrategyType
+          in: query
+          description: |-
+            Arbitrary numeric value identifying the pending below order strategy.
+            Values smaller than 1000000 are reserved and cannot be used.
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: New OTOCO details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderListId:
+                    type: integer
+                    format: int64
+                    example: 1
+                  contingencyType:
+                    type: string
+                    example: "OTOCO"
+                  listStatusType:
+                    type: string
+                    example: "EXEC_STARTED"
+                  listOrderStatus:
+                    type: string
+                    example: "EXECUTING"
+                  listClientOrderId:
+                    type: string
+                    example: "RumwQpBaDctlUu5jyG5rs0"
+                  transactionTime:
+                    type: integer
+                    format: int64
+                    example: 1712291372842
+                  symbol:
+                    type: string
+                    example: "LTCBTC"
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        orderId:
+                          type: integer
+                          format: int64
+                        clientOrderId:
+                          type: string
+                      required:
+                        - symbol
+                        - orderId
+                        - clientOrderId
+                      example:
+                        - symbol: "LTCBTC"
+                          orderId: 6
+                          clientOrderId: "fM9Y4m23IFJVCQmIrlUmMK"
+                        - symbol: "LTCBTC"
+                          orderId: 7
+                          clientOrderId: "6pcQbFIzTXGZQ1e2MkGDq4"
+                        - symbol: "LTCBTC"
+                          orderId: 8
+                          clientOrderId: "r4JMv9cwAYYUwwBZfbussx"
+                  orderReports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        orderId:
+                          type: integer
+                          format: int64
+                        orderListId:
+                          type: integer
+                          format: int64
+                        clientOrderId:
+                          type: string
+                        transactTime:
+                          type: integer
+                          format: int64
+                        price:
+                          type: string
+                        origQty:
+                          type: string
+                        executedQty:
+                          type: string
+                        cummulativeQuoteQty:
+                          type: string
+                        status:
+                          type: string
+                        timeInForce:
+                          type: string
+                        type:
+                          type: string
+                        side:
+                          type: string
+                        workingTime:
+                          type: integer
+                          format: int64
+                        selfTradePreventionMode:
+                          type: string
+                      required:
+                        - symbol
+                        - orderId
+                        - orderListId
+                        - clientOrderId
+                        - transactTime
+                        - price
+                        - origQty
+                        - executedQty
+                        - cummulativeQuoteQty
+                        - status
+                        - timeInForce
+                        - type
+                        - side
+                        - workingTime
+                        - selfTradePreventionMode
+                      example:
+                        - symbol: "LTCBTC"
+                          orderId: 6
+                          orderListId: 1
+                          clientOrderId: "fM9Y4m23IFJVCQmIrlUmMK"
+                          transactTime: 1712291372842
+                          price: "1.000000"
+                          origQty: "1.00000000"
+                          executedQty: "0.00000000"
+                          cummulativeQuoteQty: "0.00000000"
+                          status: "NEW"
+                          timeInForce: "GTC"
+                          type: "LIMIT"
+                          side: "SELL"
+                          workingTime: 1712291372842
+                          selfTradePreventionMode: "NONE"
+                        - symbol: "LTCBTC"
+                          orderId: 7
+                          orderListId: 1
+                          clientOrderId: "6pcQbFIzTXGZQ1e2MkGDq4"
+                          transactTime: 1712291372842
+                          price: "1.00000000"
+                          origQty: "5.00000000"
+                          executedQty: "0.00000000"
+                          cummulativeQuoteQty: "0.00000000"
+                          status: "PENDING_NEW"
+                          timeInForce: "IOC"
+                          type: "STOP_LOSS_LIMIT"
+                          side: "BUY"
+                          stopPrice: "6.00000000"
+                          workingTime: -1
+                          selfTradePreventionMode: "NONE"
+                        - symbol: "LTCBTC"
+                          orderId: 8
+                          orderListId: 1
+                          clientOrderId: "r4JMv9cwAYYUwwBZfbussx"
+                          transactTime: 1712291372842
+                          price: "3.00000000"
+                          origQty: "5.00000000"
+                          executedQty: "0.00000000"
+                          cummulativeQuoteQty: "0.00000000"
+                          status: "PENDING_NEW"
+                          timeInForce: "GTC"
+                          type: "LIMIT_MAKER"
+                          side: "BUY"
+                          workingTime: -1
+                          selfTradePreventionMode: "NONE"
                 required:
                   - orderListId
                   - contingencyType
@@ -2160,7 +2796,7 @@ paths:
         Test new order creation and signature/recvWindow using smart order routing (SOR).
         Creates and validates a new order but does not send it into the matching engine.
 
-        Weight(IP): 
+        Weight(IP):
           - Without computeCommissionRates: `1`
           - With computeCommissionRates: `20`
       tags:
@@ -3436,11 +4072,18 @@ paths:
               schema:
                 type: object
                 properties:
+                  created:
+                    type: boolean
+                    example: true
                   borrowEnabled:
                     type: boolean
+                    example: true
                   marginLevel:
                     type: string
                     example: "11.64405625"
+                  collateralMarginLevel:
+                    type: string
+                    example: "3.2"
                   totalAssetOfBtc:
                     type: string
                     example: "6.82728457"
@@ -3450,10 +4093,18 @@ paths:
                   totalNetAssetOfBtc:
                     type: string
                     example: "6.24095242"
+                  TotalCollateralValueInUSDT:
+                    type: string
+                    example: "5.82728457"
                   tradeEnabled:
                     type: boolean
-                  transferEnabled:
+                  transferInEnabled:
                     type: boolean
+                  transferOutEnabled:
+                    type: boolean
+                  accountType:
+                    type: string
+                    example: "MARGIN_1"
                   userAssets:
                     type: array
                     items:
@@ -3485,13 +4136,18 @@ paths:
                         - locked
                         - netAsset
                 required:
+                  - created
                   - borrowEnabled
                   - marginLevel
+                  - collateralMarginLevel
                   - totalAssetOfBtc
                   - totalLiabilityOfBtc
                   - totalNetAssetOfBtc
+                  - TotalCollateralValueInUSDT
                   - tradeEnabled
-                  - transferEnabled
+                  - transferInEnabled
+                  - transferOutEnabled
+                  - accountType
                   - userAssets
         '400':
           description: Bad Request
@@ -5568,6 +6224,473 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/margin/order/oto:
+    post:
+      summary: Margin Account New OTO (TRADE)
+      description: |-
+        Post a new `OTO` order for margin account:
+        - An `OTO` (One-Triggers-the-Other) is an order list comprised of 2 orders
+        - The first order is called the working order and must be `LIMIT` or `LIMIT_MAKER`. Initially, only the working order goes on the order book.
+        - The second order is called the pending order. It can be any order type except for `MARKET` orders using parameter `quoteOrderQty`. The pending order is only placed on the order book when the working order gets fully filled.
+        - If either the working order or the pending order is cancelled individually, the other order in the order list will also be canceled or expired.
+        - When the order list is placed, if the working order gets immediately fully filled, the placement response will show the working order as `FILLED` but the pending order will still appear as `PENDING_NEW`. You need to query the status of the pending order again to see its updated status.
+        - OTOs add 2 orders to the unfilled order count, `EXCHANGE_MAX_NUM_ORDERS` filter and `MAX_NUM_ORDERS` filter.
+
+        Weight(UID): 6
+      tags:
+          - Margin
+      parameters:
+        - $ref: '#/components/parameters/symbol'
+        - $ref: '#/components/parameters/isIsolatedMargin'
+        - name: listClientOrderId
+          in: query
+          description: |-
+            Arbitrary unique ID among open order lists. Automatically generated if not sent.
+            A new order list with the same `listClientOrderId` is accepted only when the previous one is filled or completely expired.
+            `listClientOrderId` is distinct from the `workingClientOrderId` and the `pendingClientOrderId`.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/ocoNewOrderRespType'
+        - name: sideEffectType
+          in: query
+          description: Default `NO_SIDE_EFFECT`
+          schema:
+            type: string
+            enum: [NO_SIDE_EFFECT, MARGIN_BUY]
+        - $ref: '#/components/parameters/selfTradePreventionMode'
+        - name: autoRepayAtCancel
+          in: query
+          description: |-
+            Only when MARGIN_BUY order takes effect, true means that the debt generated by the order needs to be repay after the order is cancelled. The default is true
+          schema:
+            type: boolean
+            example: true
+        - $ref: '#/components/parameters/workingType'
+        - $ref: '#/components/parameters/workingSide'
+        - $ref: '#/components/parameters/workingClientOrderId'
+        - $ref: '#/components/parameters/workingPrice'
+        - $ref: '#/components/parameters/workingQuantity'
+        - $ref: '#/components/parameters/workingIcebergQty'
+        - $ref: '#/components/parameters/workingTimeInForce'
+        - $ref: '#/components/parameters/pendingType'
+        - $ref: '#/components/parameters/pendingSide'
+        - $ref: '#/components/parameters/pendingClientOrderId'
+        - $ref: '#/components/parameters/pendingPrice'
+        - $ref: '#/components/parameters/pendingStopPrice'
+        - $ref: '#/components/parameters/pendingTrailingDelta'
+        - $ref: '#/components/parameters/pendingQuantity'
+        - $ref: '#/components/parameters/pendingIcebergQty'
+        - $ref: '#/components/parameters/pendingTimeInForce'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: OTO order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderListId:
+                    type: integer
+                    format: int64
+                    example: 13551
+                  contingencyType:
+                    type: string
+                    example: "OTO"
+                  listStatusType:
+                    type: string
+                    example: "EXEC_STARTED"
+                  listOrderStatus:
+                    type: string
+                    example: "EXECUTING"
+                  listClientOrderId:
+                    type: string
+                    example: "JDuOrsu0Ge8GTyvx8J7VTD"
+                  transactionTime:
+                    type: integer
+                    format: int64
+                    example: 1725521998054
+                  symbol:
+                    type: string
+                    example: "BTCUSDT"
+                  isIsolated:
+                    type: boolean
+                    example: false
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        orderId:
+                          type: integer
+                          format: int64
+                        clientOrderId:
+                          type: string
+                      required:
+                        - symbol
+                        - orderId
+                        - clientOrderId
+                      example:
+                        - symbol: "BTCUSDT"
+                          orderId: 29896699
+                          clientOrderId: "y8RB6tQEMuHUXybqbtzTxk"
+                        - symbol: "BTCUSDT"
+                          orderId: 29896700
+                          clientOrderId: "dKQEdh5HhXb7Lpp85jz1dQ"
+                  orderReports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        orderId:
+                          type: integer
+                          format: int64
+                        orderListId:
+                          type: integer
+                          format: int64
+                        clientOrderId:
+                          type: string
+                        transactTime:
+                          type: integer
+                          format: int64
+                        price:
+                          type: string
+                        origQty:
+                          type: string
+                        executedQty:
+                          type: string
+                        cummulativeQuoteQty:
+                          type: string
+                        status:
+                          type: string
+                        timeInForce:
+                          type: string
+                        type:
+                          type: string
+                        side:
+                          type: string
+                        selfTradePreventionMode:
+                          type: string
+                      required:
+                        - symbol
+                        - orderId
+                        - orderListId
+                        - clientOrderId
+                        - transactTime
+                        - price
+                        - origQty
+                        - executedQty
+                        - cummulativeQuoteQty
+                        - status
+                        - timeInForce
+                        - type
+                        - side
+                        - selfTradePreventionMode
+                      example:
+                        - symbol: "BTCUSDT"
+                          orderId: 29896699
+                          orderListId: 13551
+                          clientOrderId: "y8RB6tQEMuHUXybqbtzTxk"
+                          transactTime: 1725521998054
+                          price: "80000.00000000"
+                          origQty: "0.02000000"
+                          executedQty: "0"
+                          cummulativeQuoteQty: "0"
+                          status: "NEW"
+                          timeInForce: "GTC"
+                          type: "LIMIT"
+                          side: "SELL"
+                          selfTradePreventionMode: "NONE"
+                        - symbol: "BTCUSDT"
+                          orderId: 29896700
+                          orderListId: 13551
+                          clientOrderId: "dKQEdh5HhXb7Lpp85jz1dQ"
+                          transactTime: 1725521998054
+                          price: "50000.00000000"
+                          origQty: "0.02000000"
+                          executedQty: "0"
+                          cummulativeQuoteQty: "0"
+                          status: "PENDING_NEW"
+                          timeInForce: "GTC"
+                          type: "LIMIT"
+                          side: "BUY"
+                          selfTradePreventionMode: "NONE"
+                required:
+                  - orderListId
+                  - contingencyType
+                  - listStatusType
+                  - listOrderStatus
+                  - listClientOrderId
+                  - transactionTime
+                  - symbol
+                  - isIsolated
+                  - orders
+                  - orderReports
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+            description: Unauthorized Request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
+  /sapi/v1/margin/order/otoco:
+    post:
+      summary: Margin Account New OTOCO (TRADE)
+      description: |-
+        Post a new `OTOCO` order for margin account:
+        - An `OTOCO` (One-Triggers-the-Other-Cancel-the-Other) is an order list comprised of 3 orders
+        - The first order is called the working order and must be `LIMIT` or `LIMIT_MAKER`. Initially, only the working order goes on the order book.
+          - The behavior of the working order is the same as the `OTO`.
+        - `OTOCO` has 2 pending orders (pending above and pending below), forming an `OCO` pair. The pending orders are only placed on the order book when the working order gets fully filled.
+          - The rules of the pending above and pending below follow the same rules as the Order List `OCO`.
+        - OTOCOs add 3 orders to the unfilled order count, `EXCHANGE_MAX_NUM_ORDERS` filter and `MAX_NUM_ORDERS` filter.
+
+        Weight(UID): 6
+      tags:
+        - Margin
+      parameters:
+        - $ref: '#/components/parameters/symbol'
+        - $ref: '#/components/parameters/isIsolatedMargin'
+        - name: sideEffectType
+          in: query
+          description: Default `NO_SIDE_EFFECT`
+          schema:
+            type: string
+            enum: [NO_SIDE_EFFECT, MARGIN_BUY]
+        - name: autoRepayAtCancel
+          in: query
+          description: |-
+            Only when MARGIN_BUY order takes effect, true means that the debt generated by the order needs to be repay after the order is cancelled. The default is true
+          schema:
+            type: boolean
+            example: true
+        - name: listClientOrderId
+          in: query
+          description: |-
+            Arbitrary unique ID among open order lists. Automatically generated if not sent.
+            A new order list with the same `listClientOrderId` is accepted only when the previous one is filled or completely expired.
+            `listClientOrderId` is distinct from the `workingClientOrderId` and the `pendingClientOrderId`.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/ocoNewOrderRespType'
+        - $ref: '#/components/parameters/selfTradePreventionMode'
+        - $ref: '#/components/parameters/workingType'
+        - $ref: '#/components/parameters/workingSide'
+        - $ref: '#/components/parameters/workingClientOrderId'
+        - $ref: '#/components/parameters/workingPrice'
+        - $ref: '#/components/parameters/workingQuantity'
+        - $ref: '#/components/parameters/workingIcebergQty'
+        - $ref: '#/components/parameters/workingTimeInForce'
+        - $ref: '#/components/parameters/pendingSide'
+        - $ref: '#/components/parameters/pendingQuantity'
+        - $ref: '#/components/parameters/pendingAboveType'
+        - $ref: '#/components/parameters/pendingAboveClientOrderId'
+        - $ref: '#/components/parameters/pendingAbovePrice'
+        - $ref: '#/components/parameters/pendingAboveStopPrice'
+        - $ref: '#/components/parameters/pendingAboveTrailingDelta'
+        - $ref: '#/components/parameters/pendingAboveIcebergQty'
+        - $ref: '#/components/parameters/pendingAboveTimeInForce'
+        - $ref: '#/components/parameters/pendingBelowType'
+        - $ref: '#/components/parameters/pendingBelowClientOrderId'
+        - $ref: '#/components/parameters/pendingBelowPrice'
+        - $ref: '#/components/parameters/pendingBelowStopPrice'
+        - $ref: '#/components/parameters/pendingBelowTrailingDelta'
+        - $ref: '#/components/parameters/pendingBelowIcebergQty'
+        - $ref: '#/components/parameters/pendingBelowTimeInForce'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: OTOCO order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderListId:
+                    type: integer
+                    format: int64
+                    example: 13551
+                  contingencyType:
+                    type: string
+                    example: "OTOCO"
+                  listStatusType:
+                    type: string
+                    example: "EXEC_STARTED"
+                  listOrderStatus:
+                    type: string
+                    example: "EXECUTING"
+                  listClientOrderId:
+                    type: string
+                    example: "u2AUo48LLef5qVenRtwJZy"
+                  transactionTime:
+                    type: integer
+                    format: int64
+                    example: 1725521881300
+                  symbol:
+                    type: string
+                    example: "BNBUSDT"
+                  isIsolated:
+                    type: boolean
+                    example: false
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        orderId:
+                          type: integer
+                          format: int64
+                        clientOrderId:
+                          type: string
+                      required:
+                        - symbol
+                        - orderId
+                        - clientOrderId
+                      example:
+                        - symbol: "BNBUSDT"
+                          orderId: 28282534
+                          clientOrderId: "IfYDxvrZI4kiyqYpRH13iI"
+                        - symbol: "BNBUSDT"
+                          orderId: 28282535
+                          clientOrderId: "0HCSsPRxVfW8BkTUy9z4np"
+                        - symbol: "BNBUSDT"
+                          orderId: 28282536
+                          clientOrderId: "dypsgdxWnLY75kwT930cbD"
+                  orderReports:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        orderId:
+                          type: integer
+                          format: int64
+                        orderListId:
+                          type: integer
+                          format: int64
+                        clientOrderId:
+                          type: string
+                        transactTime:
+                          type: integer
+                          format: int64
+                        price:
+                          type: string
+                        origQty:
+                          type: string
+                        executedQty:
+                          type: string
+                        cummulativeQuoteQty:
+                          type: string
+                        status:
+                          type: string
+                        timeInForce:
+                          type: string
+                        type:
+                          type: string
+                        side:
+                          type: string
+                        selfTradePreventionMode:
+                          type: string
+                      required:
+                        - symbol
+                        - orderId
+                        - orderListId
+                        - clientOrderId
+                        - transactTime
+                        - price
+                        - origQty
+                        - executedQty
+                        - cummulativeQuoteQty
+                        - status
+                        - timeInForce
+                        - type
+                        - side
+                        - selfTradePreventionMode
+                      example:
+                        - symbol: "BNBUSDT"
+                          orderId: 28282534
+                          orderListId: 13509
+                          clientOrderId: "IfYDxvrZI4kiyqYpRH13iI"
+                          transactTime: 1725521881300
+                          price: "300.00000000"
+                          origQty: "1.00000000"
+                          executedQty: "0"
+                          cummulativeQuoteQty: "0"
+                          status: "NEW"
+                          timeInForce: "GTC"
+                          type: "LIMIT"
+                          side: "BUY"
+                          selfTradePreventionMode: "NONE"
+                        - symbol: "BNBUSDT"
+                          orderId: 28282535
+                          orderListId: 13509
+                          clientOrderId: "0HCSsPRxVfW8BkTUy9z4np"
+                          transactTime: 1725521881300
+                          price: "0E-8"
+                          origQty: "1.00000000"
+                          executedQty: "0"
+                          cummulativeQuoteQty: "0"
+                          status: "PENDING_NEW"
+                          timeInForce: "GTC"
+                          type: "STOP_LOSS"
+                          side: "SELL"
+                          stopPrice: "299.00000000"
+                          selfTradePreventionMode: "NONE"
+                        - symbol: "BNBUSDT"
+                          orderId: 28282536
+                          orderListId: 13509
+                          clientOrderId: "dypsgdxWnLY75kwT930cbD"
+                          transactTime: 1725521881300
+                          price: "301.00000000"
+                          origQty: "1.00000000"
+                          executedQty: "0"
+                          cummulativeQuoteQty: "0"
+                          status: "PENDING_NEW"
+                          timeInForce: "GTC"
+                          type: "LIMIT_MAKER"
+                          side: "SELL"
+                          selfTradePreventionMode: "NONE"
+                required:
+                  - orderListId
+                  - contingencyType
+                  - listStatusType
+                  - listOrderStatus
+                  - listClientOrderId
+                  - transactionTime
+                  - symbol
+                  - isIsolated
+                  - orders
+                  - orderReports
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+            description: Unauthorized Request
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/error'
   /sapi/v1/margin/max-leverage:
     post:
       summary: Adjust cross margin max leverage (USER_DATA)
@@ -8751,7 +9874,7 @@ paths:
                       type: array
                       items:
                         type: string
-                      example: 
+                      example:
                         - "ADAUSDT"
                         - "BNBUSDT"
                   required:
@@ -14717,6 +15840,67 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v2/portfolio/collateralRate:
+    get:
+      summary: Portfolio Margin Pro Tiered Collateral Rate(USER_DATA)
+      description: |-
+        Portfolio Margin PRO Tiered Collateral Rate
+
+        Weight(IP): 50
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Portfolio Margin
+      responses:
+        '200':
+          description: Portfolio Margin Collateral Rate.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    asset:
+                      type: string
+                      example: BNB
+                    collateralInfo:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          tierFloor:
+                            type: string
+                            example: '0.0000'
+                          tierCap:
+                            type: string
+                            example: '1000.0000'
+                          collateralRate:
+                            type: string
+                            example: '1.0000'
+                        required:
+                          - tierFloor
+                          - tierCap
+                          - collateralRate
+                  required:
+                    - asset
+                    - collateralInfo
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/portfolio/pmLoan:
     get:
       summary: Portfolio Margin Bankruptcy Loan Amount (USER_DATA)
@@ -17905,8 +19089,8 @@ paths:
         - name: collateralReturn
           in: query
           description: |-
-            Default: TRUE. 
-            TRUE: Return extra collateral to earn account; 
+            Default: TRUE.
+            TRUE: Return extra collateral to earn account;
             FALSE: Keep extra collateral in the order, and lower LTV.
           schema:
             type: boolean
@@ -18898,7 +20082,7 @@ paths:
       summary: Place limit order (USER_DATA)
       description: |-
         Enable users to place a limit order
-        
+
         - baseAsset or quoteAsset can be determined via exchangeInfo endpoint.
         - Limit price is defined from baseAsset to quoteAsset.
         - Either baseAmount or quoteAmount is used.
@@ -22338,7 +23522,7 @@ paths:
       summary: Wrap BETH(TRADE)
       description: |-
         - You need to open Enable Spot & Margin Trading permission for the API Key which requests this endpoint.
-      
+
         Weight(IP): 150
       tags:
         - Staking
@@ -22630,6 +23814,129 @@ paths:
                   - estRewardsInETH
                   - rows
                   - total
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/copyTrading/futures/userStatus:
+    get:
+      summary: Get Futures Lead Trader Status(TRADE)
+      description: |-
+        Get Futures Lead Trader Status
+
+        Weight(UID): 20
+      tags:
+        - Copy Trading
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Futures Lead Trader Status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: "000000"
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    type: object
+                    properties:
+                      isLeadTrader:
+                        type: boolean
+                        example: true
+                      time:
+                        type: integer
+                        format: int64
+                        example: 1717382310843
+                    required:
+                      - isLeadTrader
+                      - time
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - code
+                  - message
+                  - data
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /sapi/v1/copyTrading/futures/leadSymbol:
+    get:
+      summary: Get Futures Lead Trading Symbol Whitelist(USER_DATA)
+      description: |-
+        Get Futures Lead Trading Symbol Whitelist
+
+        Weight(IP): 20
+      tags:
+        - Copy Trading
+      parameters:
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Futures Lead Trading Symbol Whitelist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: "000000"
+                  message:
+                    type: string
+                    example: "success"
+                  data:
+                    type: object
+                    properties:
+                      symbol:
+                        type: string
+                        example: "BTCUSDT"
+                      baseAsset:
+                        type: string
+                        example: "BTC"
+                      quoteAsset:
+                        type: string
+                        example: "USDT"
+                    required:
+                      - symbol
+                      - baseAsset
+                      - quoteAsset
+                required:
+                  - code
+                  - message
+                  - data
         '400':
           description: Bad Request
           content:
@@ -22969,6 +24276,12 @@ paths:
           description: "SPOT,FUND,ALL, default SPOT"
           schema:
             type: string
+        - name: redeemTo
+          in: query
+          description: SPOT,FLEXIBLE, default FLEXIBLE
+          schema:
+            type: string
+            enum: ['SPOT', 'FLEXIBLE']
         - $ref: '#/components/parameters/recvWindow'
         - $ref: '#/components/parameters/timestamp'
         - $ref: '#/components/parameters/signature'
@@ -23291,6 +24604,9 @@ paths:
                         positionId:
                           type: string
                           example: "123123"
+                        parentPositionId:
+                          type: string
+                          example: "123122"
                         projectId:
                           type: string
                           example: "Axs*90"
@@ -23315,17 +24631,87 @@ paths:
                         APY:
                           type: string
                           example: "0.23"
-                        isRenewable:
-                          type: boolean
-                          example: true
-                        isAutoRenew:
-                          type: boolean
-                          example: true
-                        redeemDate:
+                        rewardAmt:
                           type: string
-                          example: "1732182276000"
+                          description: "Earned amount"
+                          example: "5.17181528"
+                        extraRewardAsset:
+                          type: string
+                          description: Rewards assets of extra staking type
+                          example: "BNB"
+                        extraRewardAPR:
+                          type: string
+                          description: APR of extra staking type
+                          example: "0.0203"
+                        estExtraRewardAmt:
+                          type: string
+                          description: Rewards of extra staking type, distribute when order expires
+                          example: "5.17181528"
+                        nextPay:
+                          type: string
+                          description: Next estimated rewards payment
+                          example: "1.29295383"
+                        nextPayDate:
+                          type: string
+                          description: Next rewards payment date
+                          example: "1646697600000"
+                        payPeriod:
+                          type: string
+                          description: Payment cycle
+                          example: "1"
+                        redeemAmountEarly:
+                          type: string
+                          description: Early redemption amount
+                          example: "2802.24068892"
+                        rewardsEndDate:
+                          type: string
+                          description: Rewards accrual end date
+                          example: "1651449600000"
+                        deliverDate:
+                          type: string
+                          description: Redemption arrival time
+                          example: "1651536000000"
+                        redeemPeriod:
+                          type: string
+                          description: Redemption interval
+                          example: "1"
+                        redeemingAmt:
+                          type: string
+                          description: Amount under redemption
+                          example: "232.2323"
+                        redeemTo:
+                          type: string
+                          description: Redeem to Flexible product or Spot wallet
+                          example: "FLEXIBLE"
+                        partialAmtDeliverDate:
+                          type: string
+                          description: Arrival time of partial redemption amount of order
+                          example: "1651536000000"
+                        canRedeemEarly:
+                          type: boolean
+                          description: When it is true, early redemption can be operated
+                          example: true
+                        canFastRedemption:
+                          type: boolean
+                          description: When it is true, fast redemption can be operated
+                          example: true
+                        autoSubscribe:
+                          type: boolean
+                          description: When it is true, auto staking can be operated
+                          example: true
+                        type:
+                          type: string
+                          description: Order type is auto subscribe or normal
+                          example: "AUTO"
+                        status:
+                          type: string
+                          example: "HOLDING"
+                        canReStake:
+                          type: boolean
+                          example: true
                       required:
                         - positionId
+                        - parentPositionId
                         - projectId
                         - asset
                         - amount
@@ -23334,9 +24720,26 @@ paths:
                         - accrualDays
                         - rewardAsset
                         - APY
-                        - isRenewable
-                        - isAutoRenew
-                        - redeemDate
+                        - rewardAmt
+                        - extraRewardAsset
+                        - extraRewardAPR
+                        - estExtraRewardAmt
+                        - nextPay
+                        - nextPayDate
+                        - payPeriod
+                        - redeemAmountEarly
+                        - rewardsEndDate
+                        - deliverDate
+                        - redeemPeriod
+                        - redeemingAmt
+                        - redeemTo
+                        - partialAmtDeliverDate
+                        - canRedeemEarly
+                        - canFastRedemption
+                        - autoSubscribe
+                        - type
+                        - status
+                        - canReStake
                   total:
                     type: integer
                     format: int64
@@ -23470,6 +24873,9 @@ paths:
                           type: integer
                           format: int64
                           example: 26055
+                        productId:
+                          type: string
+                          example: "USDT001"
                         type:
                           type: string
                           example: "AUTO"
@@ -23495,6 +24901,7 @@ paths:
                         - asset
                         - time
                         - purchaseId
+                        - productId
                         - type
                         - sourceAccount
                         - amtFromSpot
@@ -23564,6 +24971,9 @@ paths:
                           type: integer
                           format: int64
                           example: 26055
+                        projectId:
+                          type: string
+                          example: "Axs*90"
                         time:
                           type: integer
                           format: int64
@@ -23600,6 +25010,7 @@ paths:
                       required:
                         - positionId
                         - purchaseId
+                        - projectId
                         - time
                         - asset
                         - amount
@@ -23780,6 +25191,9 @@ paths:
                         amount:
                           type: string
                           example: "21312.23223"
+                        originalAmount:
+                          type: string
+                          example: "21312.23223"
                         type:
                           type: string
                           example: "MATURE"
@@ -23787,6 +25201,25 @@ paths:
                         deliverDate:
                           type: string
                           example: "1575018510000"
+                        lossAmount:
+                          type: string
+                          description: Loss of profit on early redemption
+                          example: "0.00001232"
+                        isComplete:
+                          type: boolean
+                          example: true,
+                        rewardAsset:
+                          type: string
+                          example: "AXS"
+                        rewardAmt:
+                          type: string
+                          example: "5.17181528"
+                        extraRewardAsset:
+                          type: string
+                          example: "BNB"
+                        estExtraRewardAmt:
+                          type: string
+                          example: "5.17181528"
                         status:
                           type: string
                           example: "PAID"
@@ -23797,8 +25230,15 @@ paths:
                         - asset
                         - lockPeriod
                         - amount
+                        - originalAmount
                         - type
                         - deliverDate
+                        - lossAmount
+                        - isComplete
+                        - rewardAsset
+                        - rewardAmt
+                        - extraRewardAsset
+                        - estExtraRewardAmt
                         - status
                   total:
                     type: integer
@@ -24322,6 +25762,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
+  /sapi/v1/simple-earn/locked/setRedeemOption:
+    get:
+      summary: Set Locked Product Redeem Option(USER_DATA)
+      description: |-
+        Set redeem option for Locked product
+
+        Weight(IP): 50
+      tags:
+        - Simple Earn
+      parameters:
+        - name: positionId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: redeemTo
+          in: query
+          description: SPOT,FLEXIBLE, default FLEXIBLE
+          schema:
+            type: string
+            enum: ['SPOT', 'FLEXIBLE']
+        - $ref: '#/components/parameters/recvWindow'
+        - $ref: '#/components/parameters/timestamp'
+        - $ref: '#/components/parameters/signature'
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Locked Product Redeem Option
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                required:
+                  - success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/simple-earn/flexible/history/rateHistory:
     get:
       summary: Get Rate History (USER_DATA)
@@ -24478,7 +25969,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/error'
-  
+
   /sapi/v1/dci/product/list:
     get:
       summary: Get Dual Investment product list(USER_DATA)
@@ -24500,12 +25991,12 @@ paths:
           in: query
           required: true
           description: |-
-            Target exercised asset, e.g.: 
-            if you subscribe to a high sell product (call option), you should input: 
+            Target exercised asset, e.g.:
+            if you subscribe to a high sell product (call option), you should input:
               - optionType: CALL,
               - exercisedCoin: USDT,
-              - investCoin: BNB; 
-            
+              - investCoin: BNB;
+
             if you subscribe to a low buy product (put option), you should input:
               - optionType: PUT,
               - exercisedCoin: BNB,
@@ -24516,12 +26007,12 @@ paths:
           in: query
           required: true
           description: |-
-            Asset used for subscribing, e.g.: 
-            if you subscribe to a high sell product (call option), you should input: 
+            Asset used for subscribing, e.g.:
+            if you subscribe to a high sell product (call option), you should input:
               - optionType: CALL,
               - exercisedCoin: USDT,
-              - investCoin: BNB; 
-            
+              - investCoin: BNB;
+
             if you subscribe to a low buy product (put option), you should input:
               - optionType: PUT,
               - exercisedCoin: BNB,
@@ -24781,7 +26272,7 @@ paths:
             - PURCHASE_FAIL: fail to purchase;
             - REFUNDING: refund ongoing;
             - REFUND_SUCCESS: refund to spot account successfully;
-            - SETTLING: Products are settling. 
+            - SETTLING: Products are settling.
             If don't fill this field, will response all the position status.
           schema:
             type: string
@@ -24984,7 +26475,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'  
+                $ref: '#/components/schemas/error'
 components:
   parameters:
     getCrossMargingTransferHistoryType:
@@ -25465,7 +26956,7 @@ components:
       schema:
         type: string
         example: '["BTCUSDT","BNBBTC"]'
-    tickerType: 
+    tickerType:
       name: type
       in: query
       description: |-
@@ -26075,6 +27566,213 @@ components:
       schema:
         type: string
         enum: ['NONE', 'STANDARD', 'ADVANCE']
+    workingType:
+      name: workingType
+      in: query
+      required: true
+      description: |-
+        Supported values: LIMIT,LIMIT_MAKER
+      schema:
+        type: string
+        enum: ['LIMIT', 'LIMIT_MAKER']
+    workingSide:
+      name: workingSide
+      in: query
+      required: true
+      description: BUY,SELL
+      schema:
+        type: string
+        enum: ['BUY', 'SELL']
+    workingClientOrderId:
+      name: workingClientOrderId
+      in: query
+      description: Arbitrary unique ID among open orders for the working order. Automatically generated if not sent.
+      schema:
+        type: string
+    workingPrice:
+      name: workingPrice
+      in: query
+      required: true
+      schema:
+        type: number
+        format: double
+    workingQuantity:
+      name: workingQuantity
+      in: query
+      required: true
+      description: Sets the quantity for the working order.
+      schema:
+        type: number
+        format: double
+    workingIcebergQty:
+      name: workingIcebergQty
+      in: query
+      required: true
+      description: This can only be used if workingTimeInForce is GTC.
+      schema:
+        type: number
+        format: double
+    workingTimeInForce:
+      name: workingTimeInForce
+      in: query
+      description: GTC, IOC, FOK
+      schema:
+        type: string
+        enum: ['GTC', 'IOC', 'FOK']
+    pendingType:
+      name: pendingType
+      in: query
+      required: true
+      description: |-
+        Supported values: Order Types Note that MARKET orders using quoteOrderQty are not supported.
+      schema:
+        type: string
+        enum: ['LIMIT', 'MARKET', 'STOP_LOSS', 'STOP_LOSS_LIMIT', 'TAKE_PROFIT', 'TAKE_PROFIT_LIMIT', 'LIMIT_MAKER']
+    pendingSide:
+      name: pendingSide
+      in: query
+      required: true
+      description: BUY,SELL
+      schema:
+        type: string
+        enum: ['BUY', 'SELL']
+    pendingClientOrderId:
+      name: pendingClientOrderId
+      in: query
+      description: Arbitrary unique ID among open orders for the pending order. Automatically generated if not sent.
+      schema:
+        type: string
+    pendingPrice:
+      name: pendingPrice
+      in: query
+      schema:
+        type: number
+        format: double
+    pendingStopPrice:
+      name: pendingStopPrice
+      in: query
+      schema:
+        type: number
+        format: double
+    pendingTrailingDelta:
+      name: pendingTrailingDelta
+      in: query
+      schema:
+        type: number
+        format: double
+    pendingQuantity:
+      name: pendingQuantity
+      in: query
+      required: true
+      description: Sets the quantity for the pending order.
+      schema:
+        type: number
+        format: double
+    pendingIcebergQty:
+      name: pendingIcebergQty
+      in: query
+      description: This can only be used if pendingTimeInForce is GTC.
+      schema:
+        type: number
+        format: double
+    pendingTimeInForce:
+      name: pendingTimeInForce
+      in: query
+      description: GTC, IOC, FOK
+      schema:
+        type: string
+        enum: ['GTC', 'IOC', 'FOK']
+    pendingAboveType:
+      name: pendingAboveType
+      in: query
+      required: true
+      description: |-
+        Supported values: LIMIT_MAKER, STOP_LOSS, and STOP_LOSS_LIMIT
+      schema:
+        type: string
+        enum: [LIMIT_MAKER, STOP_LOSS, STOP_LOSS_LIMIT]
+    pendingAboveClientOrderId:
+      name: pendingAboveClientOrderId
+      in: query
+      description: Arbitrary unique ID among open orders for the pending above order. Automatically generated if not sent.
+      schema:
+        type: string
+    pendingAbovePrice:
+      name: pendingAbovePrice
+      in: query
+      schema:
+        type: number
+        format: double
+    pendingAboveStopPrice:
+      name: pendingAboveStopPrice
+      in: query
+      schema:
+        type: number
+        format: double
+    pendingAboveTrailingDelta:
+      name: pendingAboveTrailingDelta
+      in: query
+      schema:
+        type: number
+        format: double
+    pendingAboveIcebergQty:
+      name: pendingAboveIcebergQty
+      in: query
+      description: This can only be used if pendingAboveTimeInForce is GTC.
+      schema:
+        type: number
+        format: double
+    pendingAboveTimeInForce:
+      name: pendingAboveTimeInForce
+      in: query
+      schema:
+        type: string
+        enum: [GTC, IOC, FOK]
+    pendingBelowType:
+      name: pendingBelowType
+      in: query
+      description: |-
+        Supported values: LIMIT_MAKER, STOP_LOSS, and STOP_LOSS_LIMIT
+      schema:
+        type: string
+        enum: [LIMIT_MAKER, STOP_LOSS, STOP_LOSS_LIMIT]
+    pendingBelowClientOrderId:
+      name: pendingBelowClientOrderId
+      in: query
+      description: Arbitrary unique ID among open orders for the pending below order. Automatically generated if not sent.
+      schema:
+        type: string
+    pendingBelowPrice:
+      name: pendingBelowPrice
+      in: query
+      schema:
+        type: number
+        format: double
+    pendingBelowStopPrice:
+      name: pendingBelowStopPrice
+      in: query
+      schema:
+        type: number
+        format: double
+    pendingBelowTrailingDelta:
+      name: pendingBelowTrailingDelta
+      in: query
+      schema:
+        type: number
+        format: double
+    pendingBelowIcebergQty:
+      name: pendingBelowIcebergQty
+      in: query
+      description: This can only be used if pendingBelowTimeInForce is GTC.
+      schema:
+        type: number
+        format: double
+    pendingBelowTimeInForce:
+      name: pendingBelowTimeInForce
+      in: query
+      schema:
+        type: string
+        enum: [GTC, IOC, FOK]
   schemas:
     account:
       type: object
