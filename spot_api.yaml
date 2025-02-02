@@ -353,19 +353,19 @@ paths:
                   bids:
                     type: array
                     items:
-                        type: array
-                        items:
-                          type: string
-                          minItems: 2
-                          maxItems: 2
+                      type: array
+                      items:
+                        type: string
+                      minItems: 2
+                      maxItems: 2
                   asks:
                     type: array
                     items:
-                        type: array
-                        items:
-                          type: string
-                          minItems: 2
-                          maxItems: 2
+                      type: array
+                      items:
+                        type: string
+                      minItems: 2
+                      maxItems: 2
                 required:
                   - lastUpdateId
                   - bids
@@ -373,13 +373,13 @@ paths:
               example:
                 lastUpdateId: 1027024
                 bids:
-                -
-                  - "4.00000000"
-                  - "431.00000000"
+                  -
+                    - "4.00000000"
+                    - "431.00000000"
                 asks:
-                -
-                  - "4.00000200"
-                  - "12.00000000"
+                  -
+                    - "4.00000200"
+                    - "12.00000000"
         '400':
           description: Bad Request
           content:
@@ -1337,11 +1337,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/openOrders:
     get:
       summary: Current Open Orders (USER_DATA)
@@ -1376,11 +1376,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
     delete:
       summary: Cancel all Open Orders on a Symbol (TRADE)
       description: |-
@@ -1415,11 +1415,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/allOrders:
     get:
       summary: All Orders (USER_DATA)
@@ -1460,11 +1460,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/orderList/oco:
     post:
       summary: New Order list - OCO (TRADE)
@@ -1786,11 +1786,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/orderList/oto:
     post:
       summary: New Order List - OTO (TRADE)
@@ -2025,11 +2025,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/orderList/otoco:
     post:
       summary: New Order List - OTOCO (TRADE)
@@ -2306,11 +2306,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/orderList:
     get:
       summary: Query OCO (USER_DATA)
@@ -2398,11 +2398,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
     delete:
       summary: Cancel OCO (TRADE)
       description: |-
@@ -2437,11 +2437,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/allOrderList:
     get:
       summary: Query all OCO (USER_DATA)
@@ -2536,11 +2536,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/openOrderList:
     get:
       summary: Query Open OCO (USER_DATA)
@@ -2625,11 +2625,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/sor/order:
     post:
       summary: New order using SOR (TRADE)
@@ -2880,11 +2880,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/myTrades:
     get:
       summary: Account Trade List (USER_DATA)
@@ -2946,11 +2946,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/rateLimit/order:
     get:
       summary: Query Current Order Count Usage (TRADE)
@@ -3012,11 +3012,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/myPreventedMatches:
     get:
       summary: Query Prevented Matches
@@ -3117,11 +3117,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/myAllocations:
     get:
       summary: Query Allocations (USER_DATA)
@@ -3238,11 +3238,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /api/v3/account/commission:
     get:
       summary: Query Commission Rates (USER_DATA)
@@ -3340,11 +3340,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
 
   /sapi/v1/margin/borrow-repay:
     post:
@@ -3582,11 +3582,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/margin/allAssets:
     get:
       summary: Get All Margin Assets (MARKET_DATA)
@@ -6238,7 +6238,7 @@ paths:
 
         Weight(UID): 6
       tags:
-          - Margin
+        - Margin
       parameters:
         - $ref: '#/components/parameters/symbol'
         - $ref: '#/components/parameters/isIsolatedMargin'
@@ -6440,11 +6440,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/margin/order/otoco:
     post:
       summary: Margin Account New OTOCO (TRADE)
@@ -6686,11 +6686,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/error'
         '401':
-            description: Unauthorized Request
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/error'
+          description: Unauthorized Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
   /sapi/v1/margin/max-leverage:
     post:
       summary: Adjust cross margin max leverage (USER_DATA)
@@ -6792,12 +6792,12 @@ paths:
                             type: number
                             format: double
                             example: 60000.000
-                      required:
-                        - leverage
-                        - maxDebt
-                        - maintenanceMarginRate
-                        - initialMarginRate
-                        - fastNum
+                        required:
+                          - leverage
+                          - maxDebt
+                          - maintenanceMarginRate
+                          - initialMarginRate
+                          - fastNum
                   required:
                     - assetNames
                     - rank
@@ -7841,10 +7841,10 @@ paths:
                     example: "0.02"
                     description: "Commission fee"
                 required:
-                   - details
-                   - totalTransferBtc
-                   - totalTransferBNB
-                   - dribbletPercentage
+                  - details
+                  - totalTransferBtc
+                  - totalTransferBNB
+                  - dribbletPercentage
         '400':
           description: Bad Request
           content:
@@ -8343,33 +8343,33 @@ paths:
               schema:
                 type: array
                 items:
-                    type: object
-                    properties:
-                      asset:
-                        type: string
-                        example: "USDT"
-                      free:
-                        type: string
-                        example: "1"
-                      locked:
-                        type: string
-                        example: "0"
-                      freeze:
-                        type: string
-                        example: "0"
-                      withdrawing:
-                        type: string
-                        example: "0"
-                      btcValuation:
-                        type: string
-                        example: "0.00000091"
-                    required:
-                      - asset
-                      - free
-                      - locked
-                      - freeze
-                      - withdrawing
-                      - btcValuation
+                  type: object
+                  properties:
+                    asset:
+                      type: string
+                      example: "USDT"
+                    free:
+                      type: string
+                      example: "1"
+                    locked:
+                      type: string
+                      example: "0"
+                    freeze:
+                      type: string
+                      example: "0"
+                    withdrawing:
+                      type: string
+                      example: "0"
+                    btcValuation:
+                      type: string
+                      example: "0.00000091"
+                  required:
+                    - asset
+                    - free
+                    - locked
+                    - freeze
+                    - withdrawing
+                    - btcValuation
         '400':
           description: Bad Request
           content:
@@ -8876,9 +8876,9 @@ paths:
                       - TUSD
                       - USDP
                 required:
-                   - convertEnabled
-                   - coins
-                   - exchangeRates
+                  - convertEnabled
+                  - coins
+                  - exchangeRates
         '400':
           description: Bad Request
           content:
@@ -10690,7 +10690,7 @@ paths:
                     type: string
                     example: "2966662589"
                 required:
-                    - txnId
+                  - txnId
         '400':
           description: Bad Request
           content:
@@ -11817,30 +11817,30 @@ paths:
                                   - marginBalance
                                   - walletBalance
                             position:
-                                type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    symbol:
-                                      type: string
-                                      example: "BTCUSDT"
-                                    entryPrice:
-                                      type: number
-                                      format: float
-                                      example: 17000
-                                    markPrice:
-                                      type: number
-                                      format: float
-                                      example: 17000
-                                    positionAmt:
-                                      type: number
-                                      format: float
-                                      example: 0.1
-                                  required:
-                                    - symbol
-                                    - entryPrice
-                                    - markPrice
-                                    - positionAmt
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  symbol:
+                                    type: string
+                                    example: "BTCUSDT"
+                                  entryPrice:
+                                    type: number
+                                    format: float
+                                    example: 17000
+                                  markPrice:
+                                    type: number
+                                    format: float
+                                    example: 17000
+                                  positionAmt:
+                                    type: number
+                                    format: float
+                                    example: 0.1
+                                required:
+                                  - symbol
+                                  - entryPrice
+                                  - markPrice
+                                  - positionAmt
                           required:
                             - assets
                             - position
@@ -12696,7 +12696,7 @@ paths:
 
         Weight: 1
       tags:
-       - Margin Stream
+        - Margin Stream
       parameters:
         - $ref: '#/components/parameters/listenKey'
       security:
@@ -12771,7 +12771,7 @@ paths:
 
         Weight: 1
       tags:
-       - Isolated Margin Stream
+        - Isolated Margin Stream
       parameters:
         - $ref: '#/components/parameters/listenKey'
       security:
@@ -16125,13 +16125,13 @@ paths:
           content:
             application/json:
               schema:
-                  type: object
-                  properties:
-                    msg:
-                      type: string
-                      example: "success"
-                  required:
-                    - msg
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "success"
+                required:
+                  - msg
         '400':
           description: Bad Request
           content:
@@ -16173,14 +16173,14 @@ paths:
           content:
             application/json:
               schema:
-                  type: object
-                  properties:
-                    tranId:
-                      type: integer
-                      format: int64
-                      example: 100000001
-                  required:
-                    - tranId
+                type: object
+                properties:
+                  tranId:
+                    type: integer
+                    format: int64
+                    example: 100000001
+                required:
+                  - tranId
         '400':
           description: Bad Request
           content:
@@ -16215,13 +16215,13 @@ paths:
           content:
             application/json:
               schema:
-                  type: object
-                  properties:
-                    msg:
-                      type: string
-                      example: "success"
-                  required:
-                    - msg
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "success"
+                required:
+                  - msg
         '400':
           description: Bad Request
           content:
@@ -16254,13 +16254,13 @@ paths:
           content:
             application/json:
               schema:
-                  type: object
-                  properties:
-                    autoRepay:
-                      type: boolean
-                      example: true
-                  required:
-                    - autoRepay
+                type: object
+                properties:
+                  autoRepay:
+                    type: boolean
+                    example: true
+                required:
+                  - autoRepay
         '400':
           description: Bad Request
           content:
@@ -16294,13 +16294,13 @@ paths:
           content:
             application/json:
               schema:
-                  type: object
-                  properties:
-                    msg:
-                      type: string
-                      example: "success"
-                  required:
-                    - msg
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "success"
+                required:
+                  - msg
         '400':
           description: Bad Request
           content:
@@ -16371,13 +16371,13 @@ paths:
           content:
             application/json:
               schema:
-                  type: object
-                  properties:
-                    msg:
-                      type: string
-                      example: "success"
-                  required:
-                    - msg
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    example: "success"
+                required:
+                  - msg
         '400':
           description: Bad Request
           content:
@@ -17158,13 +17158,13 @@ paths:
                     example: "Repaid"
                     description: Repaid, Repaying, Failed
                 required:
-                   - loanCoin
-                   - repayAmount
-                   - remainingPrincipal
-                   - remainingInterest
-                   - collateralCoin
-                   - currentLTV
-                   - repayStatus
+                  - loanCoin
+                  - repayAmount
+                  - remainingPrincipal
+                  - remainingInterest
+                  - collateralCoin
+                  - currentLTV
+                  - repayStatus
         '400':
           description: Bad Request
           content:
@@ -17954,12 +17954,12 @@ paths:
                     type: string
                     example: "100000001"
                 required:
-                   - loanCoin
-                   - loanAmount
-                   - collateralCoin
-                   - collateralAmount
-                   - hourlyInterestRate
-                   - orderId
+                  - loanCoin
+                  - loanAmount
+                  - collateralCoin
+                  - collateralAmount
+                  - hourlyInterestRate
+                  - orderId
         '400':
           description: Bad Request
           content:
@@ -18412,11 +18412,11 @@ paths:
                     type: string
                     example: "0.52"
                 required:
-                   - loanCoin
-                   - collateralCoin
-                   - direction
-                   - amount
-                   - currentLTV
+                  - loanCoin
+                  - collateralCoin
+                  - direction
+                  - amount
+                  - currentLTV
         '400':
           description: Bad Request
           content:
@@ -19699,10 +19699,10 @@ paths:
                   success:
                     type: boolean
                 required:
-                    - code
-                    - message
-                    - data
-                    - success
+                  - code
+                  - message
+                  - data
+                  - success
         '400':
           description: Bad Request
           content:
@@ -20421,11 +20421,11 @@ paths:
                     type: boolean
                     example: false
                 required:
-                    - list
-                    - startTime
-                    - endTime
-                    - limit
-                    - moreData
+                  - list
+                  - startTime
+                  - endTime
+                  - limit
+                  - moreData
         '400':
           description: Bad Request
           content:
@@ -20936,10 +20936,10 @@ paths:
                   success:
                     type: boolean
                 required:
-                   - code
-                   - message
-                   - data
-                   - success
+                  - code
+                  - message
+                  - data
+                  - success
         '400':
           description: Bad Request
           content:
@@ -21017,10 +21017,10 @@ paths:
                   success:
                     type: boolean
                 required:
-                   - code
-                   - message
-                   - data
-                   - success
+                  - code
+                  - message
+                  - data
+                  - success
         '400':
           description: Bad Request
           content:
@@ -21088,10 +21088,10 @@ paths:
                   success:
                     type: boolean
                 required:
-                   - code
-                   - message
-                   - data
-                   - success
+                  - code
+                  - message
+                  - data
+                  - success
         '400':
           description: Bad Request
           content:
@@ -21237,10 +21237,10 @@ paths:
                   success:
                     type: boolean
                 required:
-                   - code
-                   - message
-                   - data
-                   - success
+                  - code
+                  - message
+                  - data
+                  - success
         '400':
           description: Bad Request
           content:
@@ -21306,10 +21306,10 @@ paths:
                   success:
                     type: boolean
                 required:
-                   - code
-                   - message
-                   - data
-                   - success
+                  - code
+                  - message
+                  - data
+                  - success
         '400':
           description: Bad Request
           content:
@@ -24049,8 +24049,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -24165,8 +24165,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -24547,8 +24547,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -24745,8 +24745,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -24799,12 +24799,12 @@ paths:
                     type: string
                     example: "77.13289230"
                 required:
-                 - totalAmountInBTC
-                 - totalAmountInUSDT
-                 - totalFlexibleAmountInBTC
-                 - totalFlexibleAmountInUSDT
-                 - totalLockedInBTC
-                 - totalLockedInUSDT
+                  - totalAmountInBTC
+                  - totalAmountInUSDT
+                  - totalFlexibleAmountInBTC
+                  - totalFlexibleAmountInUSDT
+                  - totalLockedInBTC
+                  - totalLockedInUSDT
         '400':
           description: Bad Request
           content:
@@ -24912,8 +24912,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -25025,8 +25025,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -25115,8 +25115,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -25245,8 +25245,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -25325,8 +25325,8 @@ paths:
                     format: int64
                     example: 2
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -25403,8 +25403,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -25652,12 +25652,12 @@ paths:
                     type: string
                     example: "0.22759183"
                 required:
-                 - totalAmount
-                 - rewardAsset
-                 - airDropAsset
-                 - estDailyBonusRewards
-                 - estDailyRealTimeRewards
-                 - estDailyAirdropRewards
+                  - totalAmount
+                  - rewardAsset
+                  - airDropAsset
+                  - estDailyBonusRewards
+                  - estDailyRealTimeRewards
+                  - estDailyAirdropRewards
         '400':
           description: Bad Request
           content:
@@ -25871,8 +25871,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -25955,8 +25955,8 @@ paths:
                     format: int64
                     example: 1
                 required:
-                 - rows
-                 - total
+                  - rows
+                  - total
         '400':
           description: Bad Request
           content:
@@ -26123,8 +26123,8 @@ paths:
                         - isAutoCompoundEnable
                         - autoCompoundPlanList
                 required:
-                 - total
-                 - list
+                  - total
+                  - list
         '400':
           description: Bad Request
           content:
@@ -26359,8 +26359,8 @@ paths:
                         - optionType
                         - autoCompoundPlan
                 required:
-                 - total
-                 - list
+                  - total
+                  - list
         '400':
           description: Bad Request
           content:
@@ -26493,13 +26493,13 @@ components:
         enum: ['true','false']
         example: 'true'
     interestBNBBurn:
-        name: interestBNBBurn
-        in: query
-        description: Determines whether to use BNB to pay for margin loan interest
-        schema:
-          type: string
-          enum: ['true','false']
-          example: 'false'
+      name: interestBNBBurn
+      in: query
+      description: Determines whether to use BNB to pay for margin loan interest
+      schema:
+        type: string
+        enum: ['true','false']
+        example: 'false'
     depositHistory:
       name: status
       in: query
@@ -27361,8 +27361,8 @@ components:
       name: type
       in: query
       description: |-
-            * `1` - transfer from main account to margin account
-            * `2` - transfer from margin account to main account
+        * `1` - transfer from main account to margin account
+        * `2` - transfer from margin account to main account
       schema:
         type: integer
         format: int32
@@ -29214,13 +29214,13 @@ components:
           type: string
           example: "Repaying"
       required:
-          - loanCoin
-          - remainingPrincipal
-          - remainingInterest
-          - collateralCoin
-          - remainingCollateral
-          - currentLTV
-          - repayStatus
+        - loanCoin
+        - remainingPrincipal
+        - remainingInterest
+        - collateralCoin
+        - remainingCollateral
+        - currentLTV
+        - repayStatus
     repaymentInfo2:
       type: object
       properties:
@@ -29234,9 +29234,9 @@ components:
           type: string
           example: "Repaying"
       required:
-          - loanCoin
-          - collateralCoin
-          - repayStatus
+        - loanCoin
+        - collateralCoin
+        - repayStatus
     tickerList:
       type: array
       items:
@@ -29745,9 +29745,9 @@ components:
                           type: string
                           example: "120.23811389"
                       required:
-                          - asset
-                          - marginBalance
-                          - walletBalance
+                        - asset
+                        - marginBalance
+                        - walletBalance
                   position:
                     type: array
                     items:
